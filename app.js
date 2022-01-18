@@ -1,0 +1,23 @@
+let express = require('express');
+let logger = require('morgan');
+const cors = require('cors');
+
+const session = require('express-session');
+var bodyParser = require('body-parser');
+
+let app = express();
+
+app.use(bodyParser.json());
+global.__root = __dirname + '/';
+const db = require('./db');
+app.use(logger('dev'));
+const corsOptions = {}; // exposedHeaders: "DNT,X-Mx-ReqToken,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type" };
+app.use(cors(corsOptions));
+app.options('*', cors());
+// app.use(cors());
+app.use(express.json());
+
+const UserController = require('./controllers/userController');
+app.use('/api/v1/auth', UserController); 
+
+module.exports = app;
