@@ -1,7 +1,8 @@
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 const user = require('./models/user');
-
+const SendClean = require('./SendClean.js')
+var SendClean_client = SendClean.SendClean('','','');
 const encryptString = (str) => {
   return bcrypt.hashSync(str, 8);
 }
