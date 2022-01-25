@@ -73,7 +73,7 @@ function verifyPassword({ email, password }) {
         if (!askedUser) {
             return reject({
                 code: RESPONSE_STATUS.NOT_FOUND,
-                message: RESPONSE_MESSAGES.NOT_FOUND,
+                message: RESPONSE_MESSAGES.EMAIL_NOT_REGISTERED,
             });
         }
         let password_verify = bcrypt.compareSync(password, askedUser.password);
