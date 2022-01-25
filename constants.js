@@ -34,7 +34,7 @@ exports.RESPONSE_MESSAGES = {
     UNAUTHORIZED: "Request Unauthorized",
     PHONE_ALREADY_EXIST: "This Phone Number is already exists",
     EMAIL_ALREADY_EXIST: "This Email is already exists",
-    EMAIL_ALREADY_REGISTERED: "Already Registered",
+    EMAIL_ALREADY_REGISTERED: "Email Already Registered",
     EMAIL_NOT_REGISTERED: "Email Not Registered",
     EMAIL_SENT: "check updated email",
     BLOCKED_USER: "This user is inactive, Please contact to admin"
