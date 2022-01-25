@@ -24,7 +24,7 @@ const loginUser = async (req, res) => {
         };
         console.error(error_body);
         return res
-            .status(RESPONSE_STATUS.SERVER_ERROR)
+            .status(RESPONSE_STATUS.NOT_FOUND)
             .json({ message: error.message });
     }
 }
