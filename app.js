@@ -25,7 +25,7 @@ app.use('/api/v1/', (req, res) => {
 const UserController = require('./controllers/userController');
 app.use('/api/v1/auth', UserController);
 
-const InvestorController = require('./controllers/investorController');
-app.use('/api/v1/investors', InvestorController);
+// const InvestorController = require('./controllers/investorController');
+// app.use('/api/v1/investors', InvestorController);
 
 module.exports = app;
