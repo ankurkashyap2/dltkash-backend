@@ -17,7 +17,7 @@ app.options('*', cors());
 // app.use(cors());
 app.use(express.json());
 
-app.use('/', (req, res) => {
+app.use('/api/v1/', (req, res) => {
     console.log('Hello');
     return res.json({message:"Request Successful!"});
 });
