@@ -1,42 +1,36 @@
 const bcrypt = require('bcryptjs');
-const nodemailer = require('nodemailer');
-const user = require('./models/user');
-const SendClean = require('./SendClean.js')
-var SendClean_client = SendClean.SendClean('','','');
+const request = require('request');
+const CryptoJS = require('crypto-js');
 const encryptString = (str) => {
   return bcrypt.hashSync(str, 8);
 }
 
 const getOTP = () => {
-  let otp = Math.floor(1000 + Math.random() * 9000);
+  let otp = Math.floor(100000 + Math.random() * 900000);
   return otp;
 }
 
 const sendMail = (email, subject, content, callback) => {
-  let transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      "user": process.env.EMAILUSER,
-      "pass": process.env.EMAILPASS
+  const options = {
+    url: 'https://api.us1-mta1.sendclean.net/v1.0/messages/sendMail',
+    json: true,
+    body: {
+      "message": {
+        "to": [{
+          "email": email,
+        },
+        ],
+        "html": content,
+        "subject": subject,
+        "from_email": "no-reply@webmobsoft.com",
+        "from_name": "no-reply"
+      },
+      "owner_id": process.env.SENDCLEANOWNERID,
+      "token": process.env.SENDCLEANTOKEN,
+      "smtp_user_name": process.env.SENDCLEANSMTPUSERNAME
     }
-  });
-  let mailOptions = {
-    from: "<no_reply@gmail.com>",
-    to: email,
-    subject: subject,
-    html: content,
   };
-  transporter.sendMail(mailOptions, function (error, info) {
-    if (error) {
-      {
-        console.error("email failed for ", email);
-        return callback(error, null);
-      }
-    }
-    console.info("This mail sent to >> " + info.envelope.to);
-    return callback(null, info.response);
-
-  });
+  request.post(options, callback);
 }
 
 const removeElement = (array, elem) => {
@@ -52,10 +46,24 @@ function totitleCase(str) {
   }).join(' ');
 }
 
+const validateEmail = (email) => {
+  return String(email)
+    .toLowerCase()
+    .match(
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    );
+};
+
+const encryptWithAES = (text) => {
+  const passphrase = 'DLTkash@';
+  return CryptoJS.AES.encrypt(text, passphrase).toString();
+};
 
 
 module.exports = {
   totitleCase: totitleCase,
+  validateEmail,
+  encryptWithAES,
   removeElement: removeElement,
   encryptString: encryptString,
   getOTP: getOTP,

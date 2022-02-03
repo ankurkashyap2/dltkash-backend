@@ -18,14 +18,17 @@ app.options('*', cors());
 app.use(express.json());
 
 app.use('/api/v1/test', (req, res) => {
-   
-    return res.json({message:"Request Successful!"});
+
+    return res.json({ message: "Request Successful!" });
 });
 
 const UserController = require('./controllers/userController');
 app.use('/api/v1/auth', UserController);
 
-// const InvestorController = require('./controllers/investorController');
-// app.use('/api/v1/investors', InvestorController);
+const InvestorController = require('./controllers/investorController');
+app.use('/api/v1/investors', InvestorController);
+
+const ExchangeController = require('./controllers/exchangeController');
+app.use('/api/v1/exchange', ExchangeController);
 
 module.exports = app;

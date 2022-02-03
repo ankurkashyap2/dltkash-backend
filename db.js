@@ -22,3 +22,5 @@ process.on('SIGINT', function () {
 });
 
 mongoose.Promise = require("bluebird");
+//sudo ssh -i DLTKASH.pem ubuntu@54.162.130.169
+//sudo ssh -i insurewill.pem root@insurewill.com

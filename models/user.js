@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { STATUS } = require("../constants");
+const { STATUS, ROLES } = require("../constants");
 const User = new mongoose.Schema({
     userName: { type: String },
     email: { type: String },
@@ -15,10 +15,12 @@ const User = new mongoose.Schema({
         enum: STATUS,
         default: STATUS.ACTIVE
     },
+    otp: { type: String },
+    role: { type: String, enum: ROLES, default: ROLES.ADMIN },
     isExchangeAdmin: { type: Boolean, default: false },
     exchangeId: { type: mongoose.Schema.Types.ObjectId, ref: "Exchange" },
     isOperational: { type: String, default: false },
-    loggedIn: { type: Boolean , default:false }
+    loggedIn: { type: Boolean, default: false }
 }, {
     minimize: false,
     timestamps: true,

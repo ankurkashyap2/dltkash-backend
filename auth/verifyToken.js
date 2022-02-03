@@ -12,7 +12,10 @@ const apisToBeByPassed = [
     '/register-exchange',
     '/login',
     '/forget-password',
-    '/register-admin'
+    '/register-admin',
+    '/email-verification',
+    '/send-verification/email',
+   
 ];
 
 const headerTokenApis = [
@@ -34,6 +37,7 @@ function verifyToken(req, res, next) {
         token = token.split(" ");
         token = token.length > 1 ? token[1] : token[0];
         jwt.verify(token, process.env.JWTSECRET, (err, decoded) => {
+            
             if (err) {
                 return res
                     .status(RESPONSE_STATUS.UNAUTHORIZED)
@@ -69,7 +73,7 @@ function generateToken(params) {
 function verifyPassword({ email, password }) {
     return new Promise(async (resolve, reject) => {
         let askedUser = await User.findOne({ email: email }, { password: 1 });
-        
+
         if (!askedUser) {
             return reject({
                 code: RESPONSE_STATUS.NOT_FOUND,

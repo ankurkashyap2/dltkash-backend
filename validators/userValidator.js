@@ -12,10 +12,19 @@ const userApiPathModels = {
         exchangeId: { type: String, required: true, source: "query" }
     },
     "/get-admin": {
-     
-    },
-    "/logout":{}
 
+    },
+    "/login":{},
+    "/logout": {},
+    "/email-verification": {
+        email: { type: String, required: true, source: "query" }
+    },
+    "/forget-password": {
+        email: { type: String, required: true, source: "query" }
+    },
+    "/reset-password": {
+        password: { type: String, required: true }
+    }
 
 };
 
