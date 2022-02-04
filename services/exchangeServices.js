@@ -6,7 +6,7 @@ const { RESPONSE_MESSAGES, RESPONSE_STATUS } = require('./../constants');
 const fetchInvestorsAndSendToBlockchain = async (req, res) => {
     try {
         const { investors } = req.body;
-        console.log(investors);
+        console.log(req.body);
         return res.json({ message: RESPONSE_MESSAGES.SUCCESS });
     } catch (error) {
         const error_body = {

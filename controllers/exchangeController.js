@@ -6,5 +6,5 @@ const router = express.Router();
 router.use(validator);
 router.use(verifyToken);
 
-router.get('/verifyRequest', exchangeServices.fetchInvestorsAndSendToBlockchain);
+router.post('/verifyRequest', exchangeServices.fetchInvestorsAndSendToBlockchain);
 module.exports = router;

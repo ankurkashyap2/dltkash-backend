@@ -16,7 +16,12 @@ app.use(cors(corsOptions));
 app.options('*', cors());
 // app.use(cors());
 app.use(express.json());
-
+app.use( bodyParser.json({limit: '50mb'}) );
+app.use(bodyParser.urlencoded({
+  limit: '2mb',
+  extended: true,
+  parameterLimit:50000
+}));
 app.use('/api/v1/test', (req, res) => {
 
     return res.json({ message: "Request Successful!" });
