@@ -5,3 +5,5 @@ SDocs/
 *.env
 *.env.test
 .env.test
+testJson.json
+small.json

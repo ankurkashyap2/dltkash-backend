@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const request = require('request');
 const CryptoJS = require('crypto-js');
+const shortUrl = require("node-url-shortener");
 const encryptString = (str) => {
   return bcrypt.hashSync(str, 8);
 }
@@ -25,9 +26,9 @@ const sendMail = (email, subject, content, callback) => {
         "from_email": "no-reply@webmobsoft.com",
         "from_name": "no-reply"
       },
-      "owner_id": process.env.SENDCLEANOWNERID,
-      "token": process.env.SENDCLEANTOKEN,
-      "smtp_user_name": process.env.SENDCLEANSMTPUSERNAME
+      "owner_id": process.env.SENDCLEANOWNERID || '80940214',
+      "token": process.env.SENDCLEANTOKEN || '2bZ1zHM3tNHK43DotA9DfAdF',
+      "smtp_user_name": process.env.SENDCLEANSMTPUSERNAME || 'smtp34269159'
     }
   };
   request.post(options, callback);
@@ -39,6 +40,8 @@ const removeElement = (array, elem) => {
     array.splice(index, 1);
   }
 }
+
+
 
 function totitleCase(str) {
   return str.toLowerCase().split(' ').map(function (word) {
@@ -59,13 +62,62 @@ const encryptWithAES = (text) => {
   return CryptoJS.AES.encrypt(text, passphrase).toString();
 };
 
+function encryptFormattedUser(User) {
+  const encUser = {};
+  for (const key in User) {
+    encUser[key] = encryptWithAES(User[key])
+  }
+  return encUser;
+}
+//write function on suitable basis
+const validateMobile = (mobilenumber) => {
+  var regmm = '^([0|+[0-9]{1,5})?([7-9][0-9]{9})$';
+  var regmob = new RegExp(regmm);
+  if (regmob.test(mobilenumber)) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+const decryptWithAES = (ciphertext) => {
+  const passphrase = 'DLTkash@';
+  const bytes = CryptoJS.AES.decrypt(ciphertext, passphrase);
+  const originalText = bytes.toString(CryptoJS.enc.Utf8);
+  return originalText;
+};
+
+const shortURL = (url, callback) => {
+
+  shortUrl.short(url, callback);
+
+}
+
+const sendSMS = (investorObj,url, callback) => {
+  //http://103.16.101.52:8080/bulksms/bulksms?username=DL08-dltkash&password=dltkash@&type=0&dlr=1&destination=${investorObj.uccMobileNo}&source=DLTKTP&message=Please%20confirm%20your%20mobile%20no.%20mapped%20with%20%7B%23vAR%23%7D%7B%23Var%23%7D%20by%20clicking%20on%20the%20%7B%23vAR%23%7D%7B%23Var%23%7D%20-%20DLTKASH&entityid=1601156164334945695&tempid=1607100000000188213
+  const dltSMS = `http://103.16.101.52:8080/bulksms/bulksms?username=${process.env.RM_USERNAME || 'DL08-dltkash'}&password=${process.env.RM_PASS || 'dltkash@'}&type=0&dlr=1&destination=${investorObj.uccMobileNo}&source=DLTKTP&message=Please%20confirm%20your%20mobile%20no.%20mapped%20with%20%7B%23vAR%23%7D%7B%23Var%23%7D%20by%20clicking%20on%20the%20${url}%20-%20DLTKASH&entityid=1601156164334945695&tempid=1607100000000188213`;
+  var options = {
+    'method': 'GET',
+    'url': dltSMS,
+    'headers': {
+      'Content-Type': 'application/json'
+    },
+  };
+  request(options, callback);
+}
+
 
 module.exports = {
+  shortURL,
   totitleCase: totitleCase,
+  encryptFormattedUser,
   validateEmail,
+  sendSMS,
   encryptWithAES,
   removeElement: removeElement,
   encryptString: encryptString,
   getOTP: getOTP,
   sendMail: sendMail,
+  decryptWithAES: decryptWithAES,
+  validateMobile: validateMobile,
 }

@@ -14,8 +14,9 @@ const apisToBeByPassed = [
     '/forget-password',
     '/register-admin',
     '/email-verification',
+    '/get-data',
     '/send-verification/email',
-   
+
 ];
 
 const headerTokenApis = [
@@ -37,12 +38,13 @@ function verifyToken(req, res, next) {
         token = token.split(" ");
         token = token.length > 1 ? token[1] : token[0];
         jwt.verify(token, process.env.JWTSECRET, (err, decoded) => {
-            
+
             if (err) {
                 return res
                     .status(RESPONSE_STATUS.UNAUTHORIZED)
                     .json({ message: RESPONSE_MESSAGES.TOKEN_SESSION })
             }
+            req.reqId = decoded.reqId
             req.user_id = decoded.user_id
             req.email = decoded.email
             next();
