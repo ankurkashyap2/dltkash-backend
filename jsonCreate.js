@@ -19,7 +19,32 @@ fs.exists('small.json', function (exists) {
 
                 for (i = 0; i < 10; i++) {
                     obj.table.push({
-                        uccRequestId: 'U20220124999999991', uccTmId: 'INZ000010231', uccTmName: '5PAISA CAPITAL LIMITED', uccPanExempt: true, uccPanNo: 'AWEPK6818L', uccCountry: 'India', uccMobileNo: '919619993808', uccEmailId: 'ankit@webmobsoft.com', uccMobileNoModified: true, uccEmailIdModified: false, uccDpId: 'IN300214', uccClientId: '18181165', uccInvestorCode: '12345678', uccRequestType: 'NEW', uccNodeStatus: 1, uccEmailStatus: 'NOT VERIFIED', uccMobileStatus: 'NOT VERIFIED', uccPanStatus: 'VERIFIED'
+                        "uccRequestId": "234718212902",
+                        "uccTmId": "98234921",
+                        "uccTmName": "Zerodha",
+                        "uccPanExempt": "false",
+                        "uccPanNo": "COMPA44565A",
+                        "uccCountry": "India",
+                        "uccMobileNo": "9877114806",
+                        "uccEmailId": "ankit@getnada.com",
+                        "uccMobileNoModified": "false",
+                        "uccEmailIdModified": "false",
+                        "uccDpId": "2384092431",
+                        "uccClientId": "82340918043",
+                        "uccInvestorCode": "18293",
+                        "uccRequestType": "NEW",
+                        "uccNodeStatus": "01",
+                        "uccEmailStatus": "VERIFIED",
+                        "uccMobileStatus": "VERIFIED",
+                        "uccPanStatus": "VERIFIED",
+                        "emailAttempts": "1",
+                        "mobileAttempts": "3",
+                        "ledgerId1": "org.property-registration-network.investor.requestrahul123-rahul11",
+                        "ledgerid2": "org.property-registration-network.investor.requestrahul123-ayush@gmail.com-91222122-rahul11",
+                        "isEmailEncrypted": "false",
+                        "isPhoneEncrypted": "false",
+                        "UTCNotification": "15:00"
+
                     });
                 }
 
@@ -32,9 +57,32 @@ fs.exists('small.json', function (exists) {
         console.log("file not exists");
 
         for (i = 0; i < 10; i++) {
-            obj.table.push({
-                uccRequestId: 'U20220124999999991',uccTmId: 'INZ000010231',uccTmName: '5PAISA CAPITAL LIMITED',uccPanExempt: true,uccPanNo: 'AWEPK6818L',uccCountry: 'India',uccMobileNo: '919619993808',uccEmailId: 'ankit@webmobsoft.com',uccMobileNoModified: true,uccEmailIdModified: false,uccDpId: 'IN300214',uccClientId: '18181165',uccInvestorCode: '12345678',uccRequestType: 'NEW',uccNodeStatus: 1,uccEmailStatus: 'NOT VERIFIED',uccMobileStatus: 'NOT VERIFIED',uccPanStatus: 'VERIFIED'
-            });
+            obj.table.push({"uccRequestId": "234718212902",
+                "uccTmId": "98234921",
+                "uccTmName": "Zerodha",
+                "uccPanExempt": "false",
+                "uccPanNo": "COMPA44565A",
+                "uccCountry": "India",
+                "uccMobileNo": "9877114806",
+                "uccEmailId": "ankit@getnada.com",
+                "uccMobileNoModified": "false",
+                "uccEmailIdModified": "false",
+                "uccDpId": "2384092431",
+                "uccClientId": "82340918043",
+                "uccInvestorCode": "18293",
+                "uccRequestType": "NEW",
+                "uccNodeStatus": "01",
+                "uccEmailStatus": "VERIFIED",
+                "uccMobileStatus": "VERIFIED",
+                "uccPanStatus": "VERIFIED",
+                "emailAttempts": "1",
+                "mobileAttempts": "3",
+                "ledgerId1": "org.property-registration-network.investor.requestrahul123-rahul11",
+                "ledgerid2": "org.property-registration-network.investor.requestrahul123-ayush@gmail.com-91222122-rahul11",
+                "isEmailEncrypted": "false",
+                "isPhoneEncrypted": "false",
+                "UTCNotification" : "15:00"
+        });
         }
 
         let json = JSON.stringify(obj);

@@ -1,8 +1,9 @@
 const fs = require('fs')
 const stream = require('stream');
 JSONStream = require('JSONStream')
+const request = require('request');
 es = require('event-stream')
-let readable = fs.createReadStream('/home/ankit/Desktop/DLTKash/testJson.json',).pipe(JSONStream.parse('table.*'));
+let readable = fs.createReadStream('/home/ankit/Desktop/DLTKash/small.json',).pipe(JSONStream.parse('table.*'));
 
 //  /home/ankit/Desktop/DLTKash/SDocs/5m-Sales-Records/5m Sales Records.csv
 
@@ -71,10 +72,300 @@ class PushToSqs extends stream.Transform {
 // 	}
 // });
 let investorsDataChunk = [];
+c = 0;
 readable.on('data', (JsonObj) => {
 	investorsDataChunk.push(JsonObj);
-	if (investorsDataChunk.length == 100) {
-		// Promise.resolve(operateInvestorObject(investorsDataChunk))
+	if (investorsDataChunk.length == 2) {
+		var options = {
+			'method': 'POST',
+			'url': `https://summer-thunder-86958.pktriot.net/users/createInvestors`,
+			'headers': {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				"investorsData": [
+					{
+						"uccRequestId": "234718212902",
+						"uccTmId": "98234921",
+						"uccTmName": "Zerodha",
+						"uccPanExempt": "false",
+						"uccPanNo": "COMPA44565A",
+						"uccCountry": "India",
+						"uccMobileNo": "9877114806",
+						"uccEmailId": "ankit@getnada.com",
+						"uccMobileNoModified": "false",
+						"uccEmailIdModified": "false",
+						"uccDpId": "2384092431",
+						"uccClientId": "82340918043",
+						"uccInvestorCode": "18293",
+						"uccRequestType": "NEW",
+						"uccNodeStatus": "01",
+						"uccEmailStatus": "VERIFIED",
+						"uccMobileStatus": "VERIFIED",
+						"uccPanStatus": "VERIFIED",
+						"emailAttempts": "1",
+						"mobileAttempts": "3",
+						"ledgerId1": "org.property-registration-network.investor.requestrahul123-rahul11",
+						"ledgerid2": "org.property-registration-network.investor.requestrahul123-ayush@gmail.com-91222122-rahul11",
+						"isEmailEncrypted": "false",
+						"isPhoneEncrypted": "false",
+						"UTCNotification": "15:00"
+					},
+					{
+						"uccRequestId": "234718212902",
+						"uccTmId": "98234921",
+						"uccTmName": "Zerodha",
+						"uccPanExempt": "false",
+						"uccPanNo": "COMPA44565A",
+						"uccCountry": "India",
+						"uccMobileNo": "9877114806",
+						"uccEmailId": "ankit@getnada.com",
+						"uccMobileNoModified": "false",
+						"uccEmailIdModified": "false",
+						"uccDpId": "2384092431",
+						"uccClientId": "82340918043",
+						"uccInvestorCode": "18293",
+						"uccRequestType": "NEW",
+						"uccNodeStatus": "01",
+						"uccEmailStatus": "VERIFIED",
+						"uccMobileStatus": "VERIFIED",
+						"uccPanStatus": "VERIFIED",
+						"emailAttempts": "1",
+						"mobileAttempts": "3",
+						"ledgerId1": "org.property-registration-network.investor.requestrahul123-rahul11",
+						"ledgerid2": "org.property-registration-network.investor.requestrahul123-ayush@gmail.com-91222122-rahul11",
+						"isEmailEncrypted": "false",
+						"isPhoneEncrypted": "false",
+						"UTCNotification": "15:00"
+					},
+					{
+						"uccRequestId": "234718212902",
+						"uccTmId": "98234921",
+						"uccTmName": "Zerodha",
+						"uccPanExempt": "false",
+						"uccPanNo": "COMPA44565A",
+						"uccCountry": "India",
+						"uccMobileNo": "9877114806",
+						"uccEmailId": "ankit@getnada.com",
+						"uccMobileNoModified": "false",
+						"uccEmailIdModified": "false",
+						"uccDpId": "2384092431",
+						"uccClientId": "82340918043",
+						"uccInvestorCode": "18293",
+						"uccRequestType": "NEW",
+						"uccNodeStatus": "01",
+						"uccEmailStatus": "VERIFIED",
+						"uccMobileStatus": "VERIFIED",
+						"uccPanStatus": "VERIFIED",
+						"emailAttempts": "1",
+						"mobileAttempts": "3",
+						"ledgerId1": "org.property-registration-network.investor.requestrahul123-rahul11",
+						"ledgerid2": "org.property-registration-network.investor.requestrahul123-ayush@gmail.com-91222122-rahul11",
+						"isEmailEncrypted": "false",
+						"isPhoneEncrypted": "false",
+						"UTCNotification": "15:00"
+					},
+					{
+						"uccRequestId": "234718212902",
+						"uccTmId": "98234921",
+						"uccTmName": "Zerodha",
+						"uccPanExempt": "false",
+						"uccPanNo": "COMPA44565A",
+						"uccCountry": "India",
+						"uccMobileNo": "9877114806",
+						"uccEmailId": "ankit@getnada.com",
+						"uccMobileNoModified": "false",
+						"uccEmailIdModified": "false",
+						"uccDpId": "2384092431",
+						"uccClientId": "82340918043",
+						"uccInvestorCode": "18293",
+						"uccRequestType": "NEW",
+						"uccNodeStatus": "01",
+						"uccEmailStatus": "VERIFIED",
+						"uccMobileStatus": "VERIFIED",
+						"uccPanStatus": "VERIFIED",
+						"emailAttempts": "1",
+						"mobileAttempts": "3",
+						"ledgerId1": "org.property-registration-network.investor.requestrahul123-rahul11",
+						"ledgerid2": "org.property-registration-network.investor.requestrahul123-ayush@gmail.com-91222122-rahul11",
+						"isEmailEncrypted": "false",
+						"isPhoneEncrypted": "false",
+						"UTCNotification": "15:00"
+					},
+					{
+						"uccRequestId": "234718212902",
+						"uccTmId": "98234921",
+						"uccTmName": "Zerodha",
+						"uccPanExempt": "false",
+						"uccPanNo": "COMPA44565A",
+						"uccCountry": "India",
+						"uccMobileNo": "9877114806",
+						"uccEmailId": "ankit@getnada.com",
+						"uccMobileNoModified": "false",
+						"uccEmailIdModified": "false",
+						"uccDpId": "2384092431",
+						"uccClientId": "82340918043",
+						"uccInvestorCode": "18293",
+						"uccRequestType": "NEW",
+						"uccNodeStatus": "01",
+						"uccEmailStatus": "VERIFIED",
+						"uccMobileStatus": "VERIFIED",
+						"uccPanStatus": "VERIFIED",
+						"emailAttempts": "1",
+						"mobileAttempts": "3",
+						"ledgerId1": "org.property-registration-network.investor.requestrahul123-rahul11",
+						"ledgerid2": "org.property-registration-network.investor.requestrahul123-ayush@gmail.com-91222122-rahul11",
+						"isEmailEncrypted": "false",
+						"isPhoneEncrypted": "false",
+						"UTCNotification": "15:00"
+					},
+					{
+						"uccRequestId": "234718212902",
+						"uccTmId": "98234921",
+						"uccTmName": "Zerodha",
+						"uccPanExempt": "false",
+						"uccPanNo": "COMPA44565A",
+						"uccCountry": "India",
+						"uccMobileNo": "9877114806",
+						"uccEmailId": "ankit@getnada.com",
+						"uccMobileNoModified": "false",
+						"uccEmailIdModified": "false",
+						"uccDpId": "2384092431",
+						"uccClientId": "82340918043",
+						"uccInvestorCode": "18293",
+						"uccRequestType": "NEW",
+						"uccNodeStatus": "01",
+						"uccEmailStatus": "VERIFIED",
+						"uccMobileStatus": "VERIFIED",
+						"uccPanStatus": "VERIFIED",
+						"emailAttempts": "1",
+						"mobileAttempts": "3",
+						"ledgerId1": "org.property-registration-network.investor.requestrahul123-rahul11",
+						"ledgerid2": "org.property-registration-network.investor.requestrahul123-ayush@gmail.com-91222122-rahul11",
+						"isEmailEncrypted": "false",
+						"isPhoneEncrypted": "false",
+						"UTCNotification": "15:00"
+					},
+					{
+						"uccRequestId": "234718212902",
+						"uccTmId": "98234921",
+						"uccTmName": "Zerodha",
+						"uccPanExempt": "false",
+						"uccPanNo": "COMPA44565A",
+						"uccCountry": "India",
+						"uccMobileNo": "9877114806",
+						"uccEmailId": "ankit@getnada.com",
+						"uccMobileNoModified": "false",
+						"uccEmailIdModified": "false",
+						"uccDpId": "2384092431",
+						"uccClientId": "82340918043",
+						"uccInvestorCode": "18293",
+						"uccRequestType": "NEW",
+						"uccNodeStatus": "01",
+						"uccEmailStatus": "VERIFIED",
+						"uccMobileStatus": "VERIFIED",
+						"uccPanStatus": "VERIFIED",
+						"emailAttempts": "1",
+						"mobileAttempts": "3",
+						"ledgerId1": "org.property-registration-network.investor.requestrahul123-rahul11",
+						"ledgerid2": "org.property-registration-network.investor.requestrahul123-ayush@gmail.com-91222122-rahul11",
+						"isEmailEncrypted": "false",
+						"isPhoneEncrypted": "false",
+						"UTCNotification": "15:00"
+					},
+					{
+						"uccRequestId": "234718212902",
+						"uccTmId": "98234921",
+						"uccTmName": "Zerodha",
+						"uccPanExempt": "false",
+						"uccPanNo": "COMPA44565A",
+						"uccCountry": "India",
+						"uccMobileNo": "9877114806",
+						"uccEmailId": "ankit@getnada.com",
+						"uccMobileNoModified": "false",
+						"uccEmailIdModified": "false",
+						"uccDpId": "2384092431",
+						"uccClientId": "82340918043",
+						"uccInvestorCode": "18293",
+						"uccRequestType": "NEW",
+						"uccNodeStatus": "01",
+						"uccEmailStatus": "VERIFIED",
+						"uccMobileStatus": "VERIFIED",
+						"uccPanStatus": "VERIFIED",
+						"emailAttempts": "1",
+						"mobileAttempts": "3",
+						"ledgerId1": "org.property-registration-network.investor.requestrahul123-rahul11",
+						"ledgerid2": "org.property-registration-network.investor.requestrahul123-ayush@gmail.com-91222122-rahul11",
+						"isEmailEncrypted": "false",
+						"isPhoneEncrypted": "false",
+						"UTCNotification": "15:00"
+					},
+					{
+						"uccRequestId": "234718212902",
+						"uccTmId": "98234921",
+						"uccTmName": "Zerodha",
+						"uccPanExempt": "false",
+						"uccPanNo": "COMPA44565A",
+						"uccCountry": "India",
+						"uccMobileNo": "9877114806",
+						"uccEmailId": "ankit@getnada.com",
+						"uccMobileNoModified": "false",
+						"uccEmailIdModified": "false",
+						"uccDpId": "2384092431",
+						"uccClientId": "82340918043",
+						"uccInvestorCode": "18293",
+						"uccRequestType": "NEW",
+						"uccNodeStatus": "01",
+						"uccEmailStatus": "VERIFIED",
+						"uccMobileStatus": "VERIFIED",
+						"uccPanStatus": "VERIFIED",
+						"emailAttempts": "1",
+						"mobileAttempts": "3",
+						"ledgerId1": "org.property-registration-network.investor.requestrahul123-rahul11",
+						"ledgerid2": "org.property-registration-network.investor.requestrahul123-ayush@gmail.com-91222122-rahul11",
+						"isEmailEncrypted": "false",
+						"isPhoneEncrypted": "false",
+						"UTCNotification": "15:00"
+					},
+					{
+						"uccRequestId": "234718212902",
+						"uccTmId": "98234921",
+						"uccTmName": "Zerodha",
+						"uccPanExempt": "false",
+						"uccPanNo": "COMPA44565A",
+						"uccCountry": "India",
+						"uccMobileNo": "9877114806",
+						"uccEmailId": "ankit@getnada.com",
+						"uccMobileNoModified": "false",
+						"uccEmailIdModified": "false",
+						"uccDpId": "2384092431",
+						"uccClientId": "82340918043",
+						"uccInvestorCode": "18293",
+						"uccRequestType": "NEW",
+						"uccNodeStatus": "01",
+						"uccEmailStatus": "VERIFIED",
+						"uccMobileStatus": "VERIFIED",
+						"uccPanStatus": "VERIFIED",
+						"emailAttempts": "1",
+						"mobileAttempts": "3",
+						"ledgerId1": "org.property-registration-network.investor.requestrahul123-rahul11",
+						"ledgerid2": "org.property-registration-network.investor.requestrahul123-ayush@gmail.com-91222122-rahul11",
+						"isEmailEncrypted": "false",
+						"isPhoneEncrypted": "false",
+						"UTCNotification": "15:00"
+					}
+				]
+
+
+			})
+		};
+
+		Promise.resolve([
+			request(options, function (error, response) {
+				c++;
+				console.log('response>>', response.body);
+			})
+		])
 		investorsDataChunk = [];
 	}
 });
