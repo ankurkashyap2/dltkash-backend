@@ -14,6 +14,11 @@ const investorApiPathModels = {
     "/get-data": {
         uccRequestId: { type: String, required: true }
     },
+    "/bulk/create-investor": {
+        investorsData: {
+            type:Array, required: true
+        }
+    },
     "/create-investor": {
         uccRequestId: { type: String, required: true, },
         uccTmId: { type: String, required: true, },
@@ -32,7 +37,7 @@ const investorApiPathModels = {
         uccNodeStatus: { type: String, required: true, },
         uccEmailStatus: { type: String, required: true, },
         uccMobileStatus: { type: String, required: true, },
-        uccPanStatus: { type: String, required: true, },
+        uccPanStatus: { type: String, required: true, }, 
     }
 };
 

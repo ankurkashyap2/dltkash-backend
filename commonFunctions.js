@@ -62,6 +62,7 @@ const encryptWithAES = (text) => {
   return CryptoJS.AES.encrypt(text, passphrase).toString();
 };
 
+
 function encryptFormattedUser(User) {
   const encUser = {};
   for (const key in User) {
@@ -93,7 +94,7 @@ const shortURL = (url, callback) => {
 
 }
 
-const sendSMS = (investorObj,url, callback) => {
+const sendSMS = (investorObj, url, callback) => {
   //http://103.16.101.52:8080/bulksms/bulksms?username=DL08-dltkash&password=dltkash@&type=0&dlr=1&destination=${investorObj.uccMobileNo}&source=DLTKTP&message=Please%20confirm%20your%20mobile%20no.%20mapped%20with%20%7B%23vAR%23%7D%7B%23Var%23%7D%20by%20clicking%20on%20the%20%7B%23vAR%23%7D%7B%23Var%23%7D%20-%20DLTKASH&entityid=1601156164334945695&tempid=1607100000000188213
   const dltSMS = `http://103.16.101.52:8080/bulksms/bulksms?username=${process.env.RM_USERNAME || 'DL08-dltkash'}&password=${process.env.RM_PASS || 'dltkash@'}&type=0&dlr=1&destination=${investorObj.uccMobileNo}&source=DLTKTP&message=Please%20confirm%20your%20mobile%20no.%20mapped%20with%20%7B%23vAR%23%7D%7B%23Var%23%7D%20by%20clicking%20on%20the%20${url}%20-%20DLTKASH&entityid=1601156164334945695&tempid=1607100000000188213`;
   var options = {
@@ -106,6 +107,22 @@ const sendSMS = (investorObj,url, callback) => {
   request(options, callback);
 }
 
+//UTC+12:00
+function returnHours(UTC) {
+  var sep;
+  const tiemStmp = '12-06-2021 22:30:00 UTC';
+  var date = new Date(tiemStmp);
+  if (UTC.indexOf('+') != -1) {
+    sep = UTC.split('+')[1].split(":")[0];
+    date.setHours(date.getUTCHours() - sep);
+  } else if (UTC.indexOf('-') != -1) {
+    sep = UTC.split('-')[1].split(":")[0];
+    date.setHours(date.getUTCHours() + sep);
+  } else {
+  }
+
+  return date.getUTCHours();
+}
 
 module.exports = {
   shortURL,
@@ -113,6 +130,7 @@ module.exports = {
   encryptFormattedUser,
   validateEmail,
   sendSMS,
+  returnHours,
   encryptWithAES,
   removeElement: removeElement,
   encryptString: encryptString,

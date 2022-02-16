@@ -346,8 +346,8 @@ exports.COUNTRYCODES = {
 
 
 
-exports.COUNTRY_ARRAY = [
-    {
+exports.COUNTRY_ARRAY = {
+    "afghanistan": {
         "Name": "Afghanistan",
         "Code": "AF",
         "Timezone": "Afghanistan Standard Time",
@@ -355,7 +355,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+93",
         "hours": "12:00"
     },
-    {
+    "åland islands": {
         "Name": "Åland Islands",
         "Code": "AX",
         "Timezone": "FLE Standard Time",
@@ -363,7 +363,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+358-18",
         "hours": "14:00"
     },
-    {
+    "albania": {
         "Name": "Albania",
         "Code": "AL",
         "Timezone": "Central Europe Standard Time",
@@ -371,7 +371,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+355",
         "hours": "15:00"
     },
-    {
+    "algeria": {
         "Name": "Algeria",
         "Code": "DZ",
         "Timezone": "W. Central Africa Standard Time",
@@ -379,7 +379,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+213",
         "hours": "15:00"
     },
-    {
+    "american samoa": {
         "Name": "American Samoa",
         "Code": "AS",
         "Timezone": "UTC-11",
@@ -387,7 +387,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+1-684",
         "hours": "21:00"
     },
-    {
+    "andorra": {
         "Name": "Andorra",
         "Code": "AD",
         "Timezone": "W. Europe Standard Time",
@@ -395,7 +395,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+376",
         "hours": "15:00"
     },
-    {
+    "angola": {
         "Name": "Angola",
         "Code": "AO",
         "Timezone": "W. Central Africa Standard Time",
@@ -403,7 +403,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+244",
         "hours": "15:00"
     },
-    {
+    "anguilla": {
         "Name": "Anguilla",
         "Code": "AI",
         "Timezone": "SA Western Standard Time",
@@ -411,7 +411,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+1-264",
         "hours": "14:00"
     },
-    {
+    "antarctica": {
         "Name": "Antarctica",
         "Code": "AQ",
         "Timezone": "Pacific SA Standard Time",
@@ -419,7 +419,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+",
         "hours": "13:00"
     },
-    {
+    "antigua and barbuda": {
         "Name": "Antigua and Barbuda",
         "Code": "AG",
         "Timezone": "SA Western Standard Time",
@@ -427,7 +427,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+1-268",
         "hours": "14:00"
     },
-    {
+    "argentina": {
         "Name": "Argentina",
         "Code": "AR",
         "Timezone": "Argentina Standard Time",
@@ -435,7 +435,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+54",
         "hours": "13:00"
     },
-    {
+    "armenia": {
         "Name": "Armenia",
         "Code": "AM",
         "Timezone": "Caucasus Standard Time",
@@ -443,7 +443,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+374",
         "hours": "12:00"
     },
-    {
+    "aruba": {
         "Name": "Aruba",
         "Code": "AW",
         "Timezone": "SA Western Standard Time",
@@ -451,7 +451,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+297",
         "hours": "14:00"
     },
-    {
+    "australia": {
         "Name": "Australia",
         "Code": "AU",
         "Timezone": "AUS Eastern Standard Time",
@@ -459,7 +459,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+61",
         "hours": "6:00"
     },
-    {
+    "austria": {
         "Name": "Austria",
         "Code": "AT",
         "Timezone": "W. Europe Standard Time",
@@ -467,7 +467,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+43",
         "hours": "15:00"
     },
-    {
+    "azerbaijan": {
         "Name": "Azerbaijan",
         "Code": "AZ",
         "Timezone": "Azerbaijan Standard Time",
@@ -475,7 +475,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+994",
         "hours": "12:00"
     },
-    {
+    "bahamas, the": {
         "Name": "Bahamas, The",
         "Code": "BS",
         "Timezone": "Eastern Standard Time",
@@ -483,7 +483,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+1-242",
         "hours": "15:00"
     },
-    {
+    "bahrain": {
         "Name": "Bahrain",
         "Code": "BH",
         "Timezone": "Arab Standard Time",
@@ -491,7 +491,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+973",
         "hours": "13:00"
     },
-    {
+    "bangladesh": {
         "Name": "Bangladesh",
         "Code": "BD",
         "Timezone": "Bangladesh Standard Time",
@@ -499,7 +499,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+880",
         "hours": "10:00"
     },
-    {
+    "barbados": {
         "Name": "Barbados",
         "Code": "BB",
         "Timezone": "SA Western Standard Time",
@@ -507,7 +507,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+1-246",
         "hours": "14:00"
     },
-    {
+    "belarus": {
         "Name": "Belarus",
         "Code": "BY",
         "Timezone": "Belarus Standard Time",
@@ -515,7 +515,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+375",
         "hours": "13:00"
     },
-    {
+    "belgium": {
         "Name": "Belgium",
         "Code": "BE",
         "Timezone": "Romance Standard Time",
@@ -523,7 +523,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+32",
         "hours": "15:00"
     },
-    {
+    "belize": {
         "Name": "Belize",
         "Code": "BZ",
         "Timezone": "Central America Standard Time",
@@ -531,7 +531,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+501",
         "hours": "16:00"
     },
-    {
+    "benin": {
         "Name": "Benin",
         "Code": "BJ",
         "Timezone": "W. Central Africa Standard Time",
@@ -539,7 +539,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+229",
         "hours": "15:00"
     },
-    {
+    "bermuda": {
         "Name": "Bermuda",
         "Code": "BM",
         "Timezone": "Atlantic Standard Time",
@@ -547,7 +547,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+1-441",
         "hours": "14:00"
     },
-    {
+    "bhutan": {
         "Name": "Bhutan",
         "Code": "BT",
         "Timezone": "Bangladesh Standard Time",
@@ -555,7 +555,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+975",
         "hours": "10:00"
     },
-    {
+    "bolivarian republic of venezuela": {
         "Name": "Bolivarian Republic of Venezuela",
         "Code": "VE",
         "Timezone": "Venezuela Standard Time",
@@ -563,7 +563,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+58",
         "hours": "14:00"
     },
-    {
+    "bolivia": {
         "Name": "Bolivia",
         "Code": "BO",
         "Timezone": "SA Western Standard Time",
@@ -571,7 +571,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+591",
         "hours": "14:00"
     },
-    {
+    "bonaire, sint eustatius and saba": {
         "Name": "Bonaire, Sint Eustatius and Saba",
         "Code": "BQ",
         "Timezone": "SA Western Standard Time",
@@ -579,7 +579,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+599",
         "hours": "14:00"
     },
-    {
+    "bosnia and herzegovina": {
         "Name": "Bosnia and Herzegovina",
         "Code": "BA",
         "Timezone": "Central European Standard Time",
@@ -587,7 +587,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+387",
         "hours": "15:00"
     },
-    {
+    "botswana": {
         "Name": "Botswana",
         "Code": "BW",
         "Timezone": "South Africa Standard Time",
@@ -595,7 +595,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+267",
         "hours": "14:00"
     },
-    {
+    "bouvet island": {
         "Name": "Bouvet Island",
         "Code": "BV",
         "Timezone": "UTC",
@@ -603,7 +603,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+",
         "hours": "22:00"
     },
-    {
+    "brazil": {
         "Name": "Brazil",
         "Code": "BR",
         "Timezone": "E. South America Standard Time",
@@ -611,7 +611,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+55",
         "hours": "13:00"
     },
-    {
+    "british indian ocean territory": {
         "Name": "British Indian Ocean Territory",
         "Code": "IO",
         "Timezone": "Central Asia Standard Time",
@@ -619,7 +619,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+246",
         "hours": "10:00"
     },
-    {
+    "brunei": {
         "Name": "Brunei",
         "Code": "BN",
         "Timezone": "Singapore Standard Time",
@@ -627,7 +627,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+673",
         "hours": "8:00"
     },
-    {
+    "bulgaria": {
         "Name": "Bulgaria",
         "Code": "BG",
         "Timezone": "FLE Standard Time",
@@ -635,7 +635,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+359",
         "hours": "14:00"
     },
-    {
+    "burkina faso": {
         "Name": "Burkina Faso",
         "Code": "BF",
         "Timezone": "Greenwich Standard Time",
@@ -643,7 +643,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+226",
         "hours": "22:00"
     },
-    {
+    "burundi": {
         "Name": "Burundi",
         "Code": "BI",
         "Timezone": "South Africa Standard Time",
@@ -651,7 +651,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+257",
         "hours": "14:00"
     },
-    {
+    "cabo verde": {
         "Name": "Cabo Verde",
         "Code": "CV",
         "Timezone": "Cape Verde Standard Time",
@@ -659,7 +659,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+238",
         "hours": "11:00"
     },
-    {
+    "cambodia": {
         "Name": "Cambodia",
         "Code": "KH",
         "Timezone": "SE Asia Standard Time",
@@ -667,7 +667,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+855",
         "hours": "9:00"
     },
-    {
+    "cameroon": {
         "Name": "Cameroon",
         "Code": "CM",
         "Timezone": "W. Central Africa Standard Time",
@@ -675,7 +675,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+237",
         "hours": "15:00"
     },
-    {
+    "canada": {
         "Name": "Canada",
         "Code": "CA",
         "Timezone": "Eastern Standard Time",
@@ -683,7 +683,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+1",
         "hours": "15:00"
     },
-    {
+    "cayman islands": {
         "Name": "Cayman Islands",
         "Code": "KY",
         "Timezone": "SA Pacific Standard Time",
@@ -691,7 +691,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+1-345",
         "hours": "15:00"
     },
-    {
+    "central african republic": {
         "Name": "Central African Republic",
         "Code": "CF",
         "Timezone": "W. Central Africa Standard Time",
@@ -699,7 +699,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+236",
         "hours": "15:00"
     },
-    {
+    "chad": {
         "Name": "Chad",
         "Code": "TD",
         "Timezone": "W. Central Africa Standard Time",
@@ -707,7 +707,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+235",
         "hours": "15:00"
     },
-    {
+    "chile": {
         "Name": "Chile",
         "Code": "CL",
         "Timezone": "Pacific SA Standard Time",
@@ -715,7 +715,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+56",
         "hours": "13:00"
     },
-    {
+    "china": {
         "Name": "China",
         "Code": "CN",
         "Timezone": "China Standard Time",
@@ -723,7 +723,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+86",
         "hours": "8:00"
     },
-    {
+    "christmas island": {
         "Name": "Christmas Island",
         "Code": "CX",
         "Timezone": "SE Asia Standard Time",
@@ -731,7 +731,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+61",
         "hours": "9:00"
     },
-    {
+    "cocos (keeling) islands": {
         "Name": "Cocos (Keeling) Islands",
         "Code": "CC",
         "Timezone": "Myanmar Standard Time",
@@ -739,7 +739,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+61",
         "hours": "10:00"
     },
-    {
+    "colombia": {
         "Name": "Colombia",
         "Code": "CO",
         "Timezone": "SA Pacific Standard Time",
@@ -747,7 +747,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+57",
         "hours": "15:00"
     },
-    {
+    "comoros": {
         "Name": "Comoros",
         "Code": "KM",
         "Timezone": "E. Africa Standard Time",
@@ -755,7 +755,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+269",
         "hours": "13:00"
     },
-    {
+    "congo": {
         "Name": "Congo",
         "Code": "CG",
         "Timezone": "W. Central Africa Standard Time",
@@ -763,7 +763,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+242",
         "hours": "15:00"
     },
-    {
+    "congo (drc)": {
         "Name": "Congo (DRC)",
         "Code": "CD",
         "Timezone": "W. Central Africa Standard Time",
@@ -771,7 +771,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+243",
         "hours": "15:00"
     },
-    {
+    "cook islands": {
         "Name": "Cook Islands",
         "Code": "CK",
         "Timezone": "Hawaiian Standard Time",
@@ -779,7 +779,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+682",
         "hours": "20:00"
     },
-    {
+    "costa rica": {
         "Name": "Costa Rica",
         "Code": "CR",
         "Timezone": "Central America Standard Time",
@@ -787,7 +787,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+506",
         "hours": "16:00"
     },
-    {
+    "côte d'ivoire": {
         "Name": "Côte d'Ivoire",
         "Code": "CI",
         "Timezone": "Greenwich Standard Time",
@@ -795,7 +795,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+225",
         "hours": "22:00"
     },
-    {
+    "croatia": {
         "Name": "Croatia",
         "Code": "HR",
         "Timezone": "Central European Standard Time",
@@ -803,7 +803,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+385",
         "hours": "15:00"
     },
-    {
+    "cuba": {
         "Name": "Cuba",
         "Code": "CU",
         "Timezone": "Eastern Standard Time",
@@ -811,7 +811,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+53",
         "hours": "15:00"
     },
-    {
+    "curaçao": {
         "Name": "Curaçao",
         "Code": "CW",
         "Timezone": "SA Western Standard Time",
@@ -819,7 +819,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+599",
         "hours": "14:00"
     },
-    {
+    "cyprus": {
         "Name": "Cyprus",
         "Code": "CY",
         "Timezone": "E. Europe Standard Time",
@@ -827,7 +827,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+357",
         "hours": "14:00"
     },
-    {
+    "czech republic": {
         "Name": "Czech Republic",
         "Code": "CZ",
         "Timezone": "Central Europe Standard Time",
@@ -835,7 +835,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+420",
         "hours": "15:00"
     },
-    {
+    "democratic republic of timor-leste": {
         "Name": "Democratic Republic of Timor-Leste",
         "Code": "TL",
         "Timezone": "Tokyo Standard Time",
@@ -843,7 +843,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+670",
         "hours": "7:00"
     },
-    {
+    "denmark": {
         "Name": "Denmark",
         "Code": "DK",
         "Timezone": "Romance Standard Time",
@@ -851,7 +851,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+45",
         "hours": "15:00"
     },
-    {
+    "djibouti": {
         "Name": "Djibouti",
         "Code": "DJ",
         "Timezone": "E. Africa Standard Time",
@@ -859,7 +859,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+253",
         "hours": "13:00"
     },
-    {
+    "dominica": {
         "Name": "Dominica",
         "Code": "DM",
         "Timezone": "SA Western Standard Time",
@@ -867,7 +867,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+1-767",
         "hours": "14:00"
     },
-    {
+    "dominican republic": {
         "Name": "Dominican Republic",
         "Code": "DO",
         "Timezone": "SA Western Standard Time",
@@ -875,7 +875,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+1-809 and 1-829",
         "hours": "14:00"
     },
-    {
+    "ecuador": {
         "Name": "Ecuador",
         "Code": "EC",
         "Timezone": "SA Pacific Standard Time",
@@ -883,7 +883,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+593",
         "hours": "15:00"
     },
-    {
+    "egypt": {
         "Name": "Egypt",
         "Code": "EG",
         "Timezone": "Egypt Standard Time",
@@ -891,7 +891,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+20",
         "hours": "14:00"
     },
-    {
+    "el salvador": {
         "Name": "El Salvador",
         "Code": "SV",
         "Timezone": "Central America Standard Time",
@@ -899,7 +899,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+503",
         "hours": "16:00"
     },
-    {
+    "equatorial guinea": {
         "Name": "Equatorial Guinea",
         "Code": "GQ",
         "Timezone": "W. Central Africa Standard Time",
@@ -907,7 +907,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+240",
         "hours": "15:00"
     },
-    {
+    "eritrea": {
         "Name": "Eritrea",
         "Code": "ER",
         "Timezone": "E. Africa Standard Time",
@@ -915,7 +915,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+291",
         "hours": "13:00"
     },
-    {
+    "estonia": {
         "Name": "Estonia",
         "Code": "EE",
         "Timezone": "FLE Standard Time",
@@ -923,7 +923,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+372",
         "hours": "14:00"
     },
-    {
+    "ethiopia": {
         "Name": "Ethiopia",
         "Code": "ET",
         "Timezone": "E. Africa Standard Time",
@@ -931,7 +931,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+251",
         "hours": "13:00"
     },
-    {
+    "falkland islands (islas malvinas)": {
         "Name": "Falkland Islands (Islas Malvinas)",
         "Code": "FK",
         "Timezone": "SA Eastern Standard Time",
@@ -939,7 +939,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+500",
         "hours": "13:00"
     },
-    {
+    "faroe islands": {
         "Name": "Faroe Islands",
         "Code": "FO",
         "Timezone": "GMT Standard Time",
@@ -947,7 +947,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+298",
         "hours": "22:00"
     },
-    {
+    "fiji islands": {
         "Name": "Fiji Islands",
         "Code": "FJ",
         "Timezone": "Fiji Standard Time",
@@ -955,7 +955,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+679",
         "hours": "4:00"
     },
-    {
+    "finland": {
         "Name": "Finland",
         "Code": "FI",
         "Timezone": "FLE Standard Time",
@@ -963,7 +963,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+358",
         "hours": "14:00"
     },
-    {
+    "france": {
         "Name": "France",
         "Code": "FR",
         "Timezone": "Romance Standard Time",
@@ -971,7 +971,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+33",
         "hours": "15:00"
     },
-    {
+    "french guiana": {
         "Name": "French Guiana",
         "Code": "GF",
         "Timezone": "SA Eastern Standard Time",
@@ -979,7 +979,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+594",
         "hours": "13:00"
     },
-    {
+    "french polynesia": {
         "Name": "French Polynesia",
         "Code": "PF",
         "Timezone": "Hawaiian Standard Time",
@@ -987,7 +987,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+689",
         "hours": "20:00"
     },
-    {
+    "french southern and antarctic lands": {
         "Name": "French Southern and Antarctic Lands",
         "Code": "TF",
         "Timezone": "West Asia Standard Time",
@@ -995,7 +995,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+",
         "hours": "11:00"
     },
-    {
+    "gabon": {
         "Name": "Gabon",
         "Code": "GA",
         "Timezone": "W. Central Africa Standard Time",
@@ -1003,7 +1003,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+241",
         "hours": "15:00"
     },
-    {
+    "gambia, the": {
         "Name": "Gambia, The",
         "Code": "GM",
         "Timezone": "Greenwich Standard Time",
@@ -1011,7 +1011,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+220",
         "hours": "22:00"
     },
-    {
+    "georgia": {
         "Name": "Georgia",
         "Code": "GE",
         "Timezone": "Georgian Standard Time",
@@ -1019,7 +1019,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+995",
         "hours": "12:00"
     },
-    {
+    "germany": {
         "Name": "Germany",
         "Code": "DE",
         "Timezone": "W. Europe Standard Time",
@@ -1027,7 +1027,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+49",
         "hours": "15:00"
     },
-    {
+    "ghana": {
         "Name": "Ghana",
         "Code": "GH",
         "Timezone": "Greenwich Standard Time",
@@ -1035,7 +1035,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+233",
         "hours": "22:00"
     },
-    {
+    "gibraltar": {
         "Name": "Gibraltar",
         "Code": "GI",
         "Timezone": "W. Europe Standard Time",
@@ -1043,7 +1043,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+350",
         "hours": "15:00"
     },
-    {
+    "greece": {
         "Name": "Greece",
         "Code": "GR",
         "Timezone": "GTB Standard Time",
@@ -1051,7 +1051,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+30",
         "hours": "14:00"
     },
-    {
+    "greenland": {
         "Name": "Greenland",
         "Code": "GL",
         "Timezone": "Greenland Standard Time",
@@ -1059,7 +1059,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+299",
         "hours": "13:00"
     },
-    {
+    "grenada": {
         "Name": "Grenada",
         "Code": "GD",
         "Timezone": "SA Western Standard Time",
@@ -1067,7 +1067,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+1-473",
         "hours": "14:00"
     },
-    {
+    "guadeloupe": {
         "Name": "Guadeloupe",
         "Code": "GP",
         "Timezone": "SA Western Standard Time",
@@ -1075,7 +1075,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+590",
         "hours": "14:00"
     },
-    {
+    "guam": {
         "Name": "Guam",
         "Code": "GU",
         "Timezone": "West Pacific Standard Time",
@@ -1083,7 +1083,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+1-671",
         "hours": "6:00"
     },
-    {
+    "guatemala": {
         "Name": "Guatemala",
         "Code": "GT",
         "Timezone": "Central America Standard Time",
@@ -1091,7 +1091,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+502",
         "hours": "16:00"
     },
-    {
+    "guernsey": {
         "Name": "Guernsey",
         "Code": "GG",
         "Timezone": "GMT Standard Time",
@@ -1099,7 +1099,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+44-1481",
         "hours": "22:00"
     },
-    {
+    "guinea": {
         "Name": "Guinea",
         "Code": "GN",
         "Timezone": "Greenwich Standard Time",
@@ -1107,7 +1107,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+224",
         "hours": "22:00"
     },
-    {
+    "guinea-bissau": {
         "Name": "Guinea-Bissau",
         "Code": "GW",
         "Timezone": "Greenwich Standard Time",
@@ -1115,7 +1115,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+245",
         "hours": "22:00"
     },
-    {
+    "guyana": {
         "Name": "Guyana",
         "Code": "GY",
         "Timezone": "SA Western Standard Time",
@@ -1123,7 +1123,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+592",
         "hours": "14:00"
     },
-    {
+    "haiti": {
         "Name": "Haiti",
         "Code": "HT",
         "Timezone": "Eastern Standard Time",
@@ -1131,7 +1131,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+509",
         "hours": "15:00"
     },
-    {
+    "heard island and mcdonald islands": {
         "Name": "Heard Island and McDonald Islands",
         "Code": "HM",
         "Timezone": "Mauritius Standard Time",
@@ -1139,7 +1139,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+ ",
         "hours": "12:00"
     },
-    {
+    "honduras": {
         "Name": "Honduras",
         "Code": "HN",
         "Timezone": "Central America Standard Time",
@@ -1147,7 +1147,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+504",
         "hours": "16:00"
     },
-    {
+    "hong kong sar": {
         "Name": "Hong Kong SAR",
         "Code": "HK",
         "Timezone": "China Standard Time",
@@ -1155,7 +1155,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+852",
         "hours": "8:00"
     },
-    {
+    "hungary": {
         "Name": "Hungary",
         "Code": "HU",
         "Timezone": "Central Europe Standard Time",
@@ -1163,7 +1163,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+36",
         "hours": "15:00"
     },
-    {
+    "iceland": {
         "Name": "Iceland",
         "Code": "IS",
         "Timezone": "Greenwich Standard Time",
@@ -1171,7 +1171,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+354",
         "hours": "22:00"
     },
-    {
+    "india": {
         "Name": "India",
         "Code": "IN",
         "Timezone": "India Standard Time",
@@ -1179,7 +1179,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+91",
         "hours": "11:00"
     },
-    {
+    "indonesia": {
         "Name": "Indonesia",
         "Code": "ID",
         "Timezone": "SE Asia Standard Time",
@@ -1187,7 +1187,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+62",
         "hours": "9:00"
     },
-    {
+    "iran": {
         "Name": "Iran",
         "Code": "IR",
         "Timezone": "Iran Standard Time",
@@ -1195,7 +1195,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+98",
         "hours": "13:00"
     },
-    {
+    "iraq": {
         "Name": "Iraq",
         "Code": "IQ",
         "Timezone": "Arabic Standard Time",
@@ -1203,7 +1203,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+964",
         "hours": "13:00"
     },
-    {
+    "ireland": {
         "Name": "Ireland",
         "Code": "IE",
         "Timezone": "GMT Standard Time",
@@ -1211,7 +1211,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+353",
         "hours": "22:00"
     },
-    {
+    "israel": {
         "Name": "Israel",
         "Code": "IL",
         "Timezone": "Israel Standard Time",
@@ -1219,7 +1219,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+972",
         "hours": "14:00"
     },
-    {
+    "italy": {
         "Name": "Italy",
         "Code": "IT",
         "Timezone": "W. Europe Standard Time",
@@ -1227,7 +1227,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+39",
         "hours": "15:00"
     },
-    {
+    "jamaica": {
         "Name": "Jamaica",
         "Code": "JM",
         "Timezone": "SA Pacific Standard Time",
@@ -1235,7 +1235,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+1-876",
         "hours": "15:00"
     },
-    {
+    "jan mayen": {
         "Name": "Jan Mayen",
         "Code": "SJ",
         "Timezone": "W. Europe Standard Time",
@@ -1243,7 +1243,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+47",
         "hours": "15:00"
     },
-    {
+    "japan": {
         "Name": "Japan",
         "Code": "JP",
         "Timezone": "Tokyo Standard Time",
@@ -1251,7 +1251,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+81",
         "hours": "7:00"
     },
-    {
+    "jersey": {
         "Name": "Jersey",
         "Code": "JE",
         "Timezone": "GMT Standard Time",
@@ -1259,7 +1259,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+44-1534",
         "hours": "22:00"
     },
-    {
+    "jordan": {
         "Name": "Jordan",
         "Code": "JO",
         "Timezone": "Jordan Standard Time",
@@ -1267,7 +1267,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+962",
         "hours": "14:00"
     },
-    {
+    "kazakhstan": {
         "Name": "Kazakhstan",
         "Code": "KZ",
         "Timezone": "Central Asia Standard Time",
@@ -1275,7 +1275,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+7",
         "hours": "10:00"
     },
-    {
+    "kenya": {
         "Name": "Kenya",
         "Code": "KE",
         "Timezone": "E. Africa Standard Time",
@@ -1283,7 +1283,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+254",
         "hours": "13:00"
     },
-    {
+    "kiribati": {
         "Name": "Kiribati",
         "Code": "KI",
         "Timezone": "UTC+12",
@@ -1291,7 +1291,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+686",
         "hours": "4:00"
     },
-    {
+    "korea": {
         "Name": "Korea",
         "Code": "KR",
         "Timezone": "Korea Standard Time",
@@ -1299,7 +1299,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+82",
         "hours": "7:00"
     },
-    {
+    "kosovo": {
         "Name": "Kosovo",
         "Code": "XK",
         "Timezone": "Central European Standard Time",
@@ -1307,7 +1307,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+",
         "hours": "15:00"
     },
-    {
+    "kuwait": {
         "Name": "Kuwait",
         "Code": "KW",
         "Timezone": "Arab Standard Time",
@@ -1315,7 +1315,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+965",
         "hours": "13:00"
     },
-    {
+    "kyrgyzstan": {
         "Name": "Kyrgyzstan",
         "Code": "KG",
         "Timezone": "Central Asia Standard Time",
@@ -1323,7 +1323,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+996",
         "hours": "10:00"
     },
-    {
+    "laos": {
         "Name": "Laos",
         "Code": "LA",
         "Timezone": "SE Asia Standard Time",
@@ -1331,7 +1331,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+856",
         "hours": "9:00"
     },
-    {
+    "latvia": {
         "Name": "Latvia",
         "Code": "LV",
         "Timezone": "FLE Standard Time",
@@ -1339,7 +1339,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+371",
         "hours": "14:00"
     },
-    {
+    "lebanon": {
         "Name": "Lebanon",
         "Code": "LB",
         "Timezone": "Middle East Standard Time",
@@ -1347,7 +1347,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+961",
         "hours": "14:00"
     },
-    {
+    "lesotho": {
         "Name": "Lesotho",
         "Code": "LS",
         "Timezone": "South Africa Standard Time",
@@ -1355,7 +1355,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+266",
         "hours": "14:00"
     },
-    {
+    "liberia": {
         "Name": "Liberia",
         "Code": "LR",
         "Timezone": "Greenwich Standard Time",
@@ -1363,7 +1363,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+231",
         "hours": "22:00"
     },
-    {
+    "libya": {
         "Name": "Libya",
         "Code": "LY",
         "Timezone": "E. Europe Standard Time",
@@ -1371,7 +1371,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+218",
         "hours": "14:00"
     },
-    {
+    "liechtenstein": {
         "Name": "Liechtenstein",
         "Code": "LI",
         "Timezone": "W. Europe Standard Time",
@@ -1379,7 +1379,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+423",
         "hours": "15:00"
     },
-    {
+    "lithuania": {
         "Name": "Lithuania",
         "Code": "LT",
         "Timezone": "FLE Standard Time",
@@ -1387,7 +1387,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+370",
         "hours": "14:00"
     },
-    {
+    "luxembourg": {
         "Name": "Luxembourg",
         "Code": "LU",
         "Timezone": "W. Europe Standard Time",
@@ -1395,7 +1395,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+352",
         "hours": "15:00"
     },
-    {
+    "macao sar": {
         "Name": "Macao SAR",
         "Code": "MO",
         "Timezone": "China Standard Time",
@@ -1403,7 +1403,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+853",
         "hours": "8:00"
     },
-    {
+    "macedonia, former yugoslav republic of": {
         "Name": "Macedonia, Former Yugoslav Republic of",
         "Code": "MK",
         "Timezone": "Central European Standard Time",
@@ -1411,7 +1411,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+389",
         "hours": "15:00"
     },
-    {
+    "madagascar": {
         "Name": "Madagascar",
         "Code": "MG",
         "Timezone": "E. Africa Standard Time",
@@ -1419,7 +1419,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+261",
         "hours": "13:00"
     },
-    {
+    "malawi": {
         "Name": "Malawi",
         "Code": "MW",
         "Timezone": "South Africa Standard Time",
@@ -1427,7 +1427,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+265",
         "hours": "14:00"
     },
-    {
+    "malaysia": {
         "Name": "Malaysia",
         "Code": "MY",
         "Timezone": "Singapore Standard Time",
@@ -1435,7 +1435,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+60",
         "hours": "8:00"
     },
-    {
+    "maldives": {
         "Name": "Maldives",
         "Code": "MV",
         "Timezone": "West Asia Standard Time",
@@ -1443,7 +1443,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+960",
         "hours": "11:00"
     },
-    {
+    "mali": {
         "Name": "Mali",
         "Code": "ML",
         "Timezone": "Greenwich Standard Time",
@@ -1451,7 +1451,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+223",
         "hours": "22:00"
     },
-    {
+    "malta": {
         "Name": "Malta",
         "Code": "MT",
         "Timezone": "W. Europe Standard Time",
@@ -1459,7 +1459,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+356",
         "hours": "15:00"
     },
-    {
+    "man, isle of": {
         "Name": "Man, Isle of",
         "Code": "IM",
         "Timezone": "GMT Standard Time",
@@ -1467,7 +1467,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+44-1624",
         "hours": "22:00"
     },
-    {
+    "marshall islands": {
         "Name": "Marshall Islands",
         "Code": "MH",
         "Timezone": "UTC+12",
@@ -1475,7 +1475,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+692",
         "hours": "4:00"
     },
-    {
+    "martinique": {
         "Name": "Martinique",
         "Code": "MQ",
         "Timezone": "SA Western Standard Time",
@@ -1483,7 +1483,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+596",
         "hours": "14:00"
     },
-    {
+    "mauritania": {
         "Name": "Mauritania",
         "Code": "MR",
         "Timezone": "Greenwich Standard Time",
@@ -1491,7 +1491,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+222",
         "hours": "22:00"
     },
-    {
+    "mauritius": {
         "Name": "Mauritius",
         "Code": "MU",
         "Timezone": "Mauritius Standard Time",
@@ -1499,7 +1499,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+230",
         "hours": "12:00"
     },
-    {
+    "mayotte": {
         "Name": "Mayotte",
         "Code": "YT",
         "Timezone": "E. Africa Standard Time",
@@ -1507,7 +1507,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+262",
         "hours": "13:00"
     },
-    {
+    "mexico": {
         "Name": "Mexico",
         "Code": "MX",
         "Timezone": "Central Standard Time (Mexico)",
@@ -1515,7 +1515,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+52",
         "hours": "16:00"
     },
-    {
+    "micronesia": {
         "Name": "Micronesia",
         "Code": "FM",
         "Timezone": "West Pacific Standard Time",
@@ -1523,7 +1523,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+691",
         "hours": "6:00"
     },
-    {
+    "moldova": {
         "Name": "Moldova",
         "Code": "MD",
         "Timezone": "GTB Standard Time",
@@ -1531,7 +1531,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+373",
         "hours": "14:00"
     },
-    {
+    "monaco": {
         "Name": "Monaco",
         "Code": "MC",
         "Timezone": "W. Europe Standard Time",
@@ -1539,7 +1539,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+377",
         "hours": "15:00"
     },
-    {
+    "mongolia": {
         "Name": "Mongolia",
         "Code": "MN",
         "Timezone": "Ulaanbaatar Standard Time",
@@ -1547,7 +1547,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+976",
         "hours": "8:00"
     },
-    {
+    "montenegro": {
         "Name": "Montenegro",
         "Code": "ME",
         "Timezone": "Central European Standard Time",
@@ -1555,7 +1555,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+382",
         "hours": "15:00"
     },
-    {
+    "montserrat": {
         "Name": "Montserrat",
         "Code": "MS",
         "Timezone": "SA Western Standard Time",
@@ -1563,7 +1563,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+1-664",
         "hours": "14:00"
     },
-    {
+    "morocco": {
         "Name": "Morocco",
         "Code": "MA",
         "Timezone": "Morocco Standard Time",
@@ -1571,7 +1571,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+212",
         "hours": "22:00"
     },
-    {
+    "mozambique": {
         "Name": "Mozambique",
         "Code": "MZ",
         "Timezone": "South Africa Standard Time",
@@ -1579,7 +1579,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+258",
         "hours": "14:00"
     },
-    {
+    "myanmar": {
         "Name": "Myanmar",
         "Code": "MM",
         "Timezone": "Myanmar Standard Time",
@@ -1587,7 +1587,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+95",
         "hours": "10:00"
     },
-    {
+    "namibia": {
         "Name": "Namibia",
         "Code": "NA",
         "Timezone": "Namibia Standard Time",
@@ -1595,7 +1595,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+264",
         "hours": "15:00"
     },
-    {
+    "nauru": {
         "Name": "Nauru",
         "Code": "NR",
         "Timezone": "UTC+12",
@@ -1603,7 +1603,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+674",
         "hours": "4:00"
     },
-    {
+    "nepal": {
         "Name": "Nepal",
         "Code": "NP",
         "Timezone": "Nepal Standard Time",
@@ -1611,7 +1611,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+977",
         "hours": "11:00"
     },
-    {
+    "netherlands": {
         "Name": "Netherlands",
         "Code": "NL",
         "Timezone": "W. Europe Standard Time",
@@ -1619,7 +1619,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+31",
         "hours": "15:00"
     },
-    {
+    "new caledonia": {
         "Name": "New Caledonia",
         "Code": "NC",
         "Timezone": "Central Pacific Standard Time",
@@ -1627,7 +1627,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+687",
         "hours": "5:00"
     },
-    {
+    "new zealand": {
         "Name": "New Zealand",
         "Code": "NZ",
         "Timezone": "New Zealand Standard Time",
@@ -1635,7 +1635,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+64",
         "hours": "4:00"
     },
-    {
+    "nicaragua": {
         "Name": "Nicaragua",
         "Code": "NI",
         "Timezone": "Central America Standard Time",
@@ -1643,7 +1643,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+505",
         "hours": "16:00"
     },
-    {
+    "niger": {
         "Name": "Niger",
         "Code": "NE",
         "Timezone": "W. Central Africa Standard Time",
@@ -1651,7 +1651,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+227",
         "hours": "15:00"
     },
-    {
+    "nigeria": {
         "Name": "Nigeria",
         "Code": "NG",
         "Timezone": "W. Central Africa Standard Time",
@@ -1659,7 +1659,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+234",
         "hours": "15:00"
     },
-    {
+    "niue": {
         "Name": "Niue",
         "Code": "NU",
         "Timezone": "UTC-11",
@@ -1667,7 +1667,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+683",
         "hours": "21:00"
     },
-    {
+    "norfolk island": {
         "Name": "Norfolk Island",
         "Code": "NF",
         "Timezone": "Central Pacific Standard Time",
@@ -1675,7 +1675,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+672",
         "hours": "5:00"
     },
-    {
+    "north korea": {
         "Name": "North Korea",
         "Code": "KP",
         "Timezone": "Korea Standard Time",
@@ -1683,7 +1683,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+850",
         "hours": "7:00"
     },
-    {
+    "northern mariana islands": {
         "Name": "Northern Mariana Islands",
         "Code": "MP",
         "Timezone": "West Pacific Standard Time",
@@ -1691,7 +1691,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+1-670",
         "hours": "6:00"
     },
-    {
+    "norway": {
         "Name": "Norway",
         "Code": "NO",
         "Timezone": "W. Europe Standard Time",
@@ -1699,7 +1699,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+47",
         "hours": "15:00"
     },
-    {
+    "oman": {
         "Name": "Oman",
         "Code": "OM",
         "Timezone": "Arabian Standard Time",
@@ -1707,7 +1707,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+968",
         "hours": "12:00"
     },
-    {
+    "pakistan": {
         "Name": "Pakistan",
         "Code": "PK",
         "Timezone": "Pakistan Standard Time",
@@ -1715,7 +1715,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+92",
         "hours": "11:00"
     },
-    {
+    "palau": {
         "Name": "Palau",
         "Code": "PW",
         "Timezone": "Tokyo Standard Time",
@@ -1723,7 +1723,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+680",
         "hours": "7:00"
     },
-    {
+    "palestinian authority": {
         "Name": "Palestinian Authority",
         "Code": "PS",
         "Timezone": "Egypt Standard Time",
@@ -1731,7 +1731,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+970",
         "hours": "14:00"
     },
-    {
+    "panama": {
         "Name": "Panama",
         "Code": "PA",
         "Timezone": "SA Pacific Standard Time",
@@ -1739,7 +1739,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+507",
         "hours": "15:00"
     },
-    {
+    "papua new guinea": {
         "Name": "Papua New Guinea",
         "Code": "PG",
         "Timezone": "West Pacific Standard Time",
@@ -1747,7 +1747,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+675",
         "hours": "6:00"
     },
-    {
+    "paraguay": {
         "Name": "Paraguay",
         "Code": "PY",
         "Timezone": "Paraguay Standard Time",
@@ -1755,7 +1755,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+595",
         "hours": "14:00"
     },
-    {
+    "peru": {
         "Name": "Peru",
         "Code": "PE",
         "Timezone": "SA Pacific Standard Time",
@@ -1763,7 +1763,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+51",
         "hours": "15:00"
     },
-    {
+    "philippines": {
         "Name": "Philippines",
         "Code": "PH",
         "Timezone": "Singapore Standard Time",
@@ -1771,7 +1771,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+63",
         "hours": "8:00"
     },
-    {
+    "pitcairn islands": {
         "Name": "Pitcairn Islands",
         "Code": "PN",
         "Timezone": "Pacific Standard Time",
@@ -1779,7 +1779,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+870",
         "hours": "18:00"
     },
-    {
+    "poland": {
         "Name": "Poland",
         "Code": "PL",
         "Timezone": "Central European Standard Time",
@@ -1787,7 +1787,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+48",
         "hours": "15:00"
     },
-    {
+    "portugal": {
         "Name": "Portugal",
         "Code": "PT",
         "Timezone": "GMT Standard Time",
@@ -1795,7 +1795,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+351",
         "hours": "22:00"
     },
-    {
+    "puerto rico": {
         "Name": "Puerto Rico",
         "Code": "PR",
         "Timezone": "SA Western Standard Time",
@@ -1803,7 +1803,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+1-787 and 1-939",
         "hours": "14:00"
     },
-    {
+    "qatar": {
         "Name": "Qatar",
         "Code": "QA",
         "Timezone": "Arab Standard Time",
@@ -1811,7 +1811,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+974",
         "hours": "13:00"
     },
-    {
+    "reunion": {
         "Name": "Reunion",
         "Code": "RE",
         "Timezone": "Mauritius Standard Time",
@@ -1819,7 +1819,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+262",
         "hours": "12:00"
     },
-    {
+    "romania": {
         "Name": "Romania",
         "Code": "RO",
         "Timezone": "GTB Standard Time",
@@ -1827,7 +1827,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+40",
         "hours": "14:00"
     },
-    {
+    "russia": {
         "Name": "Russia",
         "Code": "RU",
         "Timezone": "Russian Standard Time",
@@ -1835,7 +1835,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+7",
         "hours": "13:00"
     },
-    {
+    "rwanda": {
         "Name": "Rwanda",
         "Code": "RW",
         "Timezone": "South Africa Standard Time",
@@ -1843,7 +1843,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+250",
         "hours": "14:00"
     },
-    {
+    "saint barthélemy": {
         "Name": "Saint Barthélemy",
         "Code": "BL",
         "Timezone": "SA Western Standard Time",
@@ -1851,7 +1851,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+590",
         "hours": "14:00"
     },
-    {
+    "saint helena, ascension and tristan da cunha": {
         "Name": "Saint Helena, Ascension and Tristan da Cunha",
         "Code": "SH",
         "Timezone": "Greenwich Standard Time",
@@ -1859,7 +1859,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+290",
         "hours": "22:00"
     },
-    {
+    "saint kitts and nevis": {
         "Name": "Saint Kitts and Nevis",
         "Code": "KN",
         "Timezone": "SA Western Standard Time",
@@ -1867,7 +1867,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+1-869",
         "hours": "14:00"
     },
-    {
+    "saint lucia": {
         "Name": "Saint Lucia",
         "Code": "LC",
         "Timezone": "SA Western Standard Time",
@@ -1875,7 +1875,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+1-758",
         "hours": "14:00"
     },
-    {
+    "saint martin (french part)": {
         "Name": "Saint Martin (French part)",
         "Code": "MF",
         "Timezone": "SA Western Standard Time",
@@ -1883,7 +1883,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+590",
         "hours": "14:00"
     },
-    {
+    "saint pierre and miquelon": {
         "Name": "Saint Pierre and Miquelon",
         "Code": "PM",
         "Timezone": "Greenland Standard Time",
@@ -1891,7 +1891,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+508",
         "hours": "13:00"
     },
-    {
+    "saint vincent and the grenadines": {
         "Name": "Saint Vincent and the Grenadines",
         "Code": "VC",
         "Timezone": "SA Western Standard Time",
@@ -1899,7 +1899,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+1-784",
         "hours": "14:00"
     },
-    {
+    "samoa": {
         "Name": "Samoa",
         "Code": "WS",
         "Timezone": "Samoa Standard Time",
@@ -1907,7 +1907,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+685",
         "hours": "3:00"
     },
-    {
+    "san marino": {
         "Name": "San Marino",
         "Code": "SM",
         "Timezone": "W. Europe Standard Time",
@@ -1915,7 +1915,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+378",
         "hours": "15:00"
     },
-    {
+    "são tomé and príncipe": {
         "Name": "São Tomé and Príncipe",
         "Code": "ST",
         "Timezone": "Greenwich Standard Time",
@@ -1923,7 +1923,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+239",
         "hours": "22:00"
     },
-    {
+    "saudi arabia": {
         "Name": "Saudi Arabia",
         "Code": "SA",
         "Timezone": "Arab Standard Time",
@@ -1931,7 +1931,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+966",
         "hours": "13:00"
     },
-    {
+    "senegal": {
         "Name": "Senegal",
         "Code": "SN",
         "Timezone": "Greenwich Standard Time",
@@ -1939,7 +1939,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+221",
         "hours": "22:00"
     },
-    {
+    "serbia": {
         "Name": "Serbia",
         "Code": "RS",
         "Timezone": "Central Europe Standard Time",
@@ -1947,7 +1947,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+381",
         "hours": "15:00"
     },
-    {
+    "seychelles": {
         "Name": "Seychelles",
         "Code": "SC",
         "Timezone": "Mauritius Standard Time",
@@ -1955,7 +1955,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+248",
         "hours": "12:00"
     },
-    {
+    "sierra leone": {
         "Name": "Sierra Leone",
         "Code": "SL",
         "Timezone": "Greenwich Standard Time",
@@ -1963,7 +1963,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+232",
         "hours": "22:00"
     },
-    {
+    "singapore": {
         "Name": "Singapore",
         "Code": "SG",
         "Timezone": "Singapore Standard Time",
@@ -1971,7 +1971,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+65",
         "hours": "8:00"
     },
-    {
+    "sint maarten (dutch part)": {
         "Name": "Sint Maarten (Dutch part)",
         "Code": "SX",
         "Timezone": "SA Western Standard Time",
@@ -1979,7 +1979,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+599",
         "hours": "14:00"
     },
-    {
+    "slovakia": {
         "Name": "Slovakia",
         "Code": "SK",
         "Timezone": "Central Europe Standard Time",
@@ -1987,7 +1987,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+421",
         "hours": "15:00"
     },
-    {
+    "slovenia": {
         "Name": "Slovenia",
         "Code": "SI",
         "Timezone": "Central Europe Standard Time",
@@ -1995,7 +1995,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+386",
         "hours": "15:00"
     },
-    {
+    "solomon islands": {
         "Name": "Solomon Islands",
         "Code": "SB",
         "Timezone": "Central Pacific Standard Time",
@@ -2003,7 +2003,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+677",
         "hours": "5:00"
     },
-    {
+    "somalia": {
         "Name": "Somalia",
         "Code": "SO",
         "Timezone": "E. Africa Standard Time",
@@ -2011,7 +2011,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+252",
         "hours": "13:00"
     },
-    {
+    "south africa": {
         "Name": "South Africa",
         "Code": "ZA",
         "Timezone": "South Africa Standard Time",
@@ -2019,7 +2019,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+27",
         "hours": "14:00"
     },
-    {
+    "south georgia and the south sandwich islands": {
         "Name": "South Georgia and the South Sandwich Islands",
         "Code": "GS",
         "Timezone": "UTC-02",
@@ -2027,7 +2027,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+",
         "hours": "12:00"
     },
-    {
+    "south sudan": {
         "Name": "South Sudan",
         "Code": "SS",
         "Timezone": "E. Africa Standard Time",
@@ -2035,7 +2035,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+211",
         "hours": "13:00"
     },
-    {
+    "spain": {
         "Name": "Spain",
         "Code": "ES",
         "Timezone": "Romance Standard Time",
@@ -2043,7 +2043,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+34",
         "hours": "15:00"
     },
-    {
+    "sri lanka": {
         "Name": "Sri Lanka",
         "Code": "LK",
         "Timezone": "Sri Lanka Standard Time",
@@ -2051,7 +2051,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+94",
         "hours": "11:00"
     },
-    {
+    "sudan": {
         "Name": "Sudan",
         "Code": "SD",
         "Timezone": "E. Africa Standard Time",
@@ -2059,7 +2059,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+249",
         "hours": "13:00"
     },
-    {
+    "suriname": {
         "Name": "Suriname",
         "Code": "SR",
         "Timezone": "SA Eastern Standard Time",
@@ -2067,7 +2067,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+597",
         "hours": "13:00"
     },
-    {
+    "svalbard": {
         "Name": "Svalbard",
         "Code": "SJ",
         "Timezone": "W. Europe Standard Time",
@@ -2075,7 +2075,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+47",
         "hours": "15:00"
     },
-    {
+    "swaziland": {
         "Name": "Swaziland",
         "Code": "SZ",
         "Timezone": "South Africa Standard Time",
@@ -2083,7 +2083,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+268",
         "hours": "14:00"
     },
-    {
+    "sweden": {
         "Name": "Sweden",
         "Code": "SE",
         "Timezone": "W. Europe Standard Time",
@@ -2091,7 +2091,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+46",
         "hours": "15:00"
     },
-    {
+    "switzerland": {
         "Name": "Switzerland",
         "Code": "CH",
         "Timezone": "W. Europe Standard Time",
@@ -2099,7 +2099,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+41",
         "hours": "15:00"
     },
-    {
+    "syria": {
         "Name": "Syria",
         "Code": "SY",
         "Timezone": "Syria Standard Time",
@@ -2107,7 +2107,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+963",
         "hours": "14:00"
     },
-    {
+    "taiwan": {
         "Name": "Taiwan",
         "Code": "TW",
         "Timezone": "Taipei Standard Time",
@@ -2115,7 +2115,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+886",
         "hours": "8:00"
     },
-    {
+    "tajikistan": {
         "Name": "Tajikistan",
         "Code": "TJ",
         "Timezone": "West Asia Standard Time",
@@ -2123,7 +2123,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+992",
         "hours": "11:00"
     },
-    {
+    "tanzania": {
         "Name": "Tanzania",
         "Code": "TZ",
         "Timezone": "E. Africa Standard Time",
@@ -2131,7 +2131,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+255",
         "hours": "13:00"
     },
-    {
+    "thailand": {
         "Name": "Thailand",
         "Code": "TH",
         "Timezone": "SE Asia Standard Time",
@@ -2139,7 +2139,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+66",
         "hours": "9:00"
     },
-    {
+    "togo": {
         "Name": "Togo",
         "Code": "TG",
         "Timezone": "Greenwich Standard Time",
@@ -2147,7 +2147,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+228",
         "hours": "22:00"
     },
-    {
+    "tokelau": {
         "Name": "Tokelau",
         "Code": "TK",
         "Timezone": "Tonga Standard Time",
@@ -2155,7 +2155,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+690",
         "hours": "3:00"
     },
-    {
+    "tonga": {
         "Name": "Tonga",
         "Code": "TO",
         "Timezone": "Tonga Standard Time",
@@ -2163,7 +2163,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+676",
         "hours": "3:00"
     },
-    {
+    "trinidad and tobago": {
         "Name": "Trinidad and Tobago",
         "Code": "TT",
         "Timezone": "SA Western Standard Time",
@@ -2171,7 +2171,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+1-868",
         "hours": "14:00"
     },
-    {
+    "tunisia": {
         "Name": "Tunisia",
         "Code": "TN",
         "Timezone": "W. Central Africa Standard Time",
@@ -2179,7 +2179,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+216",
         "hours": "15:00"
     },
-    {
+    "turkey": {
         "Name": "Turkey",
         "Code": "TR",
         "Timezone": "Turkey Standard Time",
@@ -2187,7 +2187,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+90",
         "hours": "14:00"
     },
-    {
+    "turkmenistan": {
         "Name": "Turkmenistan",
         "Code": "TM",
         "Timezone": "West Asia Standard Time",
@@ -2195,7 +2195,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+993",
         "hours": "11:00"
     },
-    {
+    "turks and caicos islands": {
         "Name": "Turks and Caicos Islands",
         "Code": "TC",
         "Timezone": "Eastern Standard Time",
@@ -2203,7 +2203,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+1-649",
         "hours": "15:00"
     },
-    {
+    "tuvalu": {
         "Name": "Tuvalu",
         "Code": "TV",
         "Timezone": "UTC+12",
@@ -2211,7 +2211,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+688",
         "hours": "4:00"
     },
-    {
+    "u.s. minor outlying islands": {
         "Name": "U.S. Minor Outlying Islands",
         "Code": "UM",
         "Timezone": "UTC-11",
@@ -2219,7 +2219,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+1",
         "hours": "21:00"
     },
-    {
+    "uganda": {
         "Name": "Uganda",
         "Code": "UG",
         "Timezone": "E. Africa Standard Time",
@@ -2227,7 +2227,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+256",
         "hours": "13:00"
     },
-    {
+    "ukraine": {
         "Name": "Ukraine",
         "Code": "UA",
         "Timezone": "FLE Standard Time",
@@ -2235,7 +2235,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+380",
         "hours": "14:00"
     },
-    {
+    "united arab emirates": {
         "Name": "United Arab Emirates",
         "Code": "AE",
         "Timezone": "Arabian Standard Time",
@@ -2243,7 +2243,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+971",
         "hours": "12:00"
     },
-    {
+    "united kingdom": {
         "Name": "United Kingdom",
         "Code": "GB",
         "Timezone": "GMT Standard Time",
@@ -2251,7 +2251,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+44",
         "hours": "22:00"
     },
-    {
+    "united states": {
         "Name": "United States",
         "Code": "US",
         "Timezone": "Pacific Standard Time",
@@ -2259,7 +2259,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+1",
         "hours": "18:00"
     },
-    {
+    "uruguay": {
         "Name": "Uruguay",
         "Code": "UY",
         "Timezone": "Montevideo Standard Time",
@@ -2267,7 +2267,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+598",
         "hours": "13:00"
     },
-    {
+    "uzbekistan": {
         "Name": "Uzbekistan",
         "Code": "UZ",
         "Timezone": "West Asia Standard Time",
@@ -2275,7 +2275,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+998",
         "hours": "11:00"
     },
-    {
+    "vanuatu": {
         "Name": "Vanuatu",
         "Code": "VU",
         "Timezone": "Central Pacific Standard Time",
@@ -2283,7 +2283,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+678",
         "hours": "5:00"
     },
-    {
+    "vatican city": {
         "Name": "Vatican City",
         "Code": "VA",
         "Timezone": "W. Europe Standard Time",
@@ -2291,7 +2291,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+379",
         "hours": "15:00"
     },
-    {
+    "vietnam": {
         "Name": "Vietnam",
         "Code": "VN",
         "Timezone": "SE Asia Standard Time",
@@ -2299,7 +2299,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+84",
         "hours": "9:00"
     },
-    {
+    "virgin islands, u.s.": {
         "Name": "Virgin Islands, U.S.",
         "Code": "VI",
         "Timezone": "SA Western Standard Time",
@@ -2307,7 +2307,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+1-340",
         "hours": "14:00"
     },
-    {
+    "virgin islands, british": {
         "Name": "Virgin Islands, British",
         "Code": "VG",
         "Timezone": "SA Western Standard Time",
@@ -2315,7 +2315,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+1-284",
         "hours": "14:00"
     },
-    {
+    "wallis and futuna": {
         "Name": "Wallis and Futuna",
         "Code": "WF",
         "Timezone": "UTC+12",
@@ -2323,7 +2323,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+681",
         "hours": "4:00"
     },
-    {
+    "yemen": {
         "Name": "Yemen",
         "Code": "YE",
         "Timezone": "Arab Standard Time",
@@ -2331,7 +2331,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+967",
         "hours": "13:00"
     },
-    {
+    "zambia": {
         "Name": "Zambia",
         "Code": "ZM",
         "Timezone": "South Africa Standard Time",
@@ -2339,7 +2339,7 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+260",
         "hours": "14:00"
     },
-    {
+    "zimbabwe": {
         "Name": "Zimbabwe",
         "Code": "ZW",
         "Timezone": "South Africa Standard Time",
@@ -2347,5 +2347,4 @@ exports.COUNTRY_ARRAY = [
         "MobileCode": "+263",
         "hours": "14:00"
     }
-]
-
+}

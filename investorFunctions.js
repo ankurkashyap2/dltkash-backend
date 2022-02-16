@@ -5,6 +5,7 @@ const { RESPONSE_MESSAGES, RESPONSE_STATUS } = require('./constants');
 const { EMAIL_STATUSES, MOBILE_STATUSES, UCC_REQUEST_TYPES, COUNTRY_ARRAY } = require('./constants');
 const mongoose = require("mongoose");
 const request = require('request');
+const { decryptWithAES, encryptWithAES } = require('./commonFunctions');
 const sendInvestorMail = async (email, res) => {
 
     // send on blockchain for querying data if user exists or not ..
@@ -38,6 +39,11 @@ const processInvestorEmail = async (investorObj) => {
         //check if user is verified or not
         // if user verified do nothing
         // if not verified ..
+        if (investorObj.isEmailEncrypted == 'true') {
+            investorObj.isEmailEncrypted = 'false'
+            var decryptedEmailId = decryptWithAES(investorObj.uccEmailId);
+            investorObj.uccEmailId = decryptedEmailId
+        }
         if (EMAIL_STATUS != EMAIL_STATUSES.VERIFIED) {
             // if email not validated set email status as invalid
             if (!commonFunctions.validateEmail(investorObj.uccEmailId)) {
@@ -47,10 +53,18 @@ const processInvestorEmail = async (investorObj) => {
             else {
                 if (investorObj.uccRequestType == UCC_REQUEST_TYPES.NEW && investorObj.emailAttempts == '3') {           //check if request type and email attempts
                     investorObj.uccEmailStatus = EMAIL_STATUSES.NOT_VERIFIED;
+                    if (investorObj.isEmailEncrypted == 'false') {
+                        investorObj.isEmailEncrypted = 'true';
+                        investorObj.uccEmailId = encryptWithAES(investorObj.uccEmailId)
+                    }
                     resolve(investorObj);
 
                 } else if (investorObj.uccRequestType == UCC_REQUEST_TYPES.EXISTING && investorObj.emailAttempts == '15') {
                     investorObj.uccEmailStatus = EMAIL_STATUSES.NOT_VERIFIED;
+                    if (investorObj.isEmailEncrypted == 'false') {
+                        investorObj.isEmailEncrypted = 'true';
+                        investorObj.uccEmailId = encryptWithAES(investorObj.uccEmailId)
+                    }
                     resolve(investorObj);
                 }
                 else { //send mail 
@@ -80,6 +94,10 @@ const processInvestorEmail = async (investorObj) => {
 
                             }
                             investorObj.uccEmailStatus = EMAIL_STATUSES.SENT
+                            if (investorObj.isEmailEncrypted == 'false') {
+                                investorObj.isEmailEncrypted = 'true';
+                                investorObj.uccEmailId = encryptWithAES(investorObj.uccEmailId)
+                            }
                             // return investorObj;
                             resolve(investorObj)
 
@@ -97,17 +115,28 @@ const processInvestorMobile = async (investorObj) => {
         //check if user is verified or not
         // if user verified do nothing
         // if not verified ..
-
+        if (investorObj.isPhoneEncrypted == 'true') {
+            investorObj.isPhoneEncrypted = 'false'
+            var decryptedPhoneNo = decryptWithAES(investorObj.uccMobileNo);
+            investorObj.uccMobileNo = decryptedPhoneNo
+        }
         if (MOBILE_STATUS != MOBILE_STATUSES.VERIFIED) {
             // if email not validated set email status as invalid
             if (!commonFunctions.validateMobile(investorObj.uccMobileNo)) {
                 investorObj.uccMobileStatus = MOBILE_STATUSES.INVALID;
-
+                if (investorObj.isPhoneEncrypted == 'false') {
+                    investorObj.isPhoneEncrypted = 'true';
+                    investorObj.uccMobileNo = encryptWithAES(investorObj.uccMobileNo)
+                }
                 resolve(investorObj)
             }  //if valid  
             else {
                 if (investorObj.uccRequestType == UCC_REQUEST_TYPES.NEW && investorObj.mobileAttempts == '3') {           //check if request type and email attempts
                     investorObj.uccMobileStatus = MOBILE_STATUSES.NOT_VERIFIED;
+                    if (investorObj.isPhoneEncrypted == 'false') {
+                        investorObj.isPhoneEncrypted = 'true';
+                        investorObj.uccMobileNo = encryptWithAES(investorObj.uccMobileNo)
+                    }
                     resolve(investorObj);
 
                 } else if (investorObj.uccRequestType == UCC_REQUEST_TYPES.EXISTING && investorObj.mobileAttempts == '15') {
@@ -138,9 +167,16 @@ const processInvestorMobile = async (investorObj) => {
                                     investorObj.mobileAttempts = noMobileAttempts.toString();
                                 }
                                 investorObj.uccMobileStatus = MOBILE_STATUSES.SENT
-
+                                if (investorObj.isPhoneEncrypted == 'false') {
+                                    investorObj.isPhoneEncrypted = 'true';
+                                    investorObj.uccMobileNo = encryptWithAES(investorObj.uccMobileNo)
+                                }
                                 resolve(investorObj)
                             } else {
+                                if (investorObj.isPhoneEncrypted == 'false') {
+                                    investorObj.isPhoneEncrypted = 'true';
+                                    investorObj.uccMobileNo = encryptWithAES(investorObj.uccMobileNo)
+                                }
                                 resolve(investorObj)
                             }
                         })

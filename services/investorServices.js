@@ -1,6 +1,7 @@
-const { RESPONSE_MESSAGES, RESPONSE_STATUS, MOBILE_STATUSES, EMAIL_STATUSES } = require('./../constants');
+const { RESPONSE_MESSAGES, RESPONSE_STATUS, MOBILE_STATUSES, EMAIL_STATUSES, COUNTRY_ARRAY } = require('./../constants');
 const investorFunctions = require('./../investorFunctions');
 var request = require('request');
+const e = require('express');
 
 
 const investorMobileVerify = async (req, res) => {
@@ -13,13 +14,14 @@ const investorMobileVerify = async (req, res) => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                "uccRequestId": req.reqId || 'U20220124999999991',
+                "uccRequestId": req.reqId ,
                 "mobileStatus": status
             })
         };
         request(options, function (error, response) {
             if (error) return res.status(error.status).json({ message: RESPONSE_MESSAGES.SERVER_ERROR, detail: error.toString() });
-            return res.json({ message: RESPONSE_MESSAGES.SUCCESS });
+            
+            return res.status(response.statusCode).json({ data: JSON.parse(response.body) });
         });
     } catch (error) {
         const error_body = {
@@ -50,13 +52,13 @@ const investorEmailVerify = async (req, res) => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                "uccRequestId": req.reqId || 'U20220124999999991',
+                "uccRequestId": req.reqId ,
                 "emailIdStatus": status
             })
         };
         request(options, function (error, response) {
             if (error) return res.status(error.status).json({ message: RESPONSE_MESSAGES.SERVER_ERROR, detail: error.toString() });
-            return res.json({ message: RESPONSE_MESSAGES.SUCCESS });
+            return res.status(response.statusCode).json({ data: JSON.parse(response.body) });
         });
     } catch (error) {
         const error_body = {
@@ -84,7 +86,7 @@ const getInvestorDetailByUccId = async (req, res) => {
         };
         request(options, function (error, response) {
             if (error) return res.status(error.status).json({ message: RESPONSE_MESSAGES.SERVER_ERROR, detail: error.toString() });
-            return res.json({ message: RESPONSE_MESSAGES.SUCCESS, data: JSON.parse(response.body )});
+            return res.status(response.statusCode).json({ data: JSON.parse(response.body) });
         });
 
     } catch (error) {
@@ -119,6 +121,55 @@ const sendInvestorEmailForVerification = async (req, res) => {
     }
 }
 
+
+
+const addBulkinvestors = async (req, res) => {
+    try {
+        const { investorsData } = req.body;
+
+        if (investorsData.length > 200) return res.status(RESPONSE_STATUS.BAD_REQUEST).json({ message: "Only 200 records allowed at once." });
+        investorsData.forEach((inv) => {
+            var country = inv.uccCountry.toLowerCase();
+            if (COUNTRY_ARRAY[country]) {
+                inv.UTCNotification = COUNTRY_ARRAY[country]['hours']
+            } else {
+                inv.UTCNotification = '10:30'
+            }
+        });
+        investorsData.forEach((inv) => {
+            console.log(inv.UTCNotification);
+        });
+        var options = {
+            'method': 'POST',
+            'url': `${process.env.HYPERLEDGER_HOST}/users/createInvestors`,
+            'headers': {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                "investorsData": investorsData
+            })
+        };
+        request(options, function (error, response) {
+            if (error) return res.status(error.status).json({ message: RESPONSE_MESSAGES.SERVER_ERROR, detail: error.toString() });
+            return res.status(response.statusCode).json({ data: JSON.parse(response.body) });
+        });
+    } catch (error) {
+        const error_body = {
+            error_message: "Error while adding bulk investors",
+            error_detail: typeof error == "object" ? JSON.stringify(error) : error,
+            error_data: req.body,
+            api_path: req.path,
+            message: error.message,
+            stack: error.stack
+        };
+        console.error(error_body);
+        return res
+            .status(RESPONSE_STATUS.SERVER_ERROR)
+            .json({ message: error.message });
+    }
+}
+
+
 const addSingleInvestor = async (req, res) => {
     try {
         const { uccRequestId,
@@ -137,9 +188,12 @@ const addSingleInvestor = async (req, res) => {
             uccRequestType,
             uccNodeStatus,
             uccEmailStatus,
+            isPhoneEncrypted,
+            isEmailEncrypted,
             uccMobileStatus,
             uccPanStatus,
-            emailAttempts } = req.body;
+            emailAttempts,
+            mobileAttempts } = req.body;
         let investorObj = {
             uccRequestId: uccRequestId,
             uccTmId: uccTmId,
@@ -159,7 +213,17 @@ const addSingleInvestor = async (req, res) => {
             uccEmailStatus: uccEmailStatus,
             uccMobileStatus: uccMobileStatus,
             uccPanStatus: uccPanStatus,
-            emailAttempts: emailAttempts,
+            isEmailEncrypted: isEmailEncrypted || "false",
+            isPhoneEncrypted: isPhoneEncrypted || "false",
+            emailAttempts: emailAttempts || "0",
+            mobileAttempts: mobileAttempts || "0"
+        }
+
+        var country = investorObj.uccCountry.toLowerCase();
+        if (COUNTRY_ARRAY[country]) {
+            investorObj.UTCNotification = COUNTRY_ARRAY[country]['hours']
+        } else {
+            investorObj.UTCNotification = '10:30'
         }
         if (uccEmailStatus.toUpperCase() == EMAIL_STATUSES.NOT_VERIFIED) {
             investorObj = await investorFunctions.processInvestorEmail(investorObj);
@@ -176,13 +240,10 @@ const addSingleInvestor = async (req, res) => {
             },
             body: JSON.stringify(investorObj)
         };
-        return request(options, function (error, response) {
-            if (error) return res.json({ message: error.toString() }).status(RESPONSE_STATUS.SERVER_ERROR);
-            else {
-                return res.json({ message: 'Request queued successfully', investorObj: investorObj }).status(RESPONSE_STATUS.SUCCESS);
-            }
+        request(options, function (error, response) {
+            if (error) return res.status(error.status).json({ message: RESPONSE_MESSAGES.SERVER_ERROR, detail: error.toString() });
+            return res.status(response.statusCode).json({ data: JSON.parse(response.body) });
         });
-        // return res.json({ message: mobileProcessedInvObj }).status(RESPONSE_STATUS.SUCCESS);
     } catch (error) {
         const error_body = {
             error_message: "Error while sending verification email",
@@ -199,10 +260,13 @@ const addSingleInvestor = async (req, res) => {
     }
 }
 
+
+
 module.exports = {
     addSingleInvestor,
     investorEmailVerify,
     sendInvestorEmailForVerification,
     investorMobileVerify,
-    getInvestorDetailByUccId
+    getInvestorDetailByUccId,
+    addBulkinvestors
 }
