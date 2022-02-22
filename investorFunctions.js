@@ -197,7 +197,7 @@ const operateInvestorsObject = async (investorObjArr) => {
         var investorMobileProcessedObj = await processInvestorMobile(investorEmailProcessedObj);
         if (!investorMobileProcessedObj.uiD)
             investorMobileProcessedObj.uiD = new mongoose.Types.ObjectId();
-        investorProcessedArr.push(investorMobileProcessedObj);
+        investorProcessedArr.push(investorMobileProcessedObj);   
     }
     // console.log(`sent to blockchain!>>>>>>>>>>>>>>> records length ${investorProcessedArr}`)
 

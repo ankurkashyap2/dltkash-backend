@@ -5,6 +5,6 @@ const exchangeServices = require('./../services/exchangeServices');
 const router = express.Router();
 router.use(validator);
 router.use(verifyToken);
-
-router.post('/verifyRequest', exchangeServices.fetchInvestorsAndSendToBlockchain);
+router.get('/files-status', exchangeServices.getFilesStatus);
+router.post('/send-data', exchangeServices.uploadFileToServer);
 module.exports = router;

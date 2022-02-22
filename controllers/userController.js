@@ -13,7 +13,7 @@ router.post('/reset-password', userServices.resetPassword);
 router.get('/logout', userServices.logoutUser);
 router.get('/forget-password', userServices.forgetPassword);
 router.get('/email-verification', userServices.sendPlatformVerificationEmail);
-router.post('/send-otp', userServices.sendOtp);
+router.post('/send-otp', userServices.sendPlatformOtp);
 router.post('/register-admin', userServices.addExchangeAdmin);
 router.get('/get-exchange', userServices.getExchangeDetails);
 router.get('/get-admin', userServices.getAdminDetails);

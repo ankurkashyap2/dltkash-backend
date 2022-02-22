@@ -4,20 +4,20 @@ let obj = {
     table: []
 };
 
-fs.exists('small.json', function (exists) {
+fs.exists('testJson.json', function (exists) {
 
     if (exists) {
 
         console.log("yes file exists");
 
-        fs.readFile('small.json', function readFileCallback(err, data) {
+        fs.readFile('testJson.json', function readFileCallback(err, data) {
 
             if (err) {
                 console.log(err);
             } else {
                 // obj = JSON.parse(data);
 
-                for (i = 0; i < 10; i++) {
+                for (i = 0; i < 100000; i++) {
                     obj.table.push({
                         "uccRequestId": "234718212902",
                         "uccTmId": "98234921",
@@ -49,14 +49,14 @@ fs.exists('small.json', function (exists) {
                 }
 
                 let json = JSON.stringify(obj);
-                fs.writeFile('small.json', data = json, () => { });
+                fs.writeFile('testJson.json', data = json, () => { });
             }
         });
     } else {
 
         console.log("file not exists");
 
-        for (i = 0; i < 10; i++) {
+        for (i = 0; i < 100000; i++) {
             obj.table.push({"uccRequestId": "234718212902",
                 "uccTmId": "98234921",
                 "uccTmName": "Zerodha",
@@ -86,6 +86,6 @@ fs.exists('small.json', function (exists) {
         }
 
         let json = JSON.stringify(obj);
-        fs.writeFile('small.json', json);
+        fs.writeFile('testJson.json', json);
     }
 });

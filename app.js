@@ -1,30 +1,33 @@
 let express = require('express');
 let logger = require('morgan');
 const cors = require('cors');
-
-const session = require('express-session');
+const busboy = require('connect-busboy');
 var bodyParser = require('body-parser');
-
+const path = require('path');
+const fs = require('fs-extra');
 let app = express();
-
+const uploadPath = path.join(__dirname, '/unprocessedFiles'); // Register the upload path
+fs.ensureDir(uploadPath);
+global.__uploadPath = uploadPath;
 app.use(bodyParser.json());
 global.__root = __dirname + '/';
 const db = require('./db');
+require('./Cron');
 app.use(logger('dev'));
 const corsOptions = {}; // exposedHeaders: "DNT,X-Mx-ReqToken,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type" };
 app.use(cors(corsOptions));
 app.options('*', cors());
-// app.use(cors());
-app.use(express.json());
-app.use( bodyParser.json({limit: '50mb'}) );
-app.use(bodyParser.urlencoded({
-  limit: '2mb',
-  extended: true,
-  parameterLimit:50000
-}));
-app.use('/api/v1/test', (req, res) => {
 
-    return res.json({ message: "Request Successful!" });
+app.use(express.json());
+app.use(bodyParser.json({ limit: '50mb' }));
+
+app.use(busboy({
+  highWaterMark: 2 * 1024 * 1024, // Set 2MiB buffer
+}));
+
+
+app.use('/api/v1/test', (req, res) => {
+  return res.json({ message: "Request Successful!" });
 });
 
 const UserController = require('./controllers/userController');

@@ -2,10 +2,8 @@ const { Types } = require("mongoose");
 const validator = require("./validator");
 
 const exchangeApiPathModels = {
-    "/verifyRequest": {
-            investorsData:{ type: String,  source: "query" },
-       
-    },
+    "/send-data": {},
+    "/files-status":{}
 };
 
 module.exports = function handler(req, res, next) {

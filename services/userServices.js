@@ -204,9 +204,9 @@ const forgetPassword = async (req, res) => {
 }
 
 
-const sendOtp = (req, res) => {
+const sendPlatformOtp = (req, res) => {
     try {
-
+        
     } catch (error) {
         const error_body = {
             error_message: "Error while send otp",
@@ -260,7 +260,7 @@ const getAdminDetails = async (req, res) => {
 
 const verifyOtp = (req, res) => {
     try {
-
+            
     } catch (error) {
         const error_body = {
             error_message: "Error while verify email",
@@ -318,7 +318,7 @@ module.exports = {
     forgetPassword,
     getAdminDetails,
     getExchangeDetails,
-    sendOtp,
+    sendPlatformOtp,
     verifyOtp,
 
     logoutUser
