@@ -72,6 +72,7 @@ const startFileProcessing = async (recordFile) => {
             jsonObj.uccEmailId = commonFunctions.encryptWithAES(jsonObj.uccEmailId);
             jsonObj.mobileAttempts = '0';
             jsonObj.emailAttempts = '0';
+            jsonObj.fileName = recordFile.fileName
             //SEND TO QUEUE
             rabbit.publish(QUEUE_NAME, jsonObj, { correlationId: '1' }).then(() => console.log(`message published ${c}`));
         });
@@ -123,156 +124,41 @@ const FileParser = async (recordFile) => {
 }
 
 
+const investorDataOperator = async (investorsData) => {
 
-const investorDataOperator = async () => {
-    const investorsData = [
-        {
-            "uccRequestId": "234718212902",
-            "uccTmId": "98234921",
-            "uccTmName": "Zerodha",
-            "uccPanExempt": "false",
-            "uccPanNo": "COMPA44565A",
-            "uccCountry": "India",
-            "uccMobileNo": "9877114806",
-            "uccEmailId": "ankit@getnada.com",
-            "uccMobileNoModified": "false",
-            "uccEmailIdModified": "false",
-            "uccDpId": "2384092431",
-            "uccClientId": "82340918043",
-            "uccInvestorCode": "18293",
-            "uccRequestType": "NEW",
-            "uccNodeStatus": "01",
-            "uccEmailStatus": "VERIFIED",
-            "uccMobileStatus": "VERIFIED",
-            "uccPanStatus": "VERIFIED",
-            "emailAttempts": "1",
-            "mobileAttempts": "3",
-            "ledgerId1": "org.property-registration-network.investor.requestrahul123-rahul11",
-            "ledgerid2": "org.property-registration-network.investor.requestrahul123-ayush@gmail.com-91222122-rahul11",
-            "isEmailEncrypted": "false",
-            "isPhoneEncrypted": "false",
-            "UTCNotification": "15:00"
-        },
-        {
-            "uccRequestId": "234718212902",
-            "uccTmId": "98234921",
-            "uccTmName": "Zerodha",
-            "uccPanExempt": "false",
-            "uccPanNo": "COMPA44565A",
-            "uccCountry": "India",
-            "uccMobileNo": "9877114806",
-            "uccEmailId": "ankit@getnada.com",
-            "uccMobileNoModified": "false",
-            "uccEmailIdModified": "false",
-            "uccDpId": "2384092431",
-            "uccClientId": "82340918043",
-            "uccInvestorCode": "18293",
-            "uccRequestType": "NEW",
-            "uccNodeStatus": "01",
-            "uccEmailStatus": "VERIFIED",
-            "uccMobileStatus": "VERIFIED",
-            "uccPanStatus": "VERIFIED",
-            "emailAttempts": "1",
-            "mobileAttempts": "3",
-            "ledgerId1": "org.property-registration-network.investor.requestrahul123-rahul11",
-            "ledgerid2": "org.property-registration-network.investor.requestrahul123-ayush@gmail.com-91222122-rahul11",
-            "isEmailEncrypted": "false",
-            "isPhoneEncrypted": "false",
-            "UTCNotification": "15:00"
-        },
-        {
-            "uccRequestId": "234718212902",
-            "uccTmId": "98234921",
-            "uccTmName": "Zerodha",
-            "uccPanExempt": "false",
-            "uccPanNo": "COMPA44565A",
-            "uccCountry": "India",
-            "uccMobileNo": "9877114806",
-            "uccEmailId": "ankit@getnada.com",
-            "uccMobileNoModified": "false",
-            "uccEmailIdModified": "false",
-            "uccDpId": "2384092431",
-            "uccClientId": "82340918043",
-            "uccInvestorCode": "18293",
-            "uccRequestType": "NEW",
-            "uccNodeStatus": "01",
-            "uccEmailStatus": "VERIFIED",
-            "uccMobileStatus": "VERIFIED",
-            "uccPanStatus": "VERIFIED",
-            "emailAttempts": "1",
-            "mobileAttempts": "3",
-            "ledgerId1": "org.property-registration-network.investor.requestrahul123-rahul11",
-            "ledgerid2": "org.property-registration-network.investor.requestrahul123-ayush@gmail.com-91222122-rahul11",
-            "isEmailEncrypted": "false",
-            "isPhoneEncrypted": "false",
-            "UTCNotification": "15:00"
-        },
-        {
-            "uccRequestId": "234718212902",
-            "uccTmId": "98234921",
-            "uccTmName": "Zerodha",
-            "uccPanExempt": "false",
-            "uccPanNo": "COMPA44565A",
-            "uccCountry": "India",
-            "uccMobileNo": "9877114806",
-            "uccEmailId": "ankit@getnada.com",
-            "uccMobileNoModified": "false",
-            "uccEmailIdModified": "false",
-            "uccDpId": "2384092431",
-            "uccClientId": "82340918043",
-            "uccInvestorCode": "18293",
-            "uccRequestType": "NEW",
-            "uccNodeStatus": "01",
-            "uccEmailStatus": "VERIFIED",
-            "uccMobileStatus": "VERIFIED",
-            "uccPanStatus": "VERIFIED",
-            "emailAttempts": "1",
-            "mobileAttempts": "3",
-            "ledgerId1": "org.property-registration-network.investor.requestrahul123-rahul11",
-            "ledgerid2": "org.property-registration-network.investor.requestrahul123-ayush@gmail.com-91222122-rahul11",
-            "isEmailEncrypted": "false",
-            "isPhoneEncrypted": "false",
-            "UTCNotification": "15:00"
-        },
-        {
-            "uccRequestId": "234718212902",
-            "uccTmId": "98234921",
-            "uccTmName": "Zerodha",
-            "uccPanExempt": "false",
-            "uccPanNo": "COMPA44565A",
-            "uccCountry": "India",
-            "uccMobileNo": "9877114806",
-            "uccEmailId": "ankit@getnada.com",
-            "uccMobileNoModified": "false",
-            "uccEmailIdModified": "false",
-            "uccDpId": "2384092431",
-            "uccClientId": "82340918043",
-            "uccInvestorCode": "18293",
-            "uccRequestType": "NEW",
-            "uccNodeStatus": "01",
-            "uccEmailStatus": "VERIFIED",
-            "uccMobileStatus": "VERIFIED",
-            "uccPanStatus": "VERIFIED",
-            "emailAttempts": "1",
-            "mobileAttempts": "3",
-            "ledgerId1": "org.property-registration-network.investor.requestrahul123-rahul11",
-            "ledgerid2": "org.property-registration-network.investor.requestrahul123-ayush@gmail.com-91222122-rahul11",
-            "isEmailEncrypted": "false",
-            "isPhoneEncrypted": "false",
-            "UTCNotification": "15:00"
-        }
-    ];
+
+    // const promises = [];
+    // const innerpromises = [];
+
+    // investorsData.forEach((investor) => {
+    //     const investorObj = { ...investor }
+    //     promises.push(processInvestorEmail(investorObj));
+    // })
+
+    // const investerEmailResults = await Promise.all(promises);
+
+    // investerEmailResults.forEach((emailProcessed) => {
+    
+    //     const emailProcessedObj = { ...emailProcessed }
+    //     innerpromises.push(processInvestorMobile(emailProcessedObj))
+    // })
+
+    // const resultsFinal = await Promise.all(investerEmailResults);
+    // console.log(resultsFinal);
+
     for await (let investor of investorsData) {
-        let invObj;
-        if (investor.uccEmailStatus != EMAIL_STATUSES.VERIFIED) invObj = await processInvestorEmail(investor).then((inv) => {
-
-        });
-        if (investor.uccMobileStatus != MOBILE_STATUSES.VERIFIED) var mobileProcessed = await processInvestorMobile(invObj);
-        // console.log('INV DATA>>', invObj.uccEmailId)
+        // await processInvestorEmail(investor).then(async (emailProcessed) => {
+        //     console.log(emailProcessed.uccEmailStatus ,"EMAILED TO" , emailProcessed.uccEmailId)
+            await processInvestorMobile(investor).then(async (mobileProcessed) => {
+                // console.log(mobileProcessed.uccRequestId,"<<<<<<<MOBILE")
+                await processInvestorEmail(investor).then(emailProcessed=>{
+                    console.log(emailProcessed.uccRequestId,"<<<<<<EMAIL")
+                })
+            });
+        // })
     };
 }
 
-// investorDataOperator();
 
 const sendRequestToFetchInvestors = async (page = 1) => {
     try {
@@ -290,7 +176,6 @@ const sendRequestToFetchInvestors = async (page = 1) => {
                 "limit": "5"
             })
         };
-        //https://summer-thunder-86958.pktriot.net
         request(options, function (error, response) {
             if (error) {
                 //Error logs
@@ -299,7 +184,7 @@ const sendRequestToFetchInvestors = async (page = 1) => {
             const result = JSON.parse(response.body);
             console.log(result.results.length);
             if (result.results == 0) return;
-            // investorDataOperator(result.results);
+            investorDataOperator(result.results);
             sendRequestToFetchInvestors(page + 1);
         });
     } catch (error) {
@@ -313,12 +198,288 @@ const sendRequestToFetchInvestors = async (page = 1) => {
     }
 
 }
+var k = [{
+    "uccRequestId": "234718212902",
+    "uccTmId": "98234921",
+    "uccTmName": "Zerodha",
+    "uccPanExempt": "false",
+    "uccPanNo": "COMPA44565A",
+    "uccCountry": "India",
+    "uccMobileNo": "9877114806",
+    "uccEmailId": "aaaaaaa@getnada.com",
+    "uccMobileNoModified": "false",
+    "uccEmailIdModified": "false",
+    "uccDpId": "2384092431",
+    "uccClientId": "82340918043",
+    "uccInvestorCode": "18293",
+    "uccRequestType": "NEW",
+    "uccNodeStatus": "01",
+    "uccEmailStatus": "NOT VERIFIED",
+    "uccMobileStatus": "NOT VERIFIED",
+    "uccPanStatus": "VERIFIED",
+    "emailAttempts": "1",
+    "mobileAttempts": "1",
+    "ledgerId1": "org.property-registration-network.investor.requestrahul123-rahul11",
+    "ledgerid2": "org.property-registration-network.investor.requestrahul123-ayush@gmail.com-91222122-rahul11",
+    "isEmailEncrypted": "false",
+    "isPhoneEncrypted": "false",
+    "UTCNotification": "15:00"
+},
+{
+    "uccRequestId": "11",
+    "uccTmId": "98234921",
+    "uccTmName": "Zerodha",
+    "uccPanExempt": "false",
+    "uccPanNo": "COMPA44565A",
+    "uccCountry": "India",
+    "uccMobileNo": "7696167115",
+    "uccEmailId": "bcb@getnada.com",
+    "uccMobileNoModified": "false",
+    "uccEmailIdModified": "false",
+    "uccDpId": "2384092431",
+    "uccClientId": "82340918043",
+    "uccInvestorCode": "18293",
+    "uccRequestType": "NEW",
+    "uccNodeStatus": "01",
+    "uccEmailStatus": "NOT VERIFIED",
+    "uccMobileStatus": "NOT VERIFIED",
+    "uccPanStatus": "VERIFIED",
+    "emailAttempts": "1",
+    "mobileAttempts": "1",
+    "ledgerId1": "org.property-registration-network.investor.requestrahul123-rahul11",
+    "ledgerid2": "org.property-registration-network.investor.requestrahul123-ayush@gmail.com-91222122-rahul11",
+    "isEmailEncrypted": "false",
+    "isPhoneEncrypted": "false",
+    "UTCNotification": "15:00"
+},
+{
+    "uccRequestId": "11",
+    "uccTmId": "98234921",
+    "uccTmName": "Zerodha",
+    "uccPanExempt": "false",
+    "uccPanNo": "COMPA44565A",
+    "uccCountry": "India",
+    "uccMobileNo": "7696167115",
+    "uccEmailId": "bcb@getnada.com",
+    "uccMobileNoModified": "false",
+    "uccEmailIdModified": "false",
+    "uccDpId": "2384092431",
+    "uccClientId": "82340918043",
+    "uccInvestorCode": "18293",
+    "uccRequestType": "NEW",
+    "uccNodeStatus": "01",
+    "uccEmailStatus": "NOT VERIFIED",
+    "uccMobileStatus": "NOT VERIFIED",
+    "uccPanStatus": "VERIFIED",
+    "emailAttempts": "1",
+    "mobileAttempts": "1",
+    "ledgerId1": "org.property-registration-network.investor.requestrahul123-rahul11",
+    "ledgerid2": "org.property-registration-network.investor.requestrahul123-ayush@gmail.com-91222122-rahul11",
+    "isEmailEncrypted": "false",
+    "isPhoneEncrypted": "false",
+    "UTCNotification": "15:00"
+},
+{
+    "uccRequestId": "11",
+    "uccTmId": "98234921",
+    "uccTmName": "Zerodha",
+    "uccPanExempt": "false",
+    "uccPanNo": "COMPA44565A",
+    "uccCountry": "India",
+    "uccMobileNo": "7696167115",
+    "uccEmailId": "bcb@getnada.com",
+    "uccMobileNoModified": "false",
+    "uccEmailIdModified": "false",
+    "uccDpId": "2384092431",
+    "uccClientId": "82340918043",
+    "uccInvestorCode": "18293",
+    "uccRequestType": "NEW",
+    "uccNodeStatus": "01",
+    "uccEmailStatus": "NOT VERIFIED",
+    "uccMobileStatus": "NOT VERIFIED",
+    "uccPanStatus": "VERIFIED",
+    "emailAttempts": "1",
+    "mobileAttempts": "1",
+    "ledgerId1": "org.property-registration-network.investor.requestrahul123-rahul11",
+    "ledgerid2": "org.property-registration-network.investor.requestrahul123-ayush@gmail.com-91222122-rahul11",
+    "isEmailEncrypted": "false",
+    "isPhoneEncrypted": "false",
+    "UTCNotification": "15:00"
+},
+{
+    "uccRequestId": "11",
+    "uccTmId": "98234921",
+    "uccTmName": "Zerodha",
+    "uccPanExempt": "false",
+    "uccPanNo": "COMPA44565A",
+    "uccCountry": "India",
+    "uccMobileNo": "7696167115",
+    "uccEmailId": "bcb@getnada.com",
+    "uccMobileNoModified": "false",
+    "uccEmailIdModified": "false",
+    "uccDpId": "2384092431",
+    "uccClientId": "82340918043",
+    "uccInvestorCode": "18293",
+    "uccRequestType": "NEW",
+    "uccNodeStatus": "01",
+    "uccEmailStatus": "NOT VERIFIED",
+    "uccMobileStatus": "NOT VERIFIED",
+    "uccPanStatus": "VERIFIED",
+    "emailAttempts": "1",
+    "mobileAttempts": "1",
+    "ledgerId1": "org.property-registration-network.investor.requestrahul123-rahul11",
+    "ledgerid2": "org.property-registration-network.investor.requestrahul123-ayush@gmail.com-91222122-rahul11",
+    "isEmailEncrypted": "false",
+    "isPhoneEncrypted": "false",
+    "UTCNotification": "15:00"
+}
+];
 
-// sendRequestToFetchInvestors()
+
+var k2 = [{
+    "uccRequestId": "234718212902",
+    "uccTmId": "98234921",
+    "uccTmName": "Zerodha",
+    "uccPanExempt": "false",
+    "uccPanNo": "COMPA44565A",
+    "uccCountry": "India",
+    "uccMobileNo": "9877114806",
+    "uccEmailId": "aaaaaaa@getnada.com",
+    "uccMobileNoModified": "false",
+    "uccEmailIdModified": "false",
+    "uccDpId": "2384092431",
+    "uccClientId": "82340918043",
+    "uccInvestorCode": "18293",
+    "uccRequestType": "NEW",
+    "uccNodeStatus": "01",
+    "uccEmailStatus": "NOT VERIFIED",
+    "uccMobileStatus": "NOT VERIFIED",
+    "uccPanStatus": "VERIFIED",
+    "emailAttempts": "1",
+    "mobileAttempts": "1",
+    "ledgerId1": "org.property-registration-network.investor.requestrahul123-rahul11",
+    "ledgerid2": "org.property-registration-network.investor.requestrahul123-ayush@gmail.com-91222122-rahul11",
+    "isEmailEncrypted": "false",
+    "isPhoneEncrypted": "false",
+    "UTCNotification": "15:00"
+},
+{
+    "uccRequestId": "11",
+    "uccTmId": "98234921",
+    "uccTmName": "Zerodha",
+    "uccPanExempt": "false",
+    "uccPanNo": "COMPA44565A",
+    "uccCountry": "India",
+    "uccMobileNo": "7696167115",
+    "uccEmailId": "bcb@getnada.com",
+    "uccMobileNoModified": "false",
+    "uccEmailIdModified": "false",
+    "uccDpId": "2384092431",
+    "uccClientId": "82340918043",
+    "uccInvestorCode": "18293",
+    "uccRequestType": "NEW",
+    "uccNodeStatus": "01",
+    "uccEmailStatus": "NOT VERIFIED",
+    "uccMobileStatus": "NOT VERIFIED",
+    "uccPanStatus": "VERIFIED",
+    "emailAttempts": "1",
+    "mobileAttempts": "1",
+    "ledgerId1": "org.property-registration-network.investor.requestrahul123-rahul11",
+    "ledgerid2": "org.property-registration-network.investor.requestrahul123-ayush@gmail.com-91222122-rahul11",
+    "isEmailEncrypted": "false",
+    "isPhoneEncrypted": "false",
+    "UTCNotification": "15:00"
+},
+{
+    "uccRequestId": "11",
+    "uccTmId": "98234921",
+    "uccTmName": "Zerodha",
+    "uccPanExempt": "false",
+    "uccPanNo": "COMPA44565A",
+    "uccCountry": "India",
+    "uccMobileNo": "7696167115",
+    "uccEmailId": "bcb@getnada.com",
+    "uccMobileNoModified": "false",
+    "uccEmailIdModified": "false",
+    "uccDpId": "2384092431",
+    "uccClientId": "82340918043",
+    "uccInvestorCode": "18293",
+    "uccRequestType": "NEW",
+    "uccNodeStatus": "01",
+    "uccEmailStatus": "NOT VERIFIED",
+    "uccMobileStatus": "NOT VERIFIED",
+    "uccPanStatus": "VERIFIED",
+    "emailAttempts": "1",
+    "mobileAttempts": "1",
+    "ledgerId1": "org.property-registration-network.investor.requestrahul123-rahul11",
+    "ledgerid2": "org.property-registration-network.investor.requestrahul123-ayush@gmail.com-91222122-rahul11",
+    "isEmailEncrypted": "false",
+    "isPhoneEncrypted": "false",
+    "UTCNotification": "15:00"
+},
+{
+    "uccRequestId": "11",
+    "uccTmId": "98234921",
+    "uccTmName": "Zerodha",
+    "uccPanExempt": "false",
+    "uccPanNo": "COMPA44565A",
+    "uccCountry": "India",
+    "uccMobileNo": "7696167115",
+    "uccEmailId": "bcb@getnada.com",
+    "uccMobileNoModified": "false",
+    "uccEmailIdModified": "false",
+    "uccDpId": "2384092431",
+    "uccClientId": "82340918043",
+    "uccInvestorCode": "18293",
+    "uccRequestType": "NEW",
+    "uccNodeStatus": "01",
+    "uccEmailStatus": "NOT VERIFIED",
+    "uccMobileStatus": "NOT VERIFIED",
+    "uccPanStatus": "VERIFIED",
+    "emailAttempts": "1",
+    "mobileAttempts": "1",
+    "ledgerId1": "org.property-registration-network.investor.requestrahul123-rahul11",
+    "ledgerid2": "org.property-registration-network.investor.requestrahul123-ayush@gmail.com-91222122-rahul11",
+    "isEmailEncrypted": "false",
+    "isPhoneEncrypted": "false",
+    "UTCNotification": "15:00"
+},
+{
+    "uccRequestId": "11",
+    "uccTmId": "98234921",
+    "uccTmName": "Zerodha",
+    "uccPanExempt": "false",
+    "uccPanNo": "COMPA44565A",
+    "uccCountry": "India",
+    "uccMobileNo": "7696167115",
+    "uccEmailId": "bcb@getnada.com",
+    "uccMobileNoModified": "false",
+    "uccEmailIdModified": "false",
+    "uccDpId": "2384092431",
+    "uccClientId": "82340918043",
+    "uccInvestorCode": "18293",
+    "uccRequestType": "NEW",
+    "uccNodeStatus": "01",
+    "uccEmailStatus": "NOT VERIFIED",
+    "uccMobileStatus": "NOT VERIFIED",
+    "uccPanStatus": "VERIFIED",
+    "emailAttempts": "1",
+    "mobileAttempts": "1",
+    "ledgerId1": "org.property-registration-network.investor.requestrahul123-rahul11",
+    "ledgerid2": "org.property-registration-network.investor.requestrahul123-ayush@gmail.com-91222122-rahul11",
+    "isEmailEncrypted": "false",
+    "isPhoneEncrypted": "false",
+    "UTCNotification": "15:00"
+}
+];
+
+
+
 
 const notificationSendingLogic = async () => {
     try {
-        sendRequestToFetchInvestors();
+ 
+        // sendRequestToFetchInvestors();
     } catch (error) {
         const error_body = {
             stack: error.stack,
@@ -329,6 +490,7 @@ const notificationSendingLogic = async () => {
         console.error(error_body);
     }
 }
+
 module.exports = {
     checkForUnprocessedFiles,
     startFileProcessing,

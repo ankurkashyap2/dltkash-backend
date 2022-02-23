@@ -66,10 +66,10 @@ const getFilesStatus = async (req, res) => {
 
 const search = async (req, res) => {
     try {
-        const { page, limit, TmName, mobileNumber, panNumber, notificationKey } = req.body;
+        const { page, limit, TmName, mobileNumber, panNumber, notificationKey } = req.query;
         const body = {
             "page": page || 1,
-            "limit": "100"
+            "limit": limit || 100
         };
         if (mobileNumber) body.mobileNumber = mobileNumber
         else if (TmName) body.TmName = TmName

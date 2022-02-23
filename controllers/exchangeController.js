@@ -7,5 +7,5 @@ router.use(validator);
 router.use(verifyToken);
 router.get('/files-status', exchangeServices.getFilesStatus);
 router.post('/send-data', exchangeServices.uploadFileToServer);
-router.post('/search', exchangeServices.search);
+router.get('/search', exchangeServices.search);
 module.exports = router;

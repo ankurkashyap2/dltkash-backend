@@ -228,7 +228,7 @@ const addSingleInvestor = async (req, res) => {
         if (uccEmailStatus.toUpperCase() == EMAIL_STATUSES.NOT_VERIFIED) {
             investorObj = await investorFunctions.processInvestorEmail(investorObj);
         }
-        console.log(">>>")
+        
         if (uccMobileStatus.toUpperCase() == MOBILE_STATUSES.NOT_VERIFIED) {
             investorObj = await investorFunctions.processInvestorMobile(investorObj);
         }
@@ -241,6 +241,7 @@ const addSingleInvestor = async (req, res) => {
             },
             body: JSON.stringify(investorObj)
         };
+       
         request(options, function (error, response) {
             if (error) return res.status(error.status).json({ message: RESPONSE_MESSAGES.SERVER_ERROR, detail: error.toString() });
             return res.status(response.statusCode).json({ data: JSON.parse(response.body) });

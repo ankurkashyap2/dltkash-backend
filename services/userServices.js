@@ -109,7 +109,7 @@ const registerExchange = async (req, res) => {
 
 const addExchangeAdmin = async (req, res) => {
     try {
-        const { phoneNo, userName, email, password, exchangeId, role } = req.body;
+        const { phoneNo, userName, email, isFirstExchangeAdmin,password, exchangeId, role } = req.body;
         const [emailRegistered, mobileRegistered] = await Promise.all([
             User.findOne({ email: email }),
 
