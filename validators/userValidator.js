@@ -14,7 +14,7 @@ const userApiPathModels = {
     "/get-admin": {
 
     },
-    "/login":{},
+    "/login": {},
     "/logout": {},
     "/email-verification": {
         email: { type: String, required: true, source: "query" }
@@ -24,6 +24,9 @@ const userApiPathModels = {
     },
     "/reset-password": {
         password: { type: String, required: true }
+    },
+    "/mobile-verification": {
+        mobile: { type: String, required: true ,source:"query"}
     }
 
 };

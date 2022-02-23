@@ -2,8 +2,7 @@ const { RESPONSE_MESSAGES, RESPONSE_STATUS } = require('./../constants');
 const RecordFile = require('./../models/fileSpecs');
 const fs = require('fs-extra');
 const path = require('path');
-
-//`/home/ankit/Desktop/DLTKash/unprocessedFiles/${filename.filename}`
+const request = require('request')
 
 const uploadFileToServer = async (req, res) => {
     try {
@@ -11,7 +10,7 @@ const uploadFileToServer = async (req, res) => {
         req.busboy.on('file', (fieldname, file, filename) => {
             if (filename.mimeType != 'application/json') return res.status(RESPONSE_STATUS.CONFLICT).json({ message: 'Only JSON files are accepted.' });
             console.log(`Upload of '${filename.filename}' started`);
-            const fstream = fs.createWriteStream(path.join(__uploadPath,filename.filename));
+            const fstream = fs.createWriteStream(path.join(__uploadPath, filename.filename));
             file.pipe(fstream);
             fstream.on('close', () => {
                 console.log(`Upload of '${filename.filename}' finished`);
@@ -44,6 +43,7 @@ const uploadFileToServer = async (req, res) => {
 }
 
 
+
 const getFilesStatus = async (req, res) => {
     try {
         const recordFiles = await RecordFile.find();
@@ -64,7 +64,46 @@ const getFilesStatus = async (req, res) => {
     }
 }
 
+const search = async (req, res) => {
+    try {
+        const { page, limit, TmName, mobileNumber, panNumber, notificationKey } = req.body;
+        const body = {
+            "page": page || 1,
+            "limit": "100"
+        };
+        if (mobileNumber) body.mobileNumber = mobileNumber
+        else if (TmName) body.TmName = TmName
+        else if (panNumber) body.panNumber = panNumber
+        else if (notificationKey) body.notificationKey = notificationKey
+        var options = {
+            'method': 'POST',
+            'url': `${process.env.HYPERLEDGER_HOST}/users/getInvestorsByKey`,
+            'headers': {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(body)
+        };
+        request(options, function (error, response) {
+            if (error) return res.status(error.status).json({ message: RESPONSE_MESSAGES.SERVER_ERROR, detail: error.toString() });
+    
+            return res.status(response.statusCode).json({ data: JSON.parse(response.body) });
+        });
+    } catch (error) {
+        const error_body = {
+            error_detail: (typeof error == 'object') ? JSON.stringify(error) : error,
+            error_data: req.body,
+            api_path: req.path,
+            stack: error.stack
+        }
+        console.error(error.stack);
+        return res
+            .status(RESPONSE_STATUS.SERVER_ERROR)
+            .json({ message: error.stack });
+    }
+}
+
 module.exports = {
     uploadFileToServer,
-    getFilesStatus
+    getFilesStatus,
+    search
 }

@@ -7,7 +7,7 @@ const exchange = require('../models/exchange');
 const user = require('./../models/user');
 const pug = require('pug')
 const jwt = require('jsonwebtoken');
-
+const request = require('request');
 
 
 const loginUser = async (req, res) => {
@@ -204,9 +204,34 @@ const forgetPassword = async (req, res) => {
 }
 
 
-const sendPlatformOtp = (req, res) => {
+const sendPlatformOtp =async (req, res) => {
     try {
-        
+        const  phoneNo  = req.query.mobile;
+        if (!commonFunctions.validateMobile(phoneNo)) return res.status(RESPONSE_STATUS.BAD_REQUEST).json({ message: "Not a valid Mobile Number" });
+        const askedUser = await User.findOne({ phoneNo: phoneNo });
+        // if (!askedUser)
+        //     return res.status(RESPONSE_STATUS.NOT_FOUND).json({ message: "Phone No. already registered." });
+        const otp = commonFunctions.getOTP();
+        const encryptedOTP = commonFunctions.encryptWithAES(otp.toString());
+        const dltSMS = `http://103.16.101.52:8080/bulksms/bulksms?username=${process.env.RM_USERNAME || 'DL08-dltkash'}&password=${process.env.RM_PASS || 'dltkash@'}&type=0&dlr=1&destination=${phoneNo}&source=DLTKTP&message=Please%20confirm%20your%20mobile%20no.%20mapped%20with%20${phoneNo}%20by%20clicking%20on%20the%20${otp}%20-%20DLTKASH&entityid=1601156164334945695&tempid=1607100000000188213`;
+        var options = {
+            'method': 'GET',
+            'url': dltSMS,
+            'headers': {
+                'Content-Type': 'application/json'
+            },
+        };
+
+        request(options, (err, resp, body) => {
+            const response = body.split('|')[0];
+            // add mail attempts
+            console.log('send>>>>', response)
+            if (response == '1701') {
+                return res.json({ message: "OTP SENT SUCCESS", verification: encryptedOTP });
+            } else {
+                return res.status(RESPONSE_STATUS.BAD_REQUEST).json({ message: "Error", data: response })
+            }
+        });
     } catch (error) {
         const error_body = {
             error_message: "Error while send otp",
@@ -258,22 +283,6 @@ const getAdminDetails = async (req, res) => {
     }
 }
 
-const verifyOtp = (req, res) => {
-    try {
-            
-    } catch (error) {
-        const error_body = {
-            error_message: "Error while verify email",
-            error_detail: typeof error == "object" ? JSON.stringify(error) : error,
-            error_data: req.body,
-            api_path: req.path,
-        };
-        console.error(error_body);
-        return res
-            .status(RESPONSE_STATUS.SERVER_ERROR)
-            .json({ message: error.message });
-    }
-}
 
 
 const sendPlatformVerificationEmail = async (req, res) => {
@@ -309,6 +318,8 @@ const sendPlatformVerificationEmail = async (req, res) => {
 
 }
 
+
+
 module.exports = {
     sendPlatformVerificationEmail,
     loginUser,
@@ -319,7 +330,6 @@ module.exports = {
     getAdminDetails,
     getExchangeDetails,
     sendPlatformOtp,
-    verifyOtp,
+    logoutUser,
 
-    logoutUser
 }

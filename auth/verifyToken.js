@@ -16,6 +16,7 @@ const apisToBeByPassed = [
     '/email-verification',
     '/get-data',
     '/send-verification/email',
+    '/mobile-verification'
 
 ];
 

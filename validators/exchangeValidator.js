@@ -3,7 +3,13 @@ const validator = require("./validator");
 
 const exchangeApiPathModels = {
     "/send-data": {},
-    "/files-status":{}
+    "/files-status": {},
+    "/search": {
+        mobileNumber: { type: String, required: false },
+        TmName: { type: String, required: false },
+        panNumber: { type: String, required: false },
+        notificationKey: { type: String, required: false }
+    }
 };
 
 module.exports = function handler(req, res, next) {

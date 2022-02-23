@@ -228,6 +228,7 @@ const addSingleInvestor = async (req, res) => {
         if (uccEmailStatus.toUpperCase() == EMAIL_STATUSES.NOT_VERIFIED) {
             investorObj = await investorFunctions.processInvestorEmail(investorObj);
         }
+        console.log(">>>")
         if (uccMobileStatus.toUpperCase() == MOBILE_STATUSES.NOT_VERIFIED) {
             investorObj = await investorFunctions.processInvestorMobile(investorObj);
         }
