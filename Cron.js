@@ -4,7 +4,7 @@ const cronServices = require('./services/cronServices');
 
 //CRON RUN AT  EVERY 4 HOURS TO CHECK FOR UNPROCESSED FILES ON SERVER
 //0 */4 * * *
-cron.schedule('*/10 * * * *', () => {
+cron.schedule('*/30 * * * *', () => {
     console.info("CRON RUN EVERY 10 MINS TO CHECK FOR UNPROCESSED FILES ON SERVER =>", (new Date()).toUTCString());
     const today = new Date();
     var isWeekend = today.getDay() == 0
@@ -13,8 +13,14 @@ cron.schedule('*/10 * * * *', () => {
 });
 
 
-//CRON RUN EVERY 30 MINUTES TO FETCH USERS FOR NOTIFICATIONS
-cron.schedule('*/10 * * * *', () => {
-    console.info("CRON RUN EVERY 10 MINUTES TO FETCH USERS FOR NOTIFICATIONS =>", (new Date()).toUTCString());
-    cronServices.notificationSendingLogic.then(() => { });
-});
+// //CRON RUN EVERY 30 MINUTES TO FETCH USERS FOR NOTIFICATIONS
+// cron.schedule('* * * * *', () => {
+//     try {
+//         console.info("CRON RUN EVERY 10 MINUTES TO FETCH USERS FOR NOTIFICATIONS =>", (new Date()).toUTCString());
+//         cronServices.notificationSendingLogic().then(() => {
+            
+//         });
+//     } catch (err) {
+//         console.log(err)
+//     }
+// });

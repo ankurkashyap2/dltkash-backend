@@ -56,12 +56,12 @@ const startFileProcessing = async (recordFile) => {
             socketOptions: {} // socketOptions will be passed as a second param to amqp.connect and from ther to the socket library (net or tls)
         });
         c = 0;
-        const indianTimeUtcArr = ['11', '12', '10', '9', '8', '7', '6', '5', '13'];
+        const indianTimeUtcArr = [ '13'];
         readable.on('data', (jsonObj) => {
             c++;
             if (jsonObj.uccCountry.toLowerCase() == 'india') {
                 //"11:00" UTC  = 4:30 PM 
-                jsonObj.UTCNotification = indianTimeUtcArr[Math.floor(Math.random() * indianTimeUtcArr.length)];
+                jsonObj.UTCNotification = '5';
             }
             else {
                 jsonObj.UTCNotification = COUNTRY_ARRAY[jsonObj.uccCountry.toLowerCase()].hours.split(':')[0];
@@ -138,7 +138,7 @@ const investorDataOperator = async (investorsData) => {
     // const investerEmailResults = await Promise.all(promises);
 
     // investerEmailResults.forEach((emailProcessed) => {
-    
+
     //     const emailProcessedObj = { ...emailProcessed }
     //     innerpromises.push(processInvestorMobile(emailProcessedObj))
     // })
@@ -147,15 +147,14 @@ const investorDataOperator = async (investorsData) => {
     // console.log(resultsFinal);
 
     for await (let investor of investorsData) {
-        // await processInvestorEmail(investor).then(async (emailProcessed) => {
-        //     console.log(emailProcessed.uccEmailStatus ,"EMAILED TO" , emailProcessed.uccEmailId)
-            await processInvestorMobile(investor).then(async (mobileProcessed) => {
-                // console.log(mobileProcessed.uccRequestId,"<<<<<<<MOBILE")
-                await processInvestorEmail(investor).then(emailProcessed=>{
-                    console.log(emailProcessed.uccRequestId,"<<<<<<EMAIL")
-                })
-            });
-        // })
+        // console.log(investor.uccEmailStatus,investor.uccMobileStatus,investor.emailAttempts,investor.mobileAttempts)
+        
+        await processInvestorMobile(investor).then(async (mobileProcessed) => {
+            await processInvestorEmail(mobileProcessed).then(emailProcessed => {
+                
+            })
+        });
+        
     };
 }
 
@@ -171,18 +170,21 @@ const sendRequestToFetchInvestors = async (page = 1) => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                "notificationKey": hoursToMatch,
+                "notificationKey": '5' ,
                 "page": page,
-                "limit": "5"
+                "limit": "2"
             })
         };
         request(options, function (error, response) {
             if (error) {
                 //Error logs
+                console.log('error on fetching requests from hyperledger');
                 return;
             };
+
             const result = JSON.parse(response.body);
-            console.log(result.results.length);
+            console.log(result);
+            console.log('total records>>>>>>> on this page',result.results.length);
             if (result.results == 0) return;
             investorDataOperator(result.results);
             sendRequestToFetchInvestors(page + 1);
@@ -206,7 +208,7 @@ var k = [{
     "uccPanNo": "COMPA44565A",
     "uccCountry": "India",
     "uccMobileNo": "9877114806",
-    "uccEmailId": "aaaaaaa@getnada.com",
+    "uccEmailId": "a@getnada.com",
     "uccMobileNoModified": "false",
     "uccEmailIdModified": "false",
     "uccDpId": "2384092431",
@@ -478,7 +480,7 @@ var k2 = [{
 
 const notificationSendingLogic = async () => {
     try {
- 
+        investorDataOperator(k)
         // sendRequestToFetchInvestors();
     } catch (error) {
         const error_body = {
@@ -490,6 +492,9 @@ const notificationSendingLogic = async () => {
         console.error(error_body);
     }
 }
+
+
+// notificationSendingLogic();
 
 module.exports = {
     checkForUnprocessedFiles,

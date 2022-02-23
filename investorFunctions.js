@@ -40,11 +40,11 @@ const processInvestorEmail = async (investorObj) => {
         //check if user is verified or not
         // if user verified do nothing
         // if not verified ..
-        if (investorObj.isEmailEncrypted == 'true') {
-            investorObj.isEmailEncrypted = 'false'
-            var decryptedEmailId = decryptWithAES(investorObj.uccEmailId);
-            investorObj.uccEmailId = decryptedEmailId
-        }
+        // if (investorObj.isEmailEncrypted == 'true') {
+        //     investorObj.isEmailEncrypted = 'false'
+        //     var decryptedEmailId = decryptWithAES(investorObj.uccEmailId);
+        //     investorObj.uccEmailId = decryptedEmailId
+        // }
 
         if (EMAIL_STATUS != EMAIL_STATUSES.VERIFIED) {
 
@@ -58,23 +58,23 @@ const processInvestorEmail = async (investorObj) => {
 
                 if (investorObj.uccRequestType == UCC_REQUEST_TYPES.NEW && investorObj.emailAttempts == '3') {           //check if request type and email attempts
                     investorObj.uccEmailStatus = EMAIL_STATUSES.NOT_VERIFIED;
-                    if (investorObj.isEmailEncrypted == 'false') {
-                        investorObj.isEmailEncrypted = 'true';
-                        investorObj.uccEmailId = encryptWithAES(investorObj.uccEmailId)
-                    }
+                    // if (investorObj.isEmailEncrypted == 'false') {
+                    //     investorObj.isEmailEncrypted = 'true';
+                    //     investorObj.uccEmailId = encryptWithAES(investorObj.uccEmailId)
+                    // }
                     resolve(investorObj);
 
                 } else if (investorObj.uccRequestType == UCC_REQUEST_TYPES.EXISTING && investorObj.emailAttempts == '15') {
                     investorObj.uccEmailStatus = EMAIL_STATUSES.NOT_VERIFIED;
-                    if (investorObj.isEmailEncrypted == 'false') {
-                        investorObj.isEmailEncrypted = 'true';
-                        investorObj.uccEmailId = encryptWithAES(investorObj.uccEmailId)
-                    }
+                    // if (investorObj.isEmailEncrypted == 'false') {
+                    //     investorObj.isEmailEncrypted = 'true';
+                    //     investorObj.uccEmailId = encryptWithAES(investorObj.uccEmailId)
+                    // }
                     resolve(investorObj);
                 }
                 else { //send mail 
 
-                    let token = jwt.sign({ email: investorObj.uccEmailId, reqId: investorObj.uccRequestId }, 'process.env.JWTSECRET', {
+                    let token = jwt.sign({ email: investorObj.uccEmailId, reqId: investorObj.uccRequestId }, process.env.JWTSECRET, {
                         expiresIn: '24h',
                     });
                     const mailBody = {
@@ -82,15 +82,15 @@ const processInvestorEmail = async (investorObj) => {
                         ref: `${process.env.FEHOST}/investor/email-verification/${investorObj.uccRequestId}/${token}`
                     }
 
-                    // const html = pug.renderFile(__root + "emailTemplates/investorEmailVerificaton.pug", mailBody);
-                    commonFunctions.sendMail(investorObj.uccEmailId, 'Investor Email Verify', 'html', (err, res, body) => {
+                    const html = pug.renderFile(__root + "emailTemplates/investorEmailVerificaton.pug", mailBody);
+                    commonFunctions.sendMail(investorObj.uccEmailId, 'Investor Email Verify', html, (err, res, body) => {
                         if (err) {
                             // handle email error
                             console.log(err)
                         }
                         else {
                             // add mail attempts
-
+                            console.log('MAIL TO:--> ', investorObj.uccEmailId)
                             if (!investorObj.emailAttempts) {
                                 investorObj.emailAttempts = '1';
                             }
@@ -101,10 +101,10 @@ const processInvestorEmail = async (investorObj) => {
 
                             }
                             investorObj.uccEmailStatus = EMAIL_STATUSES.SENT
-                            if (investorObj.isEmailEncrypted == 'false') {
-                                investorObj.isEmailEncrypted = 'true';
-                                investorObj.uccEmailId = encryptWithAES(investorObj.uccEmailId)
-                            }
+                            // if (investorObj.isEmailEncrypted == 'false') {
+                            //     investorObj.isEmailEncrypted = 'true';
+                            //     investorObj.uccEmailId = encryptWithAES(investorObj.uccEmailId)
+                            // }
                             // return investorObj;
                             resolve(investorObj)
 
@@ -126,35 +126,34 @@ const processInvestorMobile = async (investorObj) => {
         //check if user is verified or not
         // if user verified do nothing
         // if not verified ..
-        
-        if (investorObj.isPhoneEncrypted == 'true') {
-            investorObj.isPhoneEncrypted = 'false'
-            var decryptedPhoneNo = decryptWithAES(investorObj.uccMobileNo);
-            investorObj.uccMobileNo = decryptedPhoneNo
-        }
+
+        // if (investorObj.isPhoneEncrypted == 'true') {
+        //     investorObj.isPhoneEncrypted = 'false'
+        //     var decryptedPhoneNo = decryptWithAES(investorObj.uccMobileNo);
+        //     investorObj.uccMobileNo = decryptedPhoneNo
+        // }
         if (MOBILE_STATUS != MOBILE_STATUSES.VERIFIED) {
             // if email not validated set email status as invalid
-            
             if (!commonFunctions.validateMobile(investorObj.uccMobileNo)) {
                 investorObj.uccMobileStatus = MOBILE_STATUSES.INVALID;
-                if (investorObj.isPhoneEncrypted == 'false') {
-                    investorObj.isPhoneEncrypted = 'true';
-                    investorObj.uccMobileNo = encryptWithAES(investorObj.uccMobileNo)
-                }
-                
+                // if (investorObj.isPhoneEncrypted == 'false') {
+                //     investorObj.isPhoneEncrypted = 'true';
+                //     investorObj.uccMobileNo = encryptWithAES(investorObj.uccMobileNo)
+                // }
+
                 resolve(investorObj)
-               
+
             }  //if valid  
-            
+
             else {
-                
+
                 if (investorObj.uccRequestType == UCC_REQUEST_TYPES.NEW && investorObj.mobileAttempts == '3') {
                     //check if request type and email attempts
                     investorObj.uccMobileStatus = MOBILE_STATUSES.NOT_VERIFIED;
-                    if (investorObj.isPhoneEncrypted == 'false') {
-                        investorObj.isPhoneEncrypted = 'true';
-                        investorObj.uccMobileNo = encryptWithAES(investorObj.uccMobileNo)
-                    }
+                    // if (investorObj.isPhoneEncrypted == 'false') {
+                    //     investorObj.isPhoneEncrypted = 'true';
+                    //     investorObj.uccMobileNo = encryptWithAES(investorObj.uccMobileNo)
+                    // }
                     resolve(investorObj);
 
                 } else if (investorObj.uccRequestType == UCC_REQUEST_TYPES.EXISTING && investorObj.mobileAttempts == '15') {
@@ -162,14 +161,13 @@ const processInvestorMobile = async (investorObj) => {
                     resolve(investorObj);
                 }
                 else { //send mail 
-                   
                     const token = jwt.sign({ mobile: investorObj.uccMobileNo, reqId: investorObj.uccRequestId }, 'process.env.JWTSECRET', {
                         expiresIn: '24h',
                     });
-                    
+
                     const ref = `${process.env.FEHOST}/investor/mobile-verification/${investorObj.uccRequestId}/${token}`
                     commonFunctions.shortURL(ref, function (err, short) {
-                        if(err) console.error(err)
+                        if (err) console.error(err)
                         commonFunctions.sendSMS(investorObj, short, (err, res, body) => {
                             const response = body.split('|')[0];
                             // add mail attempts
@@ -184,16 +182,16 @@ const processInvestorMobile = async (investorObj) => {
                                     investorObj.mobileAttempts = noMobileAttempts.toString();
                                 }
                                 investorObj.uccMobileStatus = MOBILE_STATUSES.SENT
-                                if (investorObj.isPhoneEncrypted == 'false') {
-                                    investorObj.isPhoneEncrypted = 'true';
-                                    investorObj.uccMobileNo = encryptWithAES(investorObj.uccMobileNo)
-                                }
+                                // if (investorObj.isPhoneEncrypted == 'false') {
+                                //     investorObj.isPhoneEncrypted = 'true';
+                                //     investorObj.uccMobileNo = encryptWithAES(investorObj.uccMobileNo)
+                                // }
                                 resolve(investorObj)
                             } else {
-                                if (investorObj.isPhoneEncrypted == 'false') {
-                                    investorObj.isPhoneEncrypted = 'true';
-                                    investorObj.uccMobileNo = encryptWithAES(investorObj.uccMobileNo)
-                                }
+                                // if (investorObj.isPhoneEncrypted == 'false') {
+                                //     investorObj.isPhoneEncrypted = 'true';
+                                //     investorObj.uccMobileNo = encryptWithAES(investorObj.uccMobileNo)
+                                // }
                                 resolve(investorObj)
                             }
                         })
