@@ -307,7 +307,7 @@ const sendPlatformVerificationEmail = async (req, res) => {
         }
         const html = pug.renderFile(__root + "emailTemplates/emailVerification.pug", mailBody);
         commonFunctions.sendMail(req.query.email, 'Regarding Email Verification', html, (err, response) => {
-            if(response.body.status != 'queued') return res.json(RESPONSE_MESSAGES.BAD_REQUEST).status({message:response.body.toString()})
+            // if(response.body.status != 'queued') return res.json(RESPONSE_MESSAGES.BAD_REQUEST).status({message:response.body.toString()})
                 //handle code == -1
         });
         const enc = commonFunctions.encryptWithAES(otp.toString());
