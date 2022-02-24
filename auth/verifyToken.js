@@ -26,7 +26,7 @@ const headerTokenApis = [
 ];
 function verifyToken(req, res, next) {
     try {
-    
+
         if (apisToBeByPassed.indexOf(req.path) !== -1)
             return next();
         if (headerTokenApis.includes(req.path))
@@ -77,7 +77,7 @@ function generateToken(params) {
 
 function verifyPassword({ email, password }) {
     return new Promise(async (resolve, reject) => {
-        let askedUser = await User.findOne({ email: email }, { password: 1 });
+        let askedUser = await User.findOne({ $or: [{ email: email }, { userName: email }] }, { password: 1 });
 
         if (!askedUser) {
             return reject({
