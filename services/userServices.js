@@ -184,6 +184,7 @@ const forgetPassword = async (req, res) => {
         }
         const html = pug.renderFile(__root + "/emailTemplates/passwordChange.pug", mailBody);
         commonFunctions.sendMail(req.query.email, "Regarding password change", html, (err, response) => {
+            
             if (err)
                 return res.status(RESPONSE_STATUS.SERVER_ERROR).json({ message: RESPONSE_MESSAGES.SERVER_ERROR });
 
@@ -209,8 +210,8 @@ const sendPlatformOtp =async (req, res) => {
         const  phoneNo  = req.query.mobile;
         if (!commonFunctions.validateMobile(phoneNo)) return res.status(RESPONSE_STATUS.BAD_REQUEST).json({ message: "Not a valid Mobile Number" });
         const askedUser = await User.findOne({ phoneNo: phoneNo });
-        // if (!askedUser)
-        //     return res.status(RESPONSE_STATUS.NOT_FOUND).json({ message: "Phone No. already registered." });
+        if (!askedUser)
+            return res.status(RESPONSE_STATUS.NOT_FOUND).json({ message: "Phone No. already registered." });
         const otp = commonFunctions.getOTP();
         const encryptedOTP = commonFunctions.encryptWithAES(otp.toString());
         const dltSMS = `http://103.16.101.52:8080/bulksms/bulksms?username=${process.env.RM_USERNAME || 'DL08-dltkash'}&password=${process.env.RM_PASS || 'dltkash@'}&type=0&dlr=1&destination=${phoneNo}&source=DLTKTP&message=Please%20confirm%20your%20mobile%20no.%20mapped%20with%20${phoneNo}%20by%20clicking%20on%20the%20${otp}%20-%20DLTKASH&entityid=1601156164334945695&tempid=1607100000000188213`;
@@ -297,8 +298,8 @@ const sendPlatformVerificationEmail = async (req, res) => {
         }
         const html = pug.renderFile(__root + "emailTemplates/emailVerification.pug", mailBody);
         commonFunctions.sendMail(req.query.email, 'Regarding Email Verification', html, (err, response) => {
-            if (err)
-                return res.status(RESPONSE_STATUS.SERVER_ERROR).json({ message: RESPONSE_MESSAGES.SERVER_ERROR });
+            if(status != 'queued') return res.json(RESPONSE_MESSAGES.BAD_REQUEST).status({message:response.body.toString()})
+                //handle code == -1
         });
         const enc = commonFunctions.encryptWithAES(otp.toString());
         return res.json({ message: RESPONSE_MESSAGES.SUCCESS, enc: enc });
