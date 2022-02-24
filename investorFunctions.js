@@ -161,7 +161,7 @@ const processInvestorMobile = async (investorObj) => {
                     resolve(investorObj);
                 }
                 else { //send mail 
-                    const token = jwt.sign({ mobile: investorObj.uccMobileNo, reqId: investorObj.uccRequestId }, 'process.env.JWTSECRET', {
+                    const token = jwt.sign({ mobile: investorObj.uccMobileNo, reqId: investorObj.uccRequestId }, process.env.JWTSECRET, {
                         expiresIn: '24h',
                     });
 
