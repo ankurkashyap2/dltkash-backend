@@ -277,7 +277,7 @@ const getExchangeDetails = async (req, res) => {
 
 const getAdminDetails = async (req, res) => {
     try {
-        const askedAdmin = await User.findOne({ email: req.email });
+        const askedAdmin = await User.findOne({ $or: [{ email: req.email }, { userName: req.email }] });
         return res.status(RESPONSE_STATUS.SUCCESS).json({ data: askedAdmin });
     } catch (error) {
         const error_body = {
