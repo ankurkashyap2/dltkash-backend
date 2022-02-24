@@ -21,7 +21,7 @@ const investorMobileVerify = async (req, res) => {
         request(options, function (error, response) {
             if (error) return res.status(error.status).json({ message: RESPONSE_MESSAGES.SERVER_ERROR, detail: error.toString() });
             
-            return res.status(response.statusCode).json({ data: JSON.parse(response.body) });
+            return res.status(response.statusCode || 500).json({ data: JSON.parse(response.body) });
         });
     } catch (error) {
         const error_body = {
@@ -58,7 +58,7 @@ const investorEmailVerify = async (req, res) => {
         };
         request(options, function (error, response) {
             if (error) return res.status(error.status).json({ message: RESPONSE_MESSAGES.SERVER_ERROR, detail: error.toString() });
-            return res.status(response.statusCode).json({ data: JSON.parse(response.body) });
+            return res.status(response.statusCode || 500).json({ data: JSON.parse(response.body) });
         });
     } catch (error) {
         const error_body = {
@@ -86,7 +86,7 @@ const getInvestorDetailByUccId = async (req, res) => {
         };
         request(options, function (error, response) {
             if (error) return res.status(error.status).json({ message: RESPONSE_MESSAGES.SERVER_ERROR, detail: error.toString() });
-            return res.status(response.statusCode).json({ data: JSON.parse(response.body) });
+            return res.status(response.statusCode || 500).json({ data: JSON.parse(response.body) });
         });
 
     } catch (error) {
@@ -151,7 +151,7 @@ const addBulkinvestors = async (req, res) => {
         };
         request(options, function (error, response) {
             if (error) return res.status(error.status).json({ message: RESPONSE_MESSAGES.SERVER_ERROR, detail: error.toString() });
-            return res.status(response.statusCode).json({ data: JSON.parse(response.body) });
+            return res.status(response.statusCode || 500).json({ data: JSON.parse(response.body) });
         });
     } catch (error) {
         const error_body = {
@@ -223,7 +223,7 @@ const addSingleInvestor = async (req, res) => {
         if (COUNTRY_ARRAY[country]) {
             investorObj.UTCNotification = COUNTRY_ARRAY[country]['hours']
         } else {
-            investorObj.UTCNotification = '10:30'
+            investorObj.UTCNotification = '11'
         }
         if (uccEmailStatus.toUpperCase() == EMAIL_STATUSES.NOT_VERIFIED) {
             investorObj = await investorFunctions.processInvestorEmail(investorObj);
@@ -244,8 +244,9 @@ const addSingleInvestor = async (req, res) => {
        
         request(options, function (error, response) {
             if (error) return res.status(error.status).json({ message: RESPONSE_MESSAGES.SERVER_ERROR, detail: error.toString() });
-            return res.status(response.statusCode).json({ data: JSON.parse(response.body) });
+            return res.status(response.statusCode || 500).json({ data: JSON.parse(response.body) });
         });
+        
     } catch (error) {
         const error_body = {
             error_message: "Error while sending verification email",

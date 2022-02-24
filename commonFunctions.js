@@ -28,9 +28,10 @@ const sendMail = (email, subject, content, callback) => {
       },
       "owner_id": process.env.SENDCLEANOWNERID || '80940214',
       "token": process.env.SENDCLEANTOKEN || '2bZ1zHM3tNHK43DotA9DfAdF',
-      "smtp_user_name": process.env.SENDCLEANSMTPUSERNAME || 'smtp34269159'
+      "smtp_user_name": process.env.SENDCLEANSMTPUSERNAME || 'smtp78357587'
     }
   };
+
   request.post(options, callback);
 }
 

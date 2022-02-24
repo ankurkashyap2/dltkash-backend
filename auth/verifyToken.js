@@ -16,7 +16,8 @@ const apisToBeByPassed = [
     '/email-verification',
     '/get-data',
     '/send-verification/email',
-    '/mobile-verification'
+    '/mobile-verification',
+
 
 ];
 
@@ -25,6 +26,7 @@ const headerTokenApis = [
 ];
 function verifyToken(req, res, next) {
     try {
+    
         if (apisToBeByPassed.indexOf(req.path) !== -1)
             return next();
         if (headerTokenApis.includes(req.path))

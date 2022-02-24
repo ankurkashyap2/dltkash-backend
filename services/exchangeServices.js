@@ -86,8 +86,11 @@ const search = async (req, res) => {
         request(options, function (error, response) {
             if (error) return res.status(error.status).json({ message: RESPONSE_MESSAGES.SERVER_ERROR, detail: error.toString() });
     
-            return res.status(response.statusCode).json({ data: JSON.parse(response.body) });
+            return res.status(response.statusCode || 500).json({ data: JSON.parse(response.body) || "SERVER ERRROR" });
         });
+       
+
+        
     } catch (error) {
         const error_body = {
             error_detail: (typeof error == 'object') ? JSON.stringify(error) : error,

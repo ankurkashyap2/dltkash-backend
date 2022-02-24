@@ -91,6 +91,14 @@ const registerExchange = async (req, res) => {
             phoneNo: phoneNo,
         }
         const adminObject = await User.create(adminObj);
+        const mailBody ={}
+        const html = pug.renderFile(__root + "/emailTemplates/regsuccess.pug", mailBody);
+        commonFunctions.sendMail(req.query.email, "Regarding Registration Success", html, (err, response) => {
+            console.log(response.body,'REG SUCCESS MAIL>>>');
+            if (err)
+                return res.status(RESPONSE_STATUS.SERVER_ERROR).json({ message: RESPONSE_MESSAGES.SERVER_ERROR });
+
+        });
         return res.json({ message: RESPONSE_MESSAGES.SUCCESS, data: { exchangeObject: exchangeObj, adminObject: adminObject } });
     } catch (error) {
         const error_body = {
@@ -207,10 +215,11 @@ const forgetPassword = async (req, res) => {
 
 const sendPlatformOtp =async (req, res) => {
     try {
+        
         const  phoneNo  = req.query.mobile;
         if (!commonFunctions.validateMobile(phoneNo)) return res.status(RESPONSE_STATUS.BAD_REQUEST).json({ message: "Not a valid Mobile Number" });
         const askedUser = await User.findOne({ phoneNo: phoneNo });
-        if (!askedUser)
+        if (askedUser)
             return res.status(RESPONSE_STATUS.NOT_FOUND).json({ message: "Phone No. already registered." });
         const otp = commonFunctions.getOTP();
         const encryptedOTP = commonFunctions.encryptWithAES(otp.toString());
@@ -298,7 +307,7 @@ const sendPlatformVerificationEmail = async (req, res) => {
         }
         const html = pug.renderFile(__root + "emailTemplates/emailVerification.pug", mailBody);
         commonFunctions.sendMail(req.query.email, 'Regarding Email Verification', html, (err, response) => {
-            if(status != 'queued') return res.json(RESPONSE_MESSAGES.BAD_REQUEST).status({message:response.body.toString()})
+            if(response.body.status != 'queued') return res.json(RESPONSE_MESSAGES.BAD_REQUEST).status({message:response.body.toString()})
                 //handle code == -1
         });
         const enc = commonFunctions.encryptWithAES(otp.toString());

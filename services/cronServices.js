@@ -56,20 +56,21 @@ const startFileProcessing = async (recordFile) => {
             socketOptions: {} // socketOptions will be passed as a second param to amqp.connect and from ther to the socket library (net or tls)
         });
         c = 0;
-        const indianTimeUtcArr = [ '13'];
+        const indianTimeUtcArr = ['11', '12', '10', '9', '8', '7', '6', '5', '13'];
         readable.on('data', (jsonObj) => {
             c++;
             if (jsonObj.uccCountry.toLowerCase() == 'india') {
                 //"11:00" UTC  = 4:30 PM 
-                jsonObj.UTCNotification = '5';
+              //  jsonObj.UTCNotification = indianTimeUtcArr[Math.floor(Math.random() * indianTimeUtcArr.length)];
+                jsonObj.UTCNotification = '2';
             }
             else {
                 jsonObj.UTCNotification = COUNTRY_ARRAY[jsonObj.uccCountry.toLowerCase()].hours.split(':')[0];
             }
             jsonObj.isEmailEncrypted == 'true';
             jsonObj.isPhoneEncrypted == 'true';
-            jsonObj.uccMobileNo = commonFunctions.encryptWithAES(jsonObj.uccMobileNo);
-            jsonObj.uccEmailId = commonFunctions.encryptWithAES(jsonObj.uccEmailId);
+            // jsonObj.uccMobileNo = commonFunctions.encryptWithAES(jsonObj.uccMobileNo);
+            // jsonObj.uccEmailId = commonFunctions.encryptWithAES(jsonObj.uccEmailId);
             jsonObj.mobileAttempts = '0';
             jsonObj.emailAttempts = '0';
             jsonObj.fileName = recordFile.fileName
@@ -80,7 +81,7 @@ const startFileProcessing = async (recordFile) => {
             console.log('processed success', c);
             recordFile.status = "PROCESSED";
             recordFile.save();
-            canStartConsumer();
+            // canStartConsumer();
             console.log("CHANNEL CLOSED");
             return;
         });
@@ -170,7 +171,7 @@ const sendRequestToFetchInvestors = async (page = 1) => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                "notificationKey": '5' ,
+                "notificationKey": '2' ,
                 "page": page,
                 "limit": "2"
             })
@@ -183,8 +184,8 @@ const sendRequestToFetchInvestors = async (page = 1) => {
             };
 
             const result = JSON.parse(response.body);
-            console.log(result);
-            console.log('total records>>>>>>> on this page',result.results.length);
+           
+            // console.log('total records>>>>>>> on this page',result.results.length);
             if (result.results == 0) return;
             investorDataOperator(result.results);
             sendRequestToFetchInvestors(page + 1);
@@ -480,8 +481,7 @@ var k2 = [{
 
 const notificationSendingLogic = async () => {
     try {
-        investorDataOperator(k)
-        // sendRequestToFetchInvestors();
+        sendRequestToFetchInvestors();
     } catch (error) {
         const error_body = {
             stack: error.stack,
