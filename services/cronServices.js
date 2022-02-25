@@ -175,7 +175,7 @@ const sendRequestToFetchInvestors = async (page = 1) => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                "notificationKey": "12",
+                "notificationKey": "0",
                 "page": `${page}`,
                 "limit": "10"
             })
