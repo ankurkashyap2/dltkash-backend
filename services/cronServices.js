@@ -162,7 +162,7 @@ const investorDataOperator = async (investorsData) => {
         // console.log('ERRROR STACK ITERATING OVER INVESTOR DAATA OPERATOR', errror.stack)
     }
 }
-
+ 
 
 const sendRequestToFetchInvestors = async (page = 1) => {
     try {
