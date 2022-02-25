@@ -3,6 +3,9 @@ const request = require('request');
 const CryptoJS = require('crypto-js');
 const shortUrl = require("node-url-shortener");
 const nodemailer = require('nodemailer')
+const { nanoid } = require('nanoid')
+const shortner = require('./models/newSHortner');
+var validUrl = require('valid-url');
 const encryptString = (str) => {
   return bcrypt.hashSync(str, 8);
 }
@@ -12,57 +15,69 @@ const getOTP = () => {
   return otp;
 }
 
-// const sendMail = (email, subject, content, callback) => {
-//   const options = {
-//     url: 'https://api.us1-mta1.sendclean.net/v1.0/messages/sendMail',
-//     json: true,
-//     body: {
-//       "message": {
-//         "to": [{
-//           "email": email,
-//         },
-//         ],
-//         "html": content,
-//         "subject": subject,
-//         "from_email": "no-reply@webmobsoft.com",
-//         "from_name": "no-reply"
-//       },
-//       "owner_id": process.env.SENDCLEANOWNERID || '80940214',
-//       "token": process.env.SENDCLEANTOKEN || '2bZ1zHM3tNHK43DotA9DfAdF',
-//       "smtp_user_name": process.env.SENDCLEANSMTPUSERNAME || 'smtp78357587'
-//     }
-//   };
-  
-//   request.post(options, callback);
-// }
-
 const sendMail = (email, subject, content, callback) => {
-  let transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      "user": "manojrana.cta@gmail.com",
-      "pass":"zcpfpulchqzlgaqk"
+  const options = {
+    url: 'https://api.us1-mta1.sendclean.net/v1.0/messages/sendMail',
+    json: true,
+    body: {
+      "message": {
+        "to": [{
+          "email": email,
+        },
+        ],
+        "html": content,
+        "subject": subject,
+        "from_email": "no-reply@webmobsoft.com",
+        "from_name": "no-reply"
+      },
+      "owner_id": process.env.SENDCLEANOWNERID || '80940214',
+      "token": process.env.SENDCLEANTOKEN || '2bZ1zHM3tNHK43DotA9DfAdF',
+      "smtp_user_name": process.env.SENDCLEANSMTPUSERNAME || 'smtp78357587'
     }
-  });
-  let mailOptions = {
-    from: "<do_not_reply@gmail.com>",
-    to: email,
-    subject: subject,
-    html: content,
   };
-  transporter.sendMail(mailOptions, function (error, info) {
-    if (error) {
-      {console.log(error)
-        console.error("email failed for ", email);
-        return callback(error, null);
-      }
-    }
-    console.info("This mail sent to >> " + info.envelope.to);
-    return callback(null, info.response);
 
-  });
+  request.post(options, callback);
 }
 
+// const sendMail = (email, subject, content, callback) => {
+//   let transporter = nodemailer.createTransport({
+//     service: 'gmail',
+//     auth: {
+//       "user": "manojrana.cta@gmail.com",
+//       "pass": "zcpfpulchqzlgaqk"
+//     }
+//   });
+//   let mailOptions = {
+//     from: "<do_not_reply@gmail.com>",
+//     to: email,
+//     subject: subject,
+//     html: content,
+//   };
+//   transporter.sendMail(mailOptions, function (error, info) {
+//     if (error) {
+//       {
+//         console.log(error)
+//         console.error("email failed for ", email);
+//         return callback(error, null);
+//       }
+//     }
+//     console.info("This mail sent to >> " + info.envelope.to);
+//     return callback(null, info.response);
+
+//   });
+// }
+
+
+const createShortNer = (original) => {
+  const nnID = nanoid(15);
+  const uri = `${process.env.FEHOST}/${nnID}`;
+    const shortNerObj = {
+      original: original,
+      created: uri
+    };
+    shortner.create(shortNerObj).then(() => { });
+    return uri;
+}
 
 const removeElement = (array, elem) => {
   let index = array.indexOf(elem);
@@ -119,7 +134,7 @@ const decryptWithAES = (ciphertext) => {
 };
 
 const shortURL = (url, callback) => {
- 
+
   return shortUrl.short(url, callback);
   // return url
 
@@ -170,5 +185,6 @@ module.exports = {
   getOTP: getOTP,
   sendMail: sendMail,
   decryptWithAES: decryptWithAES,
+  createShortNer: createShortNer,
   validateMobile: validateMobile,
 }

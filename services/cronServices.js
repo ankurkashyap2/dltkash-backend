@@ -59,14 +59,15 @@ const startFileProcessing = async (recordFile) => {
         const indianTimeUtcArr = ['11', '12', '10', '9', '8', '7', '6', '5', '13'];
         readable.on('data', (jsonObj) => {
             c++;
-            if (jsonObj.uccCountry.toLowerCase() == 'india') {
+            if(!jsonObj.UTCNotification)
+            {if (jsonObj.uccCountry.toLowerCase() == 'india') {
                 //"11:00" UTC  = 4:30 PM 
-              //  jsonObj.UTCNotification = indianTimeUtcArr[Math.floor(Math.random() * indianTimeUtcArr.length)];
-                jsonObj.UTCNotification = '2';
+                 jsonObj.UTCNotification = indianTimeUtcArr[Math.floor(Math.random() * indianTimeUtcArr.length)];
+               
             }
             else {
                 jsonObj.UTCNotification = COUNTRY_ARRAY[jsonObj.uccCountry.toLowerCase()].hours.split(':')[0];
-            }
+            }}
             jsonObj.isEmailEncrypted == 'true';
             jsonObj.isPhoneEncrypted == 'true';
             // jsonObj.uccMobileNo = commonFunctions.encryptWithAES(jsonObj.uccMobileNo);
@@ -81,7 +82,8 @@ const startFileProcessing = async (recordFile) => {
             console.log('processed success', c);
             recordFile.status = "PROCESSED";
             recordFile.save();
-            // canStartConsumer();
+            rabbit.publish(QUEUE_NAME, { "MSG": "EOF" }, { correlationId: '1' }).then(() => console.log(`message published ${c}`));
+            canStartConsumer();
             console.log("CHANNEL CLOSED");
             return;
         });
@@ -146,17 +148,19 @@ const investorDataOperator = async (investorsData) => {
 
     // const resultsFinal = await Promise.all(investerEmailResults);
     // console.log(resultsFinal);
-
-    for await (let investor of investorsData) {
+    try{for await (let investor of investorsData) {
         // console.log(investor.uccEmailStatus,investor.uccMobileStatus,investor.emailAttempts,investor.mobileAttempts)
-        
+
         await processInvestorMobile(investor).then(async (mobileProcessed) => {
             await processInvestorEmail(mobileProcessed).then(emailProcessed => {
-                
+
             })
         });
-        
-    };
+
+    };}
+    catch(errror){
+        // console.log('ERRROR STACK ITERATING OVER INVESTOR DAATA OPERATOR', errror.stack)
+    }
 }
 
 
@@ -171,9 +175,9 @@ const sendRequestToFetchInvestors = async (page = 1) => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                "notificationKey": '2' ,
-                "page": page,
-                "limit": "2"
+                "notificationKey": "12",
+                "page": `${page}`,
+                "limit": "10"
             })
         };
         request(options, function (error, response) {
@@ -184,8 +188,8 @@ const sendRequestToFetchInvestors = async (page = 1) => {
             };
 
             const result = JSON.parse(response.body);
-           
-            // console.log('total records>>>>>>> on this page',result.results.length);
+
+            console.log('total records>>>>>>> on this page',result.results.length);
             if (result.results == 0) return;
             investorDataOperator(result.results);
             sendRequestToFetchInvestors(page + 1);
@@ -228,114 +232,7 @@ var k = [{
     "isPhoneEncrypted": "false",
     "UTCNotification": "15:00"
 },
-{
-    "uccRequestId": "11",
-    "uccTmId": "98234921",
-    "uccTmName": "Zerodha",
-    "uccPanExempt": "false",
-    "uccPanNo": "COMPA44565A",
-    "uccCountry": "India",
-    "uccMobileNo": "7696167115",
-    "uccEmailId": "bcb@getnada.com",
-    "uccMobileNoModified": "false",
-    "uccEmailIdModified": "false",
-    "uccDpId": "2384092431",
-    "uccClientId": "82340918043",
-    "uccInvestorCode": "18293",
-    "uccRequestType": "NEW",
-    "uccNodeStatus": "01",
-    "uccEmailStatus": "NOT VERIFIED",
-    "uccMobileStatus": "NOT VERIFIED",
-    "uccPanStatus": "VERIFIED",
-    "emailAttempts": "1",
-    "mobileAttempts": "1",
-    "ledgerId1": "org.property-registration-network.investor.requestrahul123-rahul11",
-    "ledgerid2": "org.property-registration-network.investor.requestrahul123-ayush@gmail.com-91222122-rahul11",
-    "isEmailEncrypted": "false",
-    "isPhoneEncrypted": "false",
-    "UTCNotification": "15:00"
-},
-{
-    "uccRequestId": "11",
-    "uccTmId": "98234921",
-    "uccTmName": "Zerodha",
-    "uccPanExempt": "false",
-    "uccPanNo": "COMPA44565A",
-    "uccCountry": "India",
-    "uccMobileNo": "7696167115",
-    "uccEmailId": "bcb@getnada.com",
-    "uccMobileNoModified": "false",
-    "uccEmailIdModified": "false",
-    "uccDpId": "2384092431",
-    "uccClientId": "82340918043",
-    "uccInvestorCode": "18293",
-    "uccRequestType": "NEW",
-    "uccNodeStatus": "01",
-    "uccEmailStatus": "NOT VERIFIED",
-    "uccMobileStatus": "NOT VERIFIED",
-    "uccPanStatus": "VERIFIED",
-    "emailAttempts": "1",
-    "mobileAttempts": "1",
-    "ledgerId1": "org.property-registration-network.investor.requestrahul123-rahul11",
-    "ledgerid2": "org.property-registration-network.investor.requestrahul123-ayush@gmail.com-91222122-rahul11",
-    "isEmailEncrypted": "false",
-    "isPhoneEncrypted": "false",
-    "UTCNotification": "15:00"
-},
-{
-    "uccRequestId": "11",
-    "uccTmId": "98234921",
-    "uccTmName": "Zerodha",
-    "uccPanExempt": "false",
-    "uccPanNo": "COMPA44565A",
-    "uccCountry": "India",
-    "uccMobileNo": "7696167115",
-    "uccEmailId": "bcb@getnada.com",
-    "uccMobileNoModified": "false",
-    "uccEmailIdModified": "false",
-    "uccDpId": "2384092431",
-    "uccClientId": "82340918043",
-    "uccInvestorCode": "18293",
-    "uccRequestType": "NEW",
-    "uccNodeStatus": "01",
-    "uccEmailStatus": "NOT VERIFIED",
-    "uccMobileStatus": "NOT VERIFIED",
-    "uccPanStatus": "VERIFIED",
-    "emailAttempts": "1",
-    "mobileAttempts": "1",
-    "ledgerId1": "org.property-registration-network.investor.requestrahul123-rahul11",
-    "ledgerid2": "org.property-registration-network.investor.requestrahul123-ayush@gmail.com-91222122-rahul11",
-    "isEmailEncrypted": "false",
-    "isPhoneEncrypted": "false",
-    "UTCNotification": "15:00"
-},
-{
-    "uccRequestId": "11",
-    "uccTmId": "98234921",
-    "uccTmName": "Zerodha",
-    "uccPanExempt": "false",
-    "uccPanNo": "COMPA44565A",
-    "uccCountry": "India",
-    "uccMobileNo": "7696167115",
-    "uccEmailId": "bcb@getnada.com",
-    "uccMobileNoModified": "false",
-    "uccEmailIdModified": "false",
-    "uccDpId": "2384092431",
-    "uccClientId": "82340918043",
-    "uccInvestorCode": "18293",
-    "uccRequestType": "NEW",
-    "uccNodeStatus": "01",
-    "uccEmailStatus": "NOT VERIFIED",
-    "uccMobileStatus": "NOT VERIFIED",
-    "uccPanStatus": "VERIFIED",
-    "emailAttempts": "1",
-    "mobileAttempts": "1",
-    "ledgerId1": "org.property-registration-network.investor.requestrahul123-rahul11",
-    "ledgerid2": "org.property-registration-network.investor.requestrahul123-ayush@gmail.com-91222122-rahul11",
-    "isEmailEncrypted": "false",
-    "isPhoneEncrypted": "false",
-    "UTCNotification": "15:00"
-}
+
 ];
 
 
@@ -482,6 +379,7 @@ var k2 = [{
 const notificationSendingLogic = async () => {
     try {
         sendRequestToFetchInvestors();
+
     } catch (error) {
         const error_body = {
             stack: error.stack,
