@@ -8,7 +8,7 @@ const user = require('./../models/user');
 const pug = require('pug')
 const jwt = require('jsonwebtoken');
 const request = require('request');
-
+const s3services = require('./s3Services');
 
 const loginUser = async (req, res) => {
     try {
@@ -54,13 +54,16 @@ const registerExchange = async (req, res) => {
     try {
         const { legalEntityName, sebiCertificateNumber, cinNumber, panNumber, phoneNo, isFirstExchangeAdmin, userName, email, password } = req.body;
         var panRegex = /([A-Z]){5}([0-9]){4}([A-Z]){1}$/;
-        if (!panRegex.test(panNumber)) return res.status(RESPONSE_STATUS.BAD_REQUEST).json({ message: 'Invalid Pan Number' });
+        // if (!panRegex.test(panNumber)) return res.status(RESPONSE_STATUS.BAD_REQUEST).json({ message: 'Invalid Pan Number' });
         const documentLinks = {};
         var allFiles = true;
         if (!allFiles) return res.json({ message: 'All documents required' }).status(RESPONSE_STATUS.BAD_REQUEST);
-        for (var file of req.files) {
-            const filename = (new Date()).getTime() + '-' + file.originalname;
-            documentLinks[file.fieldname] = filename;
+        for await (var file of req.files) {
+            const filename = legalEntityName + '-' + file.originalname;
+            
+            const fileLink = await s3services.fileUpload('exchanges', filename, file.buffer);
+            console.log(fileLink)
+            documentLinks[file.fieldname] = fileLink;
             //s3 upload
         }
         const exchangeObject = {
@@ -76,9 +79,9 @@ const registerExchange = async (req, res) => {
             User.findOne({ panNumber: panNumber }),
             User.findOne({ phoneNo: phoneNo }),
         ]);
-        if (emailRegistered) return res.status(RESPONSE_STATUS.CONFLICT).json({ message: RESPONSE_MESSAGES.EMAIL_ALREADY_REGISTERED });
-        if (panRegistered) return res.status(RESPONSE_STATUS.CONFLICT).json({ message: RESPONSE_MESSAGES.PAN_ALREADY_REGISTERED });
-        if (mobileRegistered) return res.status(RESPONSE_STATUS.CONFLICT).json({ message: RESPONSE_MESSAGES.PHONE_ALREADY_REGISTERED });
+        // if (emailRegistered) return res.status(RESPONSE_STATUS.CONFLICT).json({ message: RESPONSE_MESSAGES.EMAIL_ALREADY_REGISTERED });
+        // if (panRegistered) return res.status(RESPONSE_STATUS.CONFLICT).json({ message: RESPONSE_MESSAGES.PAN_ALREADY_REGISTERED });
+        // if (mobileRegistered) return res.status(RESPONSE_STATUS.CONFLICT).json({ message: RESPONSE_MESSAGES.PHONE_ALREADY_REGISTERED });
         const exchangeObj = await exchange.create(exchangeObject);
         const adminObj = {
             userName: userName,
@@ -91,10 +94,10 @@ const registerExchange = async (req, res) => {
             phoneNo: phoneNo,
         }
         const adminObject = await User.create(adminObj);
-        const mailBody ={}
+        const mailBody = {}
         const html = pug.renderFile(__root + "/emailTemplates/regsuccess.pug", mailBody);
-        commonFunctions.sendMail(req.query.email, "Regarding Registration Success", html, (err, response) => {
-            console.log(response.body,'REG SUCCESS MAIL>>>');
+        commonFunctions.sendMail(email, "Regarding Registration Success", html, (err, response) => {
+            console.log(response.body, 'REG SUCCESS MAIL>>>');
             if (err)
                 return res.status(RESPONSE_STATUS.SERVER_ERROR).json({ message: RESPONSE_MESSAGES.SERVER_ERROR });
 
@@ -106,6 +109,7 @@ const registerExchange = async (req, res) => {
             error_detail: typeof error == "object" ? JSON.stringify(error) : error,
             error_data: req.body,
             api_path: req.path,
+            stack:error.stack
         };
         console.error(error_body);
         return res
@@ -117,7 +121,7 @@ const registerExchange = async (req, res) => {
 
 const addExchangeAdmin = async (req, res) => {
     try {
-        const { phoneNo, userName, email, isFirstExchangeAdmin,password, exchangeId, role } = req.body;
+        const { phoneNo, userName, email, isFirstExchangeAdmin, password, exchangeId, role } = req.body;
         const [emailRegistered, mobileRegistered] = await Promise.all([
             User.findOne({ email: email }),
 
@@ -192,7 +196,7 @@ const forgetPassword = async (req, res) => {
         }
         const html = pug.renderFile(__root + "/emailTemplates/passwordChange.pug", mailBody);
         commonFunctions.sendMail(req.query.email, "Regarding password change", html, (err, response) => {
-            
+
             if (err)
                 return res.status(RESPONSE_STATUS.SERVER_ERROR).json({ message: RESPONSE_MESSAGES.SERVER_ERROR });
 
@@ -213,10 +217,10 @@ const forgetPassword = async (req, res) => {
 }
 
 
-const sendPlatformOtp =async (req, res) => {
+const sendPlatformOtp = async (req, res) => {
     try {
-        
-        const  phoneNo  = req.query.mobile;
+
+        const phoneNo = req.query.mobile;
         if (!commonFunctions.validateMobile(phoneNo)) return res.status(RESPONSE_STATUS.BAD_REQUEST).json({ message: "Not a valid Mobile Number" });
         const askedUser = await User.findOne({ phoneNo: phoneNo });
         if (askedUser)
@@ -308,7 +312,7 @@ const sendPlatformVerificationEmail = async (req, res) => {
         const html = pug.renderFile(__root + "emailTemplates/emailVerification.pug", mailBody);
         commonFunctions.sendMail(req.query.email, 'Regarding Email Verification', html, (err, response) => {
             // if(response.body.status != 'queued') return res.json(RESPONSE_MESSAGES.BAD_REQUEST).status({message:response.body.toString()})
-                //handle code == -1
+            //handle code == -1
         });
         const enc = commonFunctions.encryptWithAES(otp.toString());
         return res.json({ message: RESPONSE_MESSAGES.SUCCESS, enc: enc });

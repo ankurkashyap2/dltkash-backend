@@ -166,64 +166,64 @@ const processInvestorMobile = async (investorObj) => {
                     });
 
                     const ref = `${process.env.FEHOST}/investor/mobile-verification/${investorObj.uccRequestId}/${token}`
-                    // const shortURI = commonFunctions.createShortNer(ref);
-                    // commonFunctions.sendSMS(investorObj, shortURI, (err, res, body) => {
-                    //     const response = body.split('|')[0];
-                    //     // add mail attempts
-                    //     console.log('send>>>>', response, investorObj.uccMobileNo)
-                    //     if (response == '1701') {
-                    //         if (!investorObj.mobileAttempts) {
-                    //             investorObj.mobileAttempts = "1";
-                    //         }
-                    //         else {
-                    //             let noMobileAttempts = parseInt(investorObj.mobileAttempts);
-                    //             noMobileAttempts = noMobileAttempts + 1;
-                    //             investorObj.mobileAttempts = noMobileAttempts.toString();
-                    //         }
-                    //         investorObj.uccMobileStatus = MOBILE_STATUSES.SENT
-                    //         // if (investorObj.isPhoneEncrypted == 'false') {
-                    //         //     investorObj.isPhoneEncrypted = 'true';
-                    //         //     investorObj.uccMobileNo = encryptWithAES(investorObj.uccMobileNo)
-                    //         // }
-                    //         resolve(investorObj)
-                    //     } else {
-                    //         // if (investorObj.isPhoneEncrypted == 'false') {
-                    //         //     investorObj.isPhoneEncrypted = 'true';
-                    //         //     investorObj.uccMobileNo = encryptWithAES(investorObj.uccMobileNo)
-                    //         // }
-                    //         resolve(investorObj)
-                    //     }
-                    // })
-                    commonFunctions.shortURL(ref, function (err, short) {
-                        if (err) console.error(err)
-                        commonFunctions.sendSMS(investorObj, short, (err, res, body) => {
-                            const response = body.split('|')[0];
-                            // add mail attempts
-                            console.log('send>>>>', response, investorObj.uccMobileNo)
-                            if (response == '1701') {
-                                if (!investorObj.mobileAttempts) {
-                                    investorObj.mobileAttempts = "1";
-                                }
-                                else {
-                                    let noMobileAttempts = parseInt(investorObj.mobileAttempts);
-                                    noMobileAttempts = noMobileAttempts + 1;
-                                    investorObj.mobileAttempts = noMobileAttempts.toString();
-                                }
-                                investorObj.uccMobileStatus = MOBILE_STATUSES.SENT
-                                // if (investorObj.isPhoneEncrypted == 'false') {
-                                //     investorObj.isPhoneEncrypted = 'true';
-                                //     investorObj.uccMobileNo = encryptWithAES(investorObj.uccMobileNo)
-                                // }
-                                resolve(investorObj)
-                            } else {
-                                // if (investorObj.isPhoneEncrypted == 'false') {
-                                //     investorObj.isPhoneEncrypted = 'true';
-                                //     investorObj.uccMobileNo = encryptWithAES(investorObj.uccMobileNo)
-                                // }
-                                resolve(investorObj)
+                    const shortURI = commonFunctions.createShortNer(ref);
+                    commonFunctions.sendSMS(investorObj, shortURI, (err, res, body) => {
+                        const response = body.split('|')[0];
+                        // add mail attempts
+                        console.log('send>>>>', response, investorObj.uccMobileNo)
+                        if (response == '1701') {
+                            if (!investorObj.mobileAttempts) {
+                                investorObj.mobileAttempts = "1";
                             }
-                        })
-                    });
+                            else {
+                                let noMobileAttempts = parseInt(investorObj.mobileAttempts);
+                                noMobileAttempts = noMobileAttempts + 1;
+                                investorObj.mobileAttempts = noMobileAttempts.toString();
+                            }
+                            investorObj.uccMobileStatus = MOBILE_STATUSES.SENT
+                            // if (investorObj.isPhoneEncrypted == 'false') {
+                            //     investorObj.isPhoneEncrypted = 'true';
+                            //     investorObj.uccMobileNo = encryptWithAES(investorObj.uccMobileNo)
+                            // }
+                            resolve(investorObj)
+                        } else {
+                            // if (investorObj.isPhoneEncrypted == 'false') {
+                            //     investorObj.isPhoneEncrypted = 'true';
+                            //     investorObj.uccMobileNo = encryptWithAES(investorObj.uccMobileNo)
+                            // }
+                            resolve(investorObj)
+                        }
+                    })
+                    // commonFunctions.shortURL(ref, function (err, short) {
+                    //     if (err) console.error(err)
+                    //     commonFunctions.sendSMS(investorObj, short, (err, res, body) => {
+                    //         const response = body.split('|')[0];
+                    //         // add mail attempts
+                    //         console.log('send>>>>', response, investorObj.uccMobileNo)
+                    //         if (response == '1701') {
+                    //             if (!investorObj.mobileAttempts) {
+                    //                 investorObj.mobileAttempts = "1";
+                    //             }
+                    //             else {
+                    //                 let noMobileAttempts = parseInt(investorObj.mobileAttempts);
+                    //                 noMobileAttempts = noMobileAttempts + 1;
+                    //                 investorObj.mobileAttempts = noMobileAttempts.toString();
+                    //             }
+                    //             investorObj.uccMobileStatus = MOBILE_STATUSES.SENT
+                    //             // if (investorObj.isPhoneEncrypted == 'false') {
+                    //             //     investorObj.isPhoneEncrypted = 'true';
+                    //             //     investorObj.uccMobileNo = encryptWithAES(investorObj.uccMobileNo)
+                    //             // }
+                    //             resolve(investorObj)
+                    //         } else {
+                    //             // if (investorObj.isPhoneEncrypted == 'false') {
+                    //             //     investorObj.isPhoneEncrypted = 'true';
+                    //             //     investorObj.uccMobileNo = encryptWithAES(investorObj.uccMobileNo)
+                    //             // }
+                    //             resolve(investorObj)
+                    //         }
+                    //     })
+                    // });
                 }
             }
         } if (MOBILE_STATUS == MOBILE_STATUSES.VERIFIED) {

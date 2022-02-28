@@ -2,6 +2,7 @@ let express = require('express');
 let logger = require('morgan');
 const cors = require('cors');
 const busboy = require('connect-busboy');
+const shortner = require('./models/newSHortner');
 var bodyParser = require('body-parser');
 const path = require('path');
 const fs = require('fs-extra');
@@ -26,8 +27,30 @@ app.use(busboy({
 }));
 
 
-app.use('/api/v1/test', (req, res) => {
-  return res.json({ message: "Request Successful!" });
+
+app.use('/mobile', async (req, res) => {
+  try {
+
+    const nanoID = req.path.split('/')[1];
+    if (!nanoID) return res.status(RESPONSE_STATUS.BAD_REQUEST).json({ message: "No link provided." });
+    const askedshortner = await shortner.findOne({ created: nanoID });
+    if (!askedshortner) return res.status(RESPONSE_STATUS.CONFLICT).json({ message: "Link Expired !" });
+    const redirect = askedshortner.original;
+    return res.redirect(redirect);
+  } catch (error) {
+    const error_body = {
+      error_message: "Error while redirecting link",
+      error_detail: typeof error == "object" ? JSON.stringify(error) : error,
+      error_data: req.body,
+      api_path: req.path,
+
+      message: error.message
+    };
+    console.error(error_body);
+    return res
+      .status(RESPONSE_STATUS.SERVER_ERROR)
+      .json({ message: error.message });
+  }
 });
 
 const UserController = require('./controllers/userController');
@@ -37,6 +60,7 @@ const InvestorController = require('./controllers/investorController');
 app.use('/api/v1/investors', InvestorController);
 
 const ExchangeController = require('./controllers/exchangeController');
+const { RESPONSE_STATUS } = require('./constants');
 app.use('/api/v1/exchange', ExchangeController);
 
 module.exports = app;

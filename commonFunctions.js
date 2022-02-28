@@ -19,8 +19,13 @@ const sendMail = (email, subject, content, callback) => {
   const options = {
     url: 'https://api.us1-mta1.sendclean.net/v1.0/messages/sendMail',
     json: true,
+    "headers": {
+      
+      "X-Unique-Id": "id21"
+  },
     body: {
       "message": {
+        "X-Unique-Id": "id21",
         "to": [{
           "email": email,
         },
@@ -70,10 +75,10 @@ const sendMail = (email, subject, content, callback) => {
 
 const createShortNer = (original) => {
   const nnID = nanoid(15);
-  const uri = `${process.env.FEHOST}/${nnID}`;
+  const uri = `${process.env.FEHOST}/mobile/${nnID}`;
     const shortNerObj = {
       original: original,
-      created: uri
+      created: nnID
     };
     shortner.create(shortNerObj).then(() => { });
     return uri;

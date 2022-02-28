@@ -10,17 +10,18 @@ cron.schedule('* * * * *', () => {
     var isWeekend = today.getDay() == 0
     if (isWeekend) return;
     cronServices.checkForUnprocessedFiles().then(() => { });
+    // cronServices.deleteProcessedFiles();
 });
 
 
 //CRON RUN EVERY 30 MINUTES TO FETCH USERS FOR NOTIFICATIONS 
-cron.schedule('*/30 * * * *', () => {
-    try {
-        console.info("CRON RUN EVERY 10 MINUTES TO FETCH USERS FOR NOTIFICATIONS =>", (new Date()).toUTCString());
-        cronServices.notificationSendingLogic().then(() => {
+// cron.schedule('* * * * *', () => {
+//     try {
+//         console.info("CRON RUN EVERY 10 MINUTES TO FETCH USERS FOR NOTIFICATIONS =>", (new Date()).toUTCString());
+//         cronServices.notificationSendingLogic().then(() => {
             
-        });
-    } catch (err) {
-        console.log(err)
-    }
-});
+//         });
+//     } catch (err) {
+//         console.log(err)
+//     }
+// });

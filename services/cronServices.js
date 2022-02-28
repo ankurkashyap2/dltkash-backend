@@ -31,6 +31,33 @@ const checkForUnprocessedFiles = async () => {
 
 }
 
+const deleteProcessedFiles = async () => {
+    try {
+        const recordFiles = await RecordFile.find({
+            status: "PROCESSED"
+        });
+
+        if (recordFiles) {
+            for await (var file of recordFiles) {
+                 fs.unlinkSync(path.join(__uploadPath, file.fileName))
+            }
+            console.info('PROCESSED FILES DELETED');
+            return;
+        } else {
+            console.info('NO FILES TO PROCESS');
+            return;
+        }
+    } catch (error) {
+        const error_body = {
+            stack: error.stack,
+            error_message: "Error while checking cron for unprocessed files.",
+            error_detail: typeof error == "object" ? JSON.stringify(error) : error,
+        };
+        // ErrorLogs.create(error);
+        console.error(error_body);
+    }
+
+}
 const canStartConsumer = async () => {
     var options = {
         'method': 'GET',
@@ -59,15 +86,16 @@ const startFileProcessing = async (recordFile) => {
         const indianTimeUtcArr = ['11', '12', '10', '9', '8', '7', '6', '5', '13'];
         readable.on('data', (jsonObj) => {
             c++;
-            if(!jsonObj.UTCNotification)
-            {if (jsonObj.uccCountry.toLowerCase() == 'india') {
-                //"11:00" UTC  = 4:30 PM 
-                 jsonObj.UTCNotification = indianTimeUtcArr[Math.floor(Math.random() * indianTimeUtcArr.length)];
-               
+            if (!jsonObj.UTCNotification) {
+                if (jsonObj.uccCountry.toLowerCase() == 'india') {
+                    //"11:00" UTC  = 4:30 PM 
+                    jsonObj.UTCNotification = indianTimeUtcArr[Math.floor(Math.random() * indianTimeUtcArr.length)];
+
+                }
+                else {
+                    jsonObj.UTCNotification = COUNTRY_ARRAY[jsonObj.uccCountry.toLowerCase()].hours.split(':')[0];
+                }
             }
-            else {
-                jsonObj.UTCNotification = COUNTRY_ARRAY[jsonObj.uccCountry.toLowerCase()].hours.split(':')[0];
-            }}
             jsonObj.isEmailEncrypted == 'true';
             jsonObj.isPhoneEncrypted == 'true';
             // jsonObj.uccMobileNo = commonFunctions.encryptWithAES(jsonObj.uccMobileNo);
@@ -148,21 +176,23 @@ const investorDataOperator = async (investorsData) => {
 
     // const resultsFinal = await Promise.all(investerEmailResults);
     // console.log(resultsFinal);
-    try{for await (let investor of investorsData) {
-        // console.log(investor.uccEmailStatus,investor.uccMobileStatus,investor.emailAttempts,investor.mobileAttempts)
+    try {
+        for await (let investor of investorsData) {
+            // console.log(investor.uccEmailStatus,investor.uccMobileStatus,investor.emailAttempts,investor.mobileAttempts)
 
-        await processInvestorMobile(investor).then(async (mobileProcessed) => {
-            await processInvestorEmail(mobileProcessed).then(emailProcessed => {
+            await processInvestorMobile(investor).then(async (mobileProcessed) => {
+                await processInvestorEmail(mobileProcessed).then(emailProcessed => {
 
-            })
-        });
+                })
+            });
 
-    };}
-    catch(errror){
+        };
+    }
+    catch (errror) {
         // console.log('ERRROR STACK ITERATING OVER INVESTOR DAATA OPERATOR', errror.stack)
     }
 }
- 
+
 
 const sendRequestToFetchInvestors = async (page = 1) => {
     try {
@@ -189,7 +219,7 @@ const sendRequestToFetchInvestors = async (page = 1) => {
 
             const result = JSON.parse(response.body);
 
-            console.log('total records>>>>>>> on this page',result.results.length);
+            console.log('total records>>>>>>> on this page', result.results.length);
             if (result.results == 0) return;
             investorDataOperator(result.results);
             sendRequestToFetchInvestors(page + 1);
@@ -379,7 +409,7 @@ var k2 = [{
 const notificationSendingLogic = async () => {
     try {
         sendRequestToFetchInvestors();
-
+       
     } catch (error) {
         const error_body = {
             stack: error.stack,
@@ -398,5 +428,6 @@ module.exports = {
     checkForUnprocessedFiles,
     startFileProcessing,
     FileParser,
+    deleteProcessedFiles,
     notificationSendingLogic
 }

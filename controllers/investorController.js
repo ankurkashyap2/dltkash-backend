@@ -12,4 +12,5 @@ router.get('/verify/mobile', investorServices.investorMobileVerify);
 router.post('/get-data', investorServices.getInvestorDetailByUccId);
 router.post('/create-investor', investorServices.addSingleInvestor);
 router.post('/bulk/create-investor', investorServices.addBulkinvestors);
+router.post('/sendclean-webhook', investorServices.sendCleanWebHook);
 module.exports = router;

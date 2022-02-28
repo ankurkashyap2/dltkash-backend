@@ -14,13 +14,13 @@ const investorMobileVerify = async (req, res) => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                "uccRequestId": req.reqId ,
+                "uccRequestId": req.reqId,
                 "mobileStatus": status
             })
         };
         request(options, function (error, response) {
             if (error) return res.status(error.status).json({ message: RESPONSE_MESSAGES.SERVER_ERROR, detail: error.toString() });
-            
+
             return res.status(response.statusCode || 500).json({ data: JSON.parse(response.body) });
         });
     } catch (error) {
@@ -52,7 +52,7 @@ const investorEmailVerify = async (req, res) => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                "uccRequestId": req.reqId ,
+                "uccRequestId": req.reqId,
                 "emailIdStatus": status
             })
         };
@@ -122,6 +122,26 @@ const sendInvestorEmailForVerification = async (req, res) => {
 }
 
 
+
+const sendCleanWebHook = async (req, res) => {
+    try {
+        console.log(req.SendCleantes_events, "response from send clean");
+        console.log(req.body.SendCleantes_events, "response from send clean");
+        return res.send('God bless you, SendClean')
+    } catch (error) {
+        const error_body = {
+            error_message: "Error on recieve webhook",
+            error_detail: typeof error == "object" ? JSON.stringify(error) : error,
+            error_data: req.body,
+            api_path: req.path,
+            message: error.message
+        };
+        console.error(error_body);
+        return res
+            .status(RESPONSE_STATUS.SERVER_ERROR)
+            .json({ message: error.message });
+    }
+}
 
 const addBulkinvestors = async (req, res) => {
     try {
@@ -228,7 +248,7 @@ const addSingleInvestor = async (req, res) => {
         if (uccEmailStatus.toUpperCase() == EMAIL_STATUSES.NOT_VERIFIED) {
             investorObj = await investorFunctions.processInvestorEmail(investorObj);
         }
-        
+
         if (uccMobileStatus.toUpperCase() == MOBILE_STATUSES.NOT_VERIFIED) {
             investorObj = await investorFunctions.processInvestorMobile(investorObj);
         }
@@ -241,12 +261,12 @@ const addSingleInvestor = async (req, res) => {
             },
             body: JSON.stringify(investorObj)
         };
-       
+
         request(options, function (error, response) {
             if (error) return res.status(error.status).json({ message: RESPONSE_MESSAGES.SERVER_ERROR, detail: error.toString() });
             return res.status(response.statusCode || 500).json({ data: JSON.parse(response.body) });
         });
-        
+
     } catch (error) {
         const error_body = {
             error_message: "Error while sending verification email",
@@ -263,6 +283,24 @@ const addSingleInvestor = async (req, res) => {
     }
 }
 
+const shortnerRedirect = (req, res) => {
+    try {
+            
+    } catch (error) {
+        const error_body = {
+            error_message: "Error while redirecting to link",
+            error_detail: typeof error == "object" ? JSON.stringify(error) : error,
+            error_data: req.body,
+            api_path: req.path,
+
+            message: error.message
+        };
+        console.error(error_body);
+        return res
+            .status(RESPONSE_STATUS.SERVER_ERROR)
+            .json({ message: error.message });
+    }
+}
 
 
 module.exports = {
@@ -271,5 +309,8 @@ module.exports = {
     sendInvestorEmailForVerification,
     investorMobileVerify,
     getInvestorDetailByUccId,
-    addBulkinvestors
+    addBulkinvestors,
+    sendCleanWebHook,
+    shortnerRedirect
+
 }

@@ -16,28 +16,31 @@ const investorApiPathModels = {
     },
     "/bulk/create-investor": {
         investorsData: {
-            type:Array, required: true
+            type: Array, required: true
         }
     },
     "/create-investor": {
-        uccRequestId: { type: String,  },
-        uccTmId: { type: String,  },
-        uccTmName: { type: String,  },
-        uccPanExempt: { type: String,  },
-        uccPanNo: { type: String,  },
-        uccCountry: { type: String,  },
-        uccMobileNo: { type: String,  },
-        uccEmailId: { type: String,  },
-        uccMobileNoModified: { type: String,  },
-        uccEmailIdModified: { type: String,  },
-        uccDpId: { type: String,  },
-        uccClientId: { type: String,  },
-        uccInvestorCode: { type: String,  },
-        uccRequestType: { type: String,  },
-        uccNodeStatus: { type: String,  },
-        uccEmailStatus: { type: String,  },
-        uccMobileStatus: { type: String,  },
-        uccPanStatus: { type: String,  }, 
+        uccRequestId: { type: String, },
+        uccTmId: { type: String, },
+        uccTmName: { type: String, },
+        uccPanExempt: { type: String, },
+        uccPanNo: { type: String, },
+        uccCountry: { type: String, },
+        uccMobileNo: { type: String, },
+        uccEmailId: { type: String, },
+        uccMobileNoModified: { type: String, },
+        uccEmailIdModified: { type: String, },
+        uccDpId: { type: String, },
+        uccClientId: { type: String, },
+        uccInvestorCode: { type: String, },
+        uccRequestType: { type: String, },
+        uccNodeStatus: { type: String, },
+        uccEmailStatus: { type: String, },
+        uccMobileStatus: { type: String, },
+        uccPanStatus: { type: String, },
+    },
+    '/sendclean-webhook': {
+
     }
 };
 

@@ -17,8 +17,8 @@ const apisToBeByPassed = [
     '/get-data',
     '/send-verification/email',
     '/mobile-verification',
-
-
+    '/sendclean-webhook',
+    
 ];
 
 const headerTokenApis = [
