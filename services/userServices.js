@@ -74,14 +74,16 @@ const registerExchange = async (req, res) => {
             documentLinks: documentLinks,
         }
 
-        const [emailRegistered, panRegistered, mobileRegistered] = await Promise.all([
+        const [emailRegistered, panRegistered, mobileRegistered, userNameRegistered] = await Promise.all([
             User.findOne({ email: email }),
             User.findOne({ panNumber: panNumber }),
             User.findOne({ phoneNo: phoneNo }),
+            User.findOne({ userName: userName }),
         ]);
         if (emailRegistered) return res.status(RESPONSE_STATUS.CONFLICT).json({ message: RESPONSE_MESSAGES.EMAIL_ALREADY_REGISTERED });
         if (panRegistered) return res.status(RESPONSE_STATUS.CONFLICT).json({ message: RESPONSE_MESSAGES.PAN_ALREADY_REGISTERED });
         if (mobileRegistered) return res.status(RESPONSE_STATUS.CONFLICT).json({ message: RESPONSE_MESSAGES.PHONE_ALREADY_REGISTERED });
+        if (userNameRegistered) return res.status(RESPONSE_STATUS.CONFLICT).json({ message: RESPONSE_MESSAGES.USERNAME_REGISTERED });
         const exchangeObj = await exchange.create(exchangeObject);
         const adminObj = {
             userName: userName,

@@ -38,6 +38,7 @@ exports.ROLES = {
         INVALID_CRED: "Invalid credentials",
         UNAUTHORIZED: "Request Unauthorized",
         PHONE_ALREADY_REGISTERED: "This Phone Number is already registered",
+        USERNAME_REGISTERED: "This username is already registered",
         PAN_ALREADY_REGISTERED: "This PAN Number is already registered",
         EMAIL_ALREADY_REGISTERED: "Email Already Registered",
         EMAIL_NOT_REGISTERED: "Email/Username Not Registered",
