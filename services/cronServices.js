@@ -39,7 +39,7 @@ const deleteProcessedFiles = async () => {
 
         if (recordFiles) {
             for await (var file of recordFiles) {
-                 fs.unlinkSync(path.join(__uploadPath, file.fileName))
+                fs.unlinkSync(path.join(__uploadPath, file.fileName))
             }
             console.info('PROCESSED FILES DELETED');
             return;
@@ -74,7 +74,7 @@ const canStartConsumer = async () => {
 
 const startFileProcessing = async (recordFile) => {
     try {
-        let readable = fs.createReadStream(path.join(__uploadPath, recordFile.fileName)).pipe(JSONStream.parse('table.*'));
+        let readable = fs.createReadStream(path.join(__uploadPath, recordFile.fileName)).pipe(JSONStream.parse('*'));
         const rabbit = new Rabbit('amqps://ozeiszoe:7gYRxai3pEeQQA5qwU78RUnaz1Y7QFvH@armadillo.rmq.cloudamqp.com/ozeiszoe', {
             prefetch: 1, //default prefetch from queue
             replyPattern: true, //if reply pattern is enabled an exclusive queue is created
@@ -86,14 +86,21 @@ const startFileProcessing = async (recordFile) => {
         const indianTimeUtcArr = ['11', '12', '10', '9', '8', '7', '6', '5', '13'];
         readable.on('data', (jsonObj) => {
             c++;
+            
+            
             if (!jsonObj.UTCNotification) {
-                if (jsonObj.uccCountry.toLowerCase() == 'india') {
-                    //"11:00" UTC  = 4:30 PM 
-                    jsonObj.UTCNotification = indianTimeUtcArr[Math.floor(Math.random() * indianTimeUtcArr.length)];
+                if (jsonObj.uccCountry) {
+                    if (jsonObj.uccCountry.toLowerCase() == 'india') {
+                        //"11:00" UTC  = 4:30 PM 
+                        jsonObj.UTCNotification = indianTimeUtcArr[Math.floor(Math.random() * indianTimeUtcArr.length)];
 
-                }
-                else {
+                    }else if (jsonObj.uccCountry == 'No Specific Country'){
+                        jsonObj.UTCNotification = indianTimeUtcArr[Math.floor(Math.random() * indianTimeUtcArr.length)];
+                    }
+                    else {
+                        
                     jsonObj.UTCNotification = COUNTRY_ARRAY[jsonObj.uccCountry.toLowerCase()].hours.split(':')[0];
+                    }
                 }
             }
             jsonObj.isEmailEncrypted == 'true';
@@ -205,7 +212,7 @@ const sendRequestToFetchInvestors = async (page = 1) => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                "notificationKey": "0",
+                "notificationKey": "15:00",
                 "page": `${page}`,
                 "limit": "10"
             })
@@ -409,7 +416,7 @@ var k2 = [{
 const notificationSendingLogic = async () => {
     try {
         sendRequestToFetchInvestors();
-       
+
     } catch (error) {
         const error_body = {
             stack: error.stack,

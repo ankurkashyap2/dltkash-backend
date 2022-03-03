@@ -20,7 +20,7 @@ app.use(cors(corsOptions));
 app.options('*', cors());
 
 app.use(express.json());
-app.use(bodyParser.json({ limit: '50mb' }));
+// app.use(bodyParser.json({ limit: '50mb' }));
 
 app.use(busboy({
   highWaterMark: 2 * 1024 * 1024, // Set 2MiB buffer
@@ -30,13 +30,12 @@ app.use(busboy({
 
 app.use('/mobile', async (req, res) => {
   try {
-
     const nanoID = req.path.split('/')[1];
     if (!nanoID) return res.status(RESPONSE_STATUS.BAD_REQUEST).json({ message: "No link provided." });
     const askedshortner = await shortner.findOne({ created: nanoID });
     if (!askedshortner) return res.status(RESPONSE_STATUS.CONFLICT).json({ message: "Link Expired !" });
     const redirect = askedshortner.original;
-    return res.redirect(redirect);
+    return res.json({data: redirect});
   } catch (error) {
     const error_body = {
       error_message: "Error while redirecting link",

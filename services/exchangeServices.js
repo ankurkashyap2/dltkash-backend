@@ -8,7 +8,7 @@ const uploadFileToServer = async (req, res) => {
     try {
         req.pipe(req.busboy);
         req.busboy.on('file', (fieldname, file, filename) => {
-            if (filename.mimeType != 'application/json') return res.status(RESPONSE_STATUS.CONFLICT).json({ message: 'Only JSON files are accepted.' });
+            // if (filename.mimeType != 'application/json') return res.status(RESPONSE_STATUS.CONFLICT).json({ message: 'Only JSON files are accepted.' });
             console.log(`Upload of '${filename.filename}' started`);
             const fstream = fs.createWriteStream(path.join(__uploadPath, filename.filename));
             file.pipe(fstream);

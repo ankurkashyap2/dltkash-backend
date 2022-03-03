@@ -1181,6 +1181,14 @@ exports.COUNTRY_ARRAY = {
         "MobileCode": "+91",
         "hours": "11:00"
     },
+    "no specific country": {
+        "Name": "no specific country",
+        "Code": "IN",
+        "Timezone": "India Standard Time",
+        "UTC": "UTC+05:30",
+        "MobileCode": "+91",
+        "hours": "11:00"
+    },
     "indonesia": {
         "Name": "Indonesia",
         "Code": "ID",

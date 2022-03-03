@@ -79,9 +79,9 @@ const registerExchange = async (req, res) => {
             User.findOne({ panNumber: panNumber }),
             User.findOne({ phoneNo: phoneNo }),
         ]);
-        // if (emailRegistered) return res.status(RESPONSE_STATUS.CONFLICT).json({ message: RESPONSE_MESSAGES.EMAIL_ALREADY_REGISTERED });
-        // if (panRegistered) return res.status(RESPONSE_STATUS.CONFLICT).json({ message: RESPONSE_MESSAGES.PAN_ALREADY_REGISTERED });
-        // if (mobileRegistered) return res.status(RESPONSE_STATUS.CONFLICT).json({ message: RESPONSE_MESSAGES.PHONE_ALREADY_REGISTERED });
+        if (emailRegistered) return res.status(RESPONSE_STATUS.CONFLICT).json({ message: RESPONSE_MESSAGES.EMAIL_ALREADY_REGISTERED });
+        if (panRegistered) return res.status(RESPONSE_STATUS.CONFLICT).json({ message: RESPONSE_MESSAGES.PAN_ALREADY_REGISTERED });
+        if (mobileRegistered) return res.status(RESPONSE_STATUS.CONFLICT).json({ message: RESPONSE_MESSAGES.PHONE_ALREADY_REGISTERED });
         const exchangeObj = await exchange.create(exchangeObject);
         const adminObj = {
             userName: userName,
@@ -97,7 +97,7 @@ const registerExchange = async (req, res) => {
         const mailBody = {}
         const html = pug.renderFile(__root + "/emailTemplates/regsuccess.pug", mailBody);
         commonFunctions.sendMail(email, "Regarding Registration Success", html, (err, response) => {
-            console.log(response.body, 'REG SUCCESS MAIL>>>');
+            console.log(response.body, 'REGISTRATION SUCCESS MAIL>>>');
             if (err)
                 return res.status(RESPONSE_STATUS.SERVER_ERROR).json({ message: RESPONSE_MESSAGES.SERVER_ERROR });
 
@@ -223,8 +223,7 @@ const sendPlatformOtp = async (req, res) => {
         const phoneNo = req.query.mobile;
         if (!commonFunctions.validateMobile(phoneNo)) return res.status(RESPONSE_STATUS.BAD_REQUEST).json({ message: "Not a valid Mobile Number" });
         const askedUser = await User.findOne({ phoneNo: phoneNo });
-        if (askedUser)
-            return res.status(RESPONSE_STATUS.NOT_FOUND).json({ message: "Phone No. already registered." });
+        if (askedUser) return res.status(RESPONSE_STATUS.NOT_FOUND).json({ message: "Phone No. already registered." });
         const otp = commonFunctions.getOTP();
         const encryptedOTP = commonFunctions.encryptWithAES(otp.toString());
         const dltSMS = `http://103.16.101.52:8080/bulksms/bulksms?username=${process.env.RM_USERNAME || 'DL08-dltkash'}&password=${process.env.RM_PASS || 'dltkash@'}&type=0&dlr=1&destination=${phoneNo}&source=DLTKTP&message=Please%20confirm%20your%20mobile%20no.%20mapped%20with%20${phoneNo}%20by%20clicking%20on%20the%20${otp}%20-%20DLTKASH&entityid=1601156164334945695&tempid=1607100000000188213`;

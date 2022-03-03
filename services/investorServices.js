@@ -86,7 +86,8 @@ const getInvestorDetailByUccId = async (req, res) => {
         };
         request(options, function (error, response) {
             if (error) return res.status(error.status).json({ message: RESPONSE_MESSAGES.SERVER_ERROR, detail: error.toString() });
-            return res.status(response.statusCode || 500).json({ data: JSON.parse(response.body) });
+            if(response.statusCode == 404) return res.status(response.statusCode || 500).json({ message: 'Hyperledger error' });
+            return res.status(response.statusCode || 500).json({ message: JSON.parse(response.body) });
         });
 
     } catch (error) {
@@ -264,7 +265,9 @@ const addSingleInvestor = async (req, res) => {
 
         request(options, function (error, response) {
             if (error) return res.status(error.status).json({ message: RESPONSE_MESSAGES.SERVER_ERROR, detail: error.toString() });
-            return res.status(response.statusCode || 500).json({ data: JSON.parse(response.body) });
+            
+            
+            return res.status(response.statusCode || 500).json(JSON.parse(response.body));
         });
 
     } catch (error) {
@@ -285,7 +288,7 @@ const addSingleInvestor = async (req, res) => {
 
 const shortnerRedirect = (req, res) => {
     try {
-            
+
     } catch (error) {
         const error_body = {
             error_message: "Error while redirecting to link",
