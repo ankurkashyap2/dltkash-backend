@@ -75,7 +75,7 @@ const sendMail = (email, subject, content, callback) => {
 
 const createShortNer = (original) => {
   const nnID = nanoid(15);
-  const uri = `${process.env.FEHOST}/mobile/${nnID}`;
+  const uri = `${process.env.FEHOST}/api/mobile/${nnID}`;
     const shortNerObj = {
       original: original,
       created: nnID

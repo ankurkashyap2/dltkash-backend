@@ -28,7 +28,7 @@ app.use(busboy({
 
 
 
-app.use('/mobile', async (req, res) => {
+app.use('/api/mobile', async (req, res) => {
   try {
     const nanoID = req.path.split('/')[1];
     if (!nanoID) return res.status(RESPONSE_STATUS.BAD_REQUEST).json({ message: "No link provided." });
