@@ -35,7 +35,8 @@ app.use('/api/mobile', async (req, res) => {
     const askedshortner = await shortner.findOne({ created: nanoID });
     if (!askedshortner) return res.status(RESPONSE_STATUS.CONFLICT).json({ message: "Link Expired !" });
     const redirect = askedshortner.original;
-    return res.json({data: redirect});
+    // return res.json({data: redirect});
+    return res.redirect(redirect)
   } catch (error) {
     const error_body = {
       error_message: "Error while redirecting link",
