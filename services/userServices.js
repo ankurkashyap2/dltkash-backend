@@ -54,13 +54,13 @@ const registerExchange = async (req, res) => {
     try {
         const { legalEntityName, sebiCertificateNumber, cinNumber, panNumber, phoneNo, isFirstExchangeAdmin, userName, email, password } = req.body;
         var panRegex = /([A-Z]){5}([0-9]){4}([A-Z]){1}$/;
-        // if (!panRegex.test(panNumber)) return res.status(RESPONSE_STATUS.BAD_REQUEST).json({ message: 'Invalid Pan Number' });
+        if (!panRegex.test(panNumber)) return res.status(RESPONSE_STATUS.BAD_REQUEST).json({ message: 'Invalid Pan Number' });
         const documentLinks = {};
         var allFiles = true;
         if (!allFiles) return res.json({ message: 'All documents required' }).status(RESPONSE_STATUS.BAD_REQUEST);
         for await (var file of req.files) {
             const filename = legalEntityName + '-' + file.originalname;
-            
+
             const fileLink = await s3services.fileUpload('exchanges', filename, file.buffer);
             console.log(fileLink)
             documentLinks[file.fieldname] = fileLink;
@@ -111,7 +111,7 @@ const registerExchange = async (req, res) => {
             error_detail: typeof error == "object" ? JSON.stringify(error) : error,
             error_data: req.body,
             api_path: req.path,
-            stack:error.stack
+            stack: error.stack
         };
         console.error(error_body);
         return res
@@ -140,6 +140,18 @@ const addExchangeAdmin = async (req, res) => {
             password: commonFunctions.encryptString(password),
             phoneNo: phoneNo,
         }
+        const mailBody = {
+            userName: userName,
+            email: email,
+            password: password
+        }
+        const html = pug.renderFile(__root + "/emailTemplates/adminRegister.pug", mailBody);
+        commonFunctions.sendMail(email, "Regarding Registration On DLTKASH", html, (err, response) => {
+            console.log(response.body, 'REGISTRATION SUCCESS MAIL>>>');
+            if (err)
+                return res.status(RESPONSE_STATUS.SERVER_ERROR).json({ message: RESPONSE_MESSAGES.SERVER_ERROR });
+
+        });
         const adminObject = await User.create(adminObj);
         return res.json({ data: adminObject, message: RESPONSE_MESSAGES.SUCCESS });
     } catch (error) {
