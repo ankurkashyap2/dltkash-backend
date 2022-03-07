@@ -87,7 +87,7 @@ const getInvestorDetailByUccId = async (req, res) => {
         request(options, function (error, response) {
             if (error) return res.status(error.status).json({ message: RESPONSE_MESSAGES.SERVER_ERROR, detail: error.toString() });
             if(response.statusCode == 404) return res.status(response.statusCode || 500).json({ message: 'Hyperledger error' });
-            return res.status(response.statusCode || 500).json({ message: JSON.parse(response.body) });
+            return res.status(response.statusCode || 500).json({ data: JSON.parse(response.body) });
         });
 
     } catch (error) {
