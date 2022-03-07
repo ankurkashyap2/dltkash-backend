@@ -8,7 +8,7 @@ const investorMobileVerify = async (req, res) => {
     try {
         const status = req.query.status;
         var options = {
-            'method': 'PUT',
+            'method': 'POST',
             'url': `${process.env.HYPERLEDGER_HOST}/users/updateInvestorMobileStatus`,
             'headers': {
                 'Content-Type': 'application/json'
@@ -46,7 +46,7 @@ const investorEmailVerify = async (req, res) => {
         const status = req.query.status;
 
         var options = {
-            'method': 'PUT',
+            'method': 'POST',
             'url': `${process.env.HYPERLEDGER_HOST}/users/updateInvestorEmailStatus`,
             'headers': {
                 'Content-Type': 'application/json'
