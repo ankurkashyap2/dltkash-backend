@@ -1,32 +1,30 @@
 const fs = require('fs');
 
-let obj = {
-    table: []
-};
+let obj = [];
 
-fs.exists('testJson.json', function (exists) {
+fs.exists('small.json', function (exists) {
 
     if (exists) {
 
         console.log("yes file exists");
 
-        fs.readFile('testJson.json', function readFileCallback(err, data) {
+        fs.readFile('small.json', function readFileCallback(err, data) {
 
             if (err) {
                 console.log(err);
             } else {
                 // obj = JSON.parse(data);
 
-                for (i = 0; i < 100000; i++) {
-                    obj.table.push({
-                        "uccRequestId": "234718212902",
-                        "uccTmId": "98234921",
+                for (i = 0; i < 50; i++) {
+                    obj.push({
+                        "uccRequestId": `${i}234718212902`,
+                        "uccTmId": `${i}98234921`,
                         "uccTmName": "Zerodha",
                         "uccPanExempt": "false",
                         "uccPanNo": "COMPA44565A",
                         "uccCountry": "India",
                         "uccMobileNo": "9877114806",
-                        "uccEmailId": "ankit@getnada.com",
+                        "uccEmailId": `ankit${i}@getnada.com`,
                         "uccMobileNoModified": "false",
                         "uccEmailIdModified": "false",
                         "uccDpId": "2384092431",
@@ -34,37 +32,32 @@ fs.exists('testJson.json', function (exists) {
                         "uccInvestorCode": "18293",
                         "uccRequestType": "NEW",
                         "uccNodeStatus": "01",
-                        "uccEmailStatus": "VERIFIED",
+                        "uccEmailStatus": "NOT VERIFIED",
                         "uccMobileStatus": "VERIFIED",
                         "uccPanStatus": "VERIFIED",
-                        "emailAttempts": "1",
-                        "mobileAttempts": "3",
-                        "ledgerId1": "org.property-registration-network.investor.requestrahul123-rahul11",
-                        "ledgerid2": "org.property-registration-network.investor.requestrahul123-ayush@gmail.com-91222122-rahul11",
-                        "isEmailEncrypted": "false",
-                        "isPhoneEncrypted": "false",
-                        "UTCNotification": "15:00"
+                        "UTCNotification": "11"
 
                     });
                 }
 
                 let json = JSON.stringify(obj);
-                fs.writeFile('testJson.json', data = json, () => { });
+                fs.writeFile('small.json', data = json, () => { });
             }
         });
     } else {
 
         console.log("file not exists");
 
-        for (i = 0; i < 100000; i++) {
-            obj.table.push({"uccRequestId": "234718212902",
-                "uccTmId": "98234921",
+        for (i = 0; i < 50; i++) {
+            obj.table.push({
+                "uccRequestId": `${i}234718212902`,
+                "uccTmId": `${i}98234921`,
                 "uccTmName": "Zerodha",
                 "uccPanExempt": "false",
                 "uccPanNo": "COMPA44565A",
                 "uccCountry": "India",
                 "uccMobileNo": "9877114806",
-                "uccEmailId": "ankit@getnada.com",
+                "uccEmailId": `ankit${i}@getnada.com`,
                 "uccMobileNoModified": "false",
                 "uccEmailIdModified": "false",
                 "uccDpId": "2384092431",
@@ -72,20 +65,14 @@ fs.exists('testJson.json', function (exists) {
                 "uccInvestorCode": "18293",
                 "uccRequestType": "NEW",
                 "uccNodeStatus": "01",
-                "uccEmailStatus": "VERIFIED",
+                "uccEmailStatus": "NOT VERIFIED",
                 "uccMobileStatus": "VERIFIED",
                 "uccPanStatus": "VERIFIED",
-                "emailAttempts": "1",
-                "mobileAttempts": "3",
-                "ledgerId1": "org.property-registration-network.investor.requestrahul123-rahul11",
-                "ledgerid2": "org.property-registration-network.investor.requestrahul123-ayush@gmail.com-91222122-rahul11",
-                "isEmailEncrypted": "false",
-                "isPhoneEncrypted": "false",
-                "UTCNotification" : "15:00"
+                "UTCNotification" : "11"
         });
         }
 
         let json = JSON.stringify(obj);
-        fs.writeFile('testJson.json', json);
+        fs.writeFile('small.json', json);
     }
 });
