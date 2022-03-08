@@ -56,7 +56,7 @@ const processInvestorEmail = async (investorObj) => {
             }  //if valid  
             else {
 
-                if (investorObj.uccRequestType == UCC_REQUEST_TYPES.NEW && investorObj.emailAttempts == '3') {           //check if request type and email attempts
+                if (investorObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.NEW && parseInt(investorObj.emailAttempts.toString()) >= 3) {           //check if request type and email attempts
                     investorObj.uccEmailStatus = EMAIL_STATUSES.NOT_VERIFIED;
                     // if (investorObj.isEmailEncrypted == 'false') {
                     //     investorObj.isEmailEncrypted = 'true';
@@ -64,7 +64,7 @@ const processInvestorEmail = async (investorObj) => {
                     // }
                     resolve(investorObj);
 
-                } else if (investorObj.uccRequestType == UCC_REQUEST_TYPES.EXISTING && investorObj.emailAttempts == '15') {
+                } else if (investorObj.uccRequestType.toUpperCase()  == UCC_REQUEST_TYPES.EXISTING && parseInt(investorObj.emailAttempts.toString()) >= 15) {
                     investorObj.uccEmailStatus = EMAIL_STATUSES.NOT_VERIFIED;
                     // if (investorObj.isEmailEncrypted == 'false') {
                     //     investorObj.isEmailEncrypted = 'true';
@@ -83,7 +83,7 @@ const processInvestorEmail = async (investorObj) => {
                     }
 
                     const html = pug.renderFile(__root + "emailTemplates/investorEmailVerificaton.pug", mailBody);
-                    commonFunctions.sendMail(investorObj.uccEmailId, 'Investor Email Verify', html, (err, res, body) => {
+                    return commonFunctions.sendMail(investorObj.uccEmailId, 'Investor Email Verify', html, (err, res, body) => {
                         if (err) {
                             // handle email error
                             console.log(err)
@@ -134,6 +134,7 @@ const processInvestorMobile = async (investorObj) => {
         // }
         if (MOBILE_STATUS != MOBILE_STATUSES.VERIFIED) {
             // if email not validated set email status as invalid
+
             if (!commonFunctions.validateMobile(investorObj.uccMobileNo)) {
                 investorObj.uccMobileStatus = MOBILE_STATUSES.INVALID;
                 // if (investorObj.isPhoneEncrypted == 'false') {
@@ -144,19 +145,20 @@ const processInvestorMobile = async (investorObj) => {
                 resolve(investorObj)
 
             }  //if valid  
-
             else {
-
-                if (investorObj.uccRequestType == UCC_REQUEST_TYPES.NEW && investorObj.mobileAttempts == '3') {
+                
+               
+                if (investorObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.NEW && parseInt(investorObj.mobileAttempts.toString()) >= 3) {
                     //check if request type and email attempts
                     investorObj.uccMobileStatus = MOBILE_STATUSES.NOT_VERIFIED;
                     // if (investorObj.isPhoneEncrypted == 'false') {
                     //     investorObj.isPhoneEncrypted = 'true';
                     //     investorObj.uccMobileNo = encryptWithAES(investorObj.uccMobileNo)
                     // }
+
                     resolve(investorObj);
 
-                } else if (investorObj.uccRequestType == UCC_REQUEST_TYPES.EXISTING && investorObj.mobileAttempts == '15') {
+                } else if (investorObj.uccRequestType.toUpperCase()  == UCC_REQUEST_TYPES.EXISTING && parseInt(investorObj.mobileAttempts.toString()) >= 15) {
                     investorObj.uccMobileStatus = MOBILE_STATUSES.NOT_VERIFIED;
                     resolve(investorObj);
                 }

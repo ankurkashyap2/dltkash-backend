@@ -237,7 +237,8 @@ const addSingleInvestor = async (req, res) => {
             isEmailEncrypted: isEmailEncrypted || "false",
             isPhoneEncrypted: isPhoneEncrypted || "false",
             emailAttempts: emailAttempts || "0",
-            mobileAttempts: mobileAttempts || "0"
+            mobileAttempts: mobileAttempts || "0",
+            
         }
 
         var country = investorObj.uccCountry.toLowerCase();

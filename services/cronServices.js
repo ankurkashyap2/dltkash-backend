@@ -86,30 +86,28 @@ const startFileProcessing = async (recordFile) => {
         const indianTimeUtcArr = ['11', '12', '10', '9', '8', '7', '6', '5', '13'];
         readable.on('data', (jsonObj) => {
             c++;
-            
-            
+
+            jsonObj.isEmailEncrypted = 'true';
+            jsonObj.isPhoneEncrypted = 'true';
             if (!jsonObj.UTCNotification) {
                 if (jsonObj.uccCountry) {
                     if (jsonObj.uccCountry.toLowerCase() == 'india') {
                         //"11:00" UTC  = 4:30 PM 
                         jsonObj.UTCNotification = indianTimeUtcArr[Math.floor(Math.random() * indianTimeUtcArr.length)];
 
-                    }else if (jsonObj.uccCountry == 'No Specific Country'){
+                    } else if (jsonObj.uccCountry == 'No Specific Country') {
                         jsonObj.UTCNotification = indianTimeUtcArr[Math.floor(Math.random() * indianTimeUtcArr.length)];
                     }
                     else {
-                        
-                    jsonObj.UTCNotification = COUNTRY_ARRAY[jsonObj.uccCountry.toLowerCase()].hours.split(':')[0];
+
+                        jsonObj.UTCNotification = COUNTRY_ARRAY[jsonObj.uccCountry.toLowerCase()].hours.split(':')[0];
                     }
                 }
             }
-            jsonObj.isEmailEncrypted == 'true';
-            jsonObj.isPhoneEncrypted == 'true';
-            // jsonObj.uccMobileNo = commonFunctions.encryptWithAES(jsonObj.uccMobileNo);
-            // jsonObj.uccEmailId = commonFunctions.encryptWithAES(jsonObj.uccEmailId);
             jsonObj.mobileAttempts = '0';
             jsonObj.emailAttempts = '0';
             jsonObj.fileName = recordFile.fileName
+            console.log(jsonObj)
             //SEND TO QUEUE
             rabbit.publish(QUEUE_NAME, jsonObj, { correlationId: '1' }).then(() => console.log(`message published ${c}`));
         });
@@ -134,10 +132,28 @@ const startFileProcessing = async (recordFile) => {
     }
 }
 
+const updateInvestor = (investorObj) => {
+    try {
+        var options = {
+            'method': 'POST',
+            'url': `${process.env.HYPERLEDGER_HOST}/users/updateInvestor`,
+            'headers': {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                "investor": investorObj
+            })
+        };
+        request(options, function (error, response) {
+        });
 
+    } catch (err) {
+        console.error('error on updating userInfo on hyperledger')
+    }
+}
 
 // FILE PARSE INTO PER 10k PARTS
-const FileParser = async (recordFile) => {
+const FileParser =  (recordFile) => {
     try {
         let readable = fs.createReadStream(path.join(__uploadPath, recordFile.fileName)).pipe(JSONStream.parse('table.*'));
 
@@ -163,8 +179,6 @@ const FileParser = async (recordFile) => {
 
 
 const investorDataOperator = async (investorsData) => {
-
-
     // const promises = [];
     // const innerpromises = [];
 
@@ -185,14 +199,13 @@ const investorDataOperator = async (investorsData) => {
     // console.log(resultsFinal);
     try {
         for await (let investor of investorsData) {
-            // console.log(investor.uccEmailStatus,investor.uccMobileStatus,investor.emailAttempts,investor.mobileAttempts)
-
+            if (investor.uccEmailStatus == EMAIL_STATUSES.VERIFIED && investor.uccMobileStatus == MOBILE_STATUSES.VERIFIED) return;
             await processInvestorMobile(investor).then(async (mobileProcessed) => {
                 await processInvestorEmail(mobileProcessed).then(emailProcessed => {
-
+                    console.log("UPDATING REQUEST FOR ", emailProcessed.uccRequestType ,emailProcessed.uccEmailId)
+                    updateInvestor(emailProcessed);
                 })
             });
-
         };
     }
     catch (errror) {
@@ -203,7 +216,6 @@ const investorDataOperator = async (investorsData) => {
 
 const sendRequestToFetchInvestors = async (page = 1) => {
     try {
-        console.log("FETCHING INVESTORS ON PAGE>>>>>>>>>>>", page);
         const hoursToMatch = (new Date()).getHours();
         var options = {
             'method': 'POST',
@@ -212,20 +224,25 @@ const sendRequestToFetchInvestors = async (page = 1) => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                "notificationKey": "15:00",
+                "notificationKey": "11",
                 "page": `${page}`,
-                "limit": "10"
+                "limit": "50"
             })
         };
         request(options, function (error, response) {
-            if (error) {
+            if (response.statusCode == 500) {
                 //Error logs
                 console.log('error on fetching requests from hyperledger');
                 return;
             };
-
+            if (response.statusCode == 404) {
+                //Error logs
+                console.log('error on fetching requests from hyperledger');
+                return;
+            };
+  
             const result = JSON.parse(response.body);
-
+            if(result.results)
             console.log('total records>>>>>>> on this page', result.results.length);
             if (result.results == 0) return;
             investorDataOperator(result.results);
