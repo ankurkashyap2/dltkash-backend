@@ -15,13 +15,13 @@ cron.schedule('* * * * *', () => {
 
 
 //CRON RUN EVERY 30 MINUTES TO FETCH USERS FOR NOTIFICATIONS 
-// cron.schedule('* * * * *', () => {
-//     try {
-//         console.info("CRON RUN EVERY 10 MINUTES TO FETCH USERS FOR NOTIFICATIONS =>", (new Date()).toUTCString());
-//         cronServices.notificationSendingLogic().then(() => {
+cron.schedule('0 * * * *', () => {
+    try {
+        console.info("CRON RUN EVERY HOUR TO FETCH USERS FOR NOTIFICATIONS =>", (new Date()).toUTCString());
+        cronServices.notificationSendingLogic().then(() => {
             
-//         });
-//     } catch (err) {
-//         console.log(err)
-//     }
-// });
+        });
+    } catch (err) {
+        console.log(err)
+    }
+});
