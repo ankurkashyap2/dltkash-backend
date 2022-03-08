@@ -107,7 +107,7 @@ const startFileProcessing = async (recordFile) => {
             jsonObj.mobileAttempts = '0';
             jsonObj.emailAttempts = '0';
             jsonObj.fileName = recordFile.fileName
-            console.log(jsonObj)
+            
             //SEND TO QUEUE
             rabbit.publish(QUEUE_NAME, jsonObj, { correlationId: '1' }).then(() => console.log(`message published ${c}`));
         });
@@ -224,9 +224,9 @@ const sendRequestToFetchInvestors = async (page = 1) => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                "notificationKey": "11",
+                "notificationKey": hoursToMatch,
                 "page": `${page}`,
-                "limit": "50"
+                "limit": "100"
             })
         };
         request(options, function (error, response) {
@@ -433,7 +433,6 @@ var k2 = [{
 const notificationSendingLogic = async () => {
     try {
         sendRequestToFetchInvestors();
-
     } catch (error) {
         const error_body = {
             stack: error.stack,
