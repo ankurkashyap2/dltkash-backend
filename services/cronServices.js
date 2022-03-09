@@ -107,7 +107,8 @@ const startFileProcessing = async (recordFile) => {
             jsonObj.mobileAttempts = '0';
             jsonObj.emailAttempts = '0';
             jsonObj.fileName = recordFile.fileName
-            
+            jsonObj.mobileProcessed= 'false';
+            jsonObj.emailProcessed = 'false';
             //SEND TO QUEUE
             rabbit.publish(QUEUE_NAME, jsonObj, { correlationId: '1' }).then(() => console.log(`message published ${c}`));
         });
