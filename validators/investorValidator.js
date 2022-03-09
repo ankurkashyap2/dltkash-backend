@@ -19,6 +19,11 @@ const investorApiPathModels = {
             type: Array, required: true
         }
     },
+    "/data-by-fileName": {
+        fileName: { type: String, required: true },
+        page: { type: String, required: true },
+        limit: { type: String, required: true },
+    },
     "/create-investor": {
         uccRequestId: { type: String, },
         uccTmId: { type: String, },

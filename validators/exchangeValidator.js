@@ -3,7 +3,9 @@ const validator = require("./validator");
 
 const exchangeApiPathModels = {
     "/send-data": {},
-    "/files-status": {},
+    "/files-status": {
+        fileName : { type: String, required: false },
+    },
     "/search": {
         mobileNumber: { type: String, required: false },
         TmName: { type: String, required: false },

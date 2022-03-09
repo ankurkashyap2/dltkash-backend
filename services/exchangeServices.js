@@ -46,7 +46,12 @@ const uploadFileToServer = async (req, res) => {
 
 const getFilesStatus = async (req, res) => {
     try {
-        const recordFiles = await RecordFile.find();
+        const { fileName } = req.body;
+        let recordFiles;
+        if (fileName.trim()) {
+            recordFiles = await RecordFile.find({ fileName: fileName });
+        } else
+            recordFiles = await RecordFile.find();
         return res.json({ message: RESPONSE_MESSAGES.SUCCESS, data: recordFiles });
 
     } catch (error) {
@@ -85,12 +90,12 @@ const search = async (req, res) => {
         };
         request(options, function (error, response) {
             if (error) return res.status(error.status).json({ message: RESPONSE_MESSAGES.SERVER_ERROR, detail: error.toString() });
-    
+
             return res.status(response.statusCode || 500).json({ data: JSON.parse(response.body) || "SERVER ERRROR" });
         });
-       
 
-        
+
+
     } catch (error) {
         const error_body = {
             error_detail: (typeof error == 'object') ? JSON.stringify(error) : error,

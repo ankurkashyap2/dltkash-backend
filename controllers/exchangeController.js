@@ -5,7 +5,7 @@ const exchangeServices = require('./../services/exchangeServices');
 const router = express.Router();
 router.use(validator);
 router.use(verifyToken);
-router.get('/files-status', exchangeServices.getFilesStatus);
+router.post('/files-status', exchangeServices.getFilesStatus);
 router.post('/send-data', exchangeServices.uploadFileToServer);
 router.get('/search', exchangeServices.search);
 module.exports = router;

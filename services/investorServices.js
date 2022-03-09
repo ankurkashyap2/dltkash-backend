@@ -87,7 +87,7 @@ const getInvestorDetailByUccId = async (req, res) => {
         };
         request(options, function (error, response) {
             if (error) return res.status(error.status).json({ message: RESPONSE_MESSAGES.SERVER_ERROR, detail: error.toString() });
-            if(response.statusCode == 404) return res.status(response.statusCode || 500).json({ message: 'Hyperledger error' });
+            if (response.statusCode == 404) return res.status(response.statusCode || 500).json({ message: 'Hyperledger error' });
             return res.status(response.statusCode || 500).json({ data: JSON.parse(response.body) });
         });
 
@@ -239,7 +239,7 @@ const addSingleInvestor = async (req, res) => {
             isPhoneEncrypted: isPhoneEncrypted || "false",
             emailAttempts: emailAttempts || "0",
             mobileAttempts: mobileAttempts || "0",
-            
+
         }
 
         var country = investorObj.uccCountry.toLowerCase();
@@ -267,8 +267,8 @@ const addSingleInvestor = async (req, res) => {
 
         request(options, function (error, response) {
             if (error) return res.status(error.status).json({ message: RESPONSE_MESSAGES.SERVER_ERROR, detail: error.toString() });
-            
-            
+
+
             return res.status(response.statusCode || 500).json(JSON.parse(response.body));
         });
 
@@ -307,7 +307,47 @@ const shortnerRedirect = (req, res) => {
     }
 }
 
+const dataByFile = async (req, res) => {
+    try {
+        const { fileName, page, limit } = req.body;
+        var options = {
+            'method': 'POST',
+            'url': 'https://silent-dream-40722.pktriot.net/users/getInvestorsByKey',
+            'headers': {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                "fileName": fileName.toString().trim(),
+                "page": page.toString(),
+                "limit": limit.toString()
+            })
+        };
+        request(options, function (error, response) {
+            if (response.statusCode == 200) {
+                return res.json(JSON.parse(response.body));
+            } else {
+                return res.status(response.statusCode || 500).json(JSON.parse(response.body) || RESPONSE_MESSAGES.SERVER_ERROR)
+            }
+        });
 
+
+
+
+    } catch (err) {
+        const error_body = {
+            error_message: "Error while getting file data",
+            error_detail: typeof error == "object" ? JSON.stringify(error) : error,
+            error_data: req.body,
+            api_path: req.path,
+
+            message: error.message
+        };
+        console.error(error_body);
+        return res
+            .status(RESPONSE_STATUS.SERVER_ERROR)
+            .json({ message: error.message });
+    }
+}
 module.exports = {
     addSingleInvestor,
     investorEmailVerify,
@@ -316,6 +356,7 @@ module.exports = {
     getInvestorDetailByUccId,
     addBulkinvestors,
     sendCleanWebHook,
-    shortnerRedirect
+    shortnerRedirect,
+    dataByFile
 
 }
