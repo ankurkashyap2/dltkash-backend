@@ -310,9 +310,10 @@ const shortnerRedirect = (req, res) => {
 const dataByFile = async (req, res) => {
     try {
         const { fileName, page, limit } = req.body;
+    
         var options = {
             'method': 'POST',
-            'url': 'https://silent-dream-40722.pktriot.net/users/getInvestorsByKey',
+            'url': `${process.env.HYPERLEDGER_HOST}/users/getInvestorsByKey`,
             'headers': {
                 'Content-Type': 'application/json'
             },
