@@ -7,3 +7,5 @@ SDocs/
 .env.test
 testJson.json
 small.json
+/unprocessedFiles
+ecosystem.config.js
