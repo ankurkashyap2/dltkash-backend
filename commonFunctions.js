@@ -15,7 +15,7 @@ const getOTP = () => {
   return otp;
 }
 
-const sendMail = (email, subject, content, callback) => {
+const sendMail = (email, subject, content, callback ,entity = true) => {
   const options = {
     url: 'https://api.us1-mta1.sendclean.net/v1.0/messages/sendMail',
     json: true,
@@ -32,7 +32,7 @@ const sendMail = (email, subject, content, callback) => {
         ],
         "html": content,
         "subject": subject,
-        "from_email": "no-reply@webmobsoft.com",
+        "from_email": entity?"no-reply@nse.co.in" :"no-reply@dltkash.com"  ,
         "from_name": "no-reply"
       },
       "owner_id": process.env.SENDCLEANOWNERID || '80940214',
@@ -43,34 +43,6 @@ const sendMail = (email, subject, content, callback) => {
 
   request.post(options, callback);
 }
-
-// const sendMail = (email, subject, content, callback) => {
-//   let transporter = nodemailer.createTransport({
-//     service: 'gmail',
-//     auth: {
-//       "user": "manojrana.cta@gmail.com",
-//       "pass": "zcpfpulchqzlgaqk"
-//     }
-//   });
-//   let mailOptions = {
-//     from: "<do_not_reply@gmail.com>",
-//     to: email,
-//     subject: subject,
-//     html: content,
-//   };
-//   transporter.sendMail(mailOptions, function (error, info) {
-//     if (error) {
-//       {
-//         console.log(error)
-//         console.error("email failed for ", email);
-//         return callback(error, null);
-//       }
-//     }
-//     console.info("This mail sent to >> " + info.envelope.to);
-//     return callback(null, info.response);
-
-//   });
-// }
 
 
 const createShortNer = (original) => {
@@ -153,7 +125,7 @@ const sendSMS = (investorObj, url, callback) => {
   // const dltSMS = `http://103.16.101.52:8080/bulksms/bulksms?username=${process.env.RM_USERNAME || 'DL08-dltkash'}&password=${process.env.RM_PASS || 'dltkash@'}&type=0&dlr=1&destination=${investorObj.uccMobileNo}&source=DLTKTP&message=Please%20confirm%20your%20mobile%20no.%20mapped%20with%20${investorObj.uccTmName}%20by%20clicking%20on%20the%20${url}%20-%20DLTKASH&entityid=1601156164334945695&tempid=1607100000000188213`;
   
   
-  const dltSMS = `http://103.16.101.52:8080/bulksms/bulksms?username=${process.env.RM_USERNAME || 'DL08-dltkash'}&password=${process.env.RM_PASS || 'dltkash@'}&type=0&dlr=1&destination=${investorObj.uccMobileNo}&source=NSEVER&message=Please confirm your mobile no. mapped with ${investorObj.uccTmName} by clicking on the ${url} - NSE&entityid=110100001503&tempid=1107164440900649128`;
+  const dltSMS = `http://103.16.101.52:8080/bulksms/bulksms?username=${process.env.RM_USERNAME || 'DL08-dltkash'}&password=${process.env.RM_PASS || 'dltkash@'}&type=0&dlr=1&destination=${investorObj.uccMobileNo}&source=NSEVER&message=Please%20confirm%20your%20mobile%20no.%20mapped%20with%20${investorObj.uccTmName}%20by%20clicking%20on%20the%20${url}%20-%20NSE&entityid=110100001503&tempid=1107164440900649128`;
   const options = {
     'method': 'GET',
     'url': dltSMS,
