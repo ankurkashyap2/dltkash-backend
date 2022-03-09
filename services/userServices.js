@@ -197,7 +197,7 @@ const resetPassword = async (req, res) => {
 const forgetPassword = async (req, res) => {
     try {
         const user = await User.findOne({ email: req.query.email });
-        if (!user) return res.status(RESPONSE_STATUS.NOT_FOUND).json({ message: RESPONSE_MESSAGES.EMAIL_NOT_REGISTERED });
+        if (!user) return res.status(RESPONSE_STATUS.NOT_FOUND).json({ message: RESPONSE_MESSAGES.EMAILL_NOT_REGISTERED });
         user.reset_password = false;
         user.save().then(() => { });
         req.body['user_id'] = user.id;
