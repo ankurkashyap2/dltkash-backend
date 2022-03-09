@@ -48,8 +48,8 @@ const getFilesStatus = async (req, res) => {
     try {
         const { fileName } = req.body;
         let recordFiles;
-        if (fileName.trim()) {
-            recordFiles = await RecordFile.find({ fileName: fileName });
+        if (fileName) {
+            recordFiles = await RecordFile.find({ fileName: fileName.trim() });
         } else
             recordFiles = await RecordFile.find();
         return res.json({ message: RESPONSE_MESSAGES.SUCCESS, data: recordFiles });
