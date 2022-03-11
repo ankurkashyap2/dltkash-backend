@@ -1,7 +1,7 @@
 const { RESPONSE_MESSAGES, RESPONSE_STATUS, MOBILE_STATUSES, EMAIL_STATUSES, COUNTRY_ARRAY } = require('./../constants');
 const investorFunctions = require('./../investorFunctions');
 var request = require('request');
-const e = require('express');
+
 
 
 const investorMobileVerify = async (req, res) => {

@@ -75,10 +75,11 @@ const canStartConsumer = async () => {
 const startFileProcessing = async (recordFile) => {
     try {
         let readable = fs.createReadStream(path.join(__uploadPath, recordFile.fileName)).pipe(JSONStream.parse('*'));
-        const rabbit = new Rabbit('amqps://ozeiszoe:7gYRxai3pEeQQA5qwU78RUnaz1Y7QFvH@armadillo.rmq.cloudamqp.com/ozeiszoe', {
+        const rabbit = new Rabbit(process.env.PROCESS_QUEUE, {
             prefetch: 1, //default prefetch from queue
             replyPattern: true, //if reply pattern is enabled an exclusive queue is created
             scheduledPublish: false,
+
             prefix: '', //prefix all queues with an application name
             socketOptions: {} // socketOptions will be passed as a second param to amqp.connect and from ther to the socket library (net or tls)
         });
@@ -86,9 +87,9 @@ const startFileProcessing = async (recordFile) => {
         const indianTimeUtcArr = ['11', '12', '10', '9', '8', '7', '6', '5', '13'];
         readable.on('data', (jsonObj) => {
             c++;
-
-            jsonObj.isEmailEncrypted = 'true';
-            jsonObj.isPhoneEncrypted = 'true';
+            jsonObj.uccRequestId= `${jsonObj.uccRequestId}23417${c}`,
+            jsonObj.isEmailEncrypted = 'false';
+            jsonObj.isPhoneEncrypted = 'false';
             if (!jsonObj.UTCNotification) {
                 if (jsonObj.uccCountry) {
                     if (jsonObj.uccCountry.toLowerCase() == 'india') {
@@ -116,8 +117,8 @@ const startFileProcessing = async (recordFile) => {
             console.log('processed success', c);
             recordFile.status = "PROCESSED";
             recordFile.save();
-            rabbit.publish(QUEUE_NAME, { "MSG": "EOF" }, { correlationId: '1' }).then(() => console.log(`message published ${c}`));
-            canStartConsumer();
+            rabbit.publish(QUEUE_NAME, { "MSG": "EOF" }, { correlationId: '1' }).then(() =>canStartConsumer());
+            
             console.log("CHANNEL CLOSED");
             return;
         });
