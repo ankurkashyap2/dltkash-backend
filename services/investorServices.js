@@ -262,8 +262,8 @@ const addSingleInvestor = async (req, res) => {
 
         }
         investorObj.exchangeId = askedUser.exchangeId;
-        jsonObj.mobileProcessed = 'false';
-        jsonObj.emailProcessed = 'false';
+        investorObj.mobileProcessed = 'false';
+        investorObj.emailProcessed = 'false';
         var country = investorObj.uccCountry.toLowerCase();
         if (COUNTRY_ARRAY[country]) {
             investorObj.UTCNotification = COUNTRY_ARRAY[country]['hours']
