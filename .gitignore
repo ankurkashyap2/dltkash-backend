@@ -9,3 +9,6 @@ testJson.json
 small.json
 /unprocessedFiles
 ecosystem.config.js
+small*.json
+jsonCreate.js
+.env

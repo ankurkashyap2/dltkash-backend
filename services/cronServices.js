@@ -84,11 +84,11 @@ const startFileProcessing = async (recordFile) => {
             socketOptions: {} // socketOptions will be passed as a second param to amqp.connect and from ther to the socket library (net or tls)
         });
         c = 0;
-        const indianTimeUtcArr = ['11', '12', '10', '9', '8', '7', '6', '5', '13'];
+        const indianTimeUtcArr = ['11', '12', '10', '9', '8', '7', '6', '5', '13', '4', '3', '12', '13'];
         readable.on('data', (jsonObj) => {
             c++;
-            jsonObj.uccRequestId= `${jsonObj.uccRequestId}23417${c}`,
-            jsonObj.isEmailEncrypted = 'false';
+           
+                jsonObj.isEmailEncrypted = 'false';
             jsonObj.isPhoneEncrypted = 'false';
             if (!jsonObj.UTCNotification) {
                 if (jsonObj.uccCountry) {
@@ -108,7 +108,7 @@ const startFileProcessing = async (recordFile) => {
             jsonObj.mobileAttempts = '0';
             jsonObj.emailAttempts = '0';
             jsonObj.fileName = recordFile.fileName
-            jsonObj.mobileProcessed= 'false';
+            jsonObj.mobileProcessed = 'false';
             jsonObj.emailProcessed = 'false';
             //SEND TO QUEUE
             rabbit.publish(QUEUE_NAME, jsonObj, { correlationId: '1' }).then(() => console.log(`message published ${c}`));
@@ -117,8 +117,8 @@ const startFileProcessing = async (recordFile) => {
             console.log('processed success', c);
             recordFile.status = "PROCESSED";
             recordFile.save();
-            rabbit.publish(QUEUE_NAME, { "MSG": "EOF" }, { correlationId: '1' }).then(() =>canStartConsumer());
-            
+            rabbit.publish(QUEUE_NAME, { "MSG": "EOF" }, { correlationId: '1' }).then(() => canStartConsumer());
+
             console.log("CHANNEL CLOSED");
             return;
         });
@@ -155,7 +155,7 @@ const updateInvestor = (investorObj) => {
 }
 
 // FILE PARSE INTO PER 10k PARTS
-const FileParser =  (recordFile) => {
+const FileParser = (recordFile) => {
     try {
         let readable = fs.createReadStream(path.join(__uploadPath, recordFile.fileName)).pipe(JSONStream.parse('table.*'));
 
@@ -204,7 +204,7 @@ const investorDataOperator = async (investorsData) => {
             if (investor.uccEmailStatus == EMAIL_STATUSES.VERIFIED && investor.uccMobileStatus == MOBILE_STATUSES.VERIFIED) return;
             await processInvestorMobile(investor).then(async (mobileProcessed) => {
                 await processInvestorEmail(mobileProcessed).then(emailProcessed => {
-                    console.log("UPDATING REQUEST FOR ", emailProcessed.uccRequestType ,emailProcessed.uccEmailId)
+                    console.log("UPDATING REQUEST FOR ", emailProcessed.uccRequestType, emailProcessed.uccEmailId)
                     updateInvestor(emailProcessed);
                 })
             });
@@ -242,10 +242,10 @@ const sendRequestToFetchInvestors = async (page = 1) => {
                 console.log('error on fetching requests from hyperledger');
                 return;
             };
-  
+
             const result = JSON.parse(response.body);
-            if(result.results)
-            console.log('total records>>>>>>> on this page', result.results.length);
+            if (result.results)
+                console.log('total records>>>>>>> on this page', result.results.length);
             if (result.results == 0) return;
             investorDataOperator(result.results);
             sendRequestToFetchInvestors(page + 1);
