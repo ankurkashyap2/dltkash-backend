@@ -1,22 +1,32 @@
 const { RESPONSE_MESSAGES, RESPONSE_STATUS, MOBILE_STATUSES, EMAIL_STATUSES, COUNTRY_ARRAY } = require('./../constants');
 const investorFunctions = require('./../investorFunctions');
 var request = require('request');
-
-
+const User = require('./../models/user');
+const mongoose = require('mongoose');
 
 const investorMobileVerify = async (req, res) => {
     try {
         const status = req.query.status;
         var options = {
             'method': 'POST',
-            'url': `${process.env.HYPERLEDGER_HOST}/users/updateInvestorMobileStatus`,
+            //'url': `${process.env.HYPERLEDGER_HOST}/users/updateInvestorMobileStatus`,
+            'url': `${process.env.HYPERLEDGER_HOST}/users/updateInvestor`,
             'headers': {
                 'Content-Type': 'application/json'
             },
+            // body: JSON.stringify({
+            //     "uccRequestId": req.reqId,
+            //     "mobileStatus": status,
+            //     'mobileProcessed': 'true'
+            // })
             body: JSON.stringify({
-                "uccRequestId": req.reqId,
-                "mobileStatus": status
+                "investor": {
+                    "uccRequestId": req.reqId,
+                    "mobileStatus": status,
+                    'mobileProcessed': 'true'
+                }
             })
+            
         };
         request(options, function (error, response) {
             if (error) return res.status(error.status).json({ message: RESPONSE_MESSAGES.SERVER_ERROR, detail: error.toString() });
@@ -39,21 +49,28 @@ const investorMobileVerify = async (req, res) => {
 
 
 
-
-
 const investorEmailVerify = async (req, res) => {
     try {
         const status = req.query.status;
 
         var options = {
             'method': 'POST',
-            'url': `${process.env.HYPERLEDGER_HOST}/users/updateInvestorEmailStatus`,
+            //'url': `${process.env.HYPERLEDGER_HOST}/users/updateInvestorEmailStatus`,
+            'url': `${process.env.HYPERLEDGER_HOST}/users/updateInvestor`,
             'headers': {
                 'Content-Type': 'application/json'
             },
+            // body: JSON.stringify({
+            //     "uccRequestId": req.reqId,
+            //     "emailIdStatus": status,
+            //     'emailProcessed': 'true'
+            // })
             body: JSON.stringify({
-                "uccRequestId": req.reqId,
-                "emailIdStatus": status
+                "investor": {
+                    "uccRequestId": req.reqId,
+                    "emailIdStatus": status,
+                    'emailProcessed': 'true'
+                }
             })
         };
         request(options, function (error, response) {
@@ -194,6 +211,9 @@ const addBulkinvestors = async (req, res) => {
 
 const addSingleInvestor = async (req, res) => {
     try {
+        const askedUser = await User.findOne({
+            _id: mongoose.Types.ObjectId(req.user_id)
+        });
         const { uccRequestId,
             uccTmId,
             uccTmName,
@@ -241,7 +261,9 @@ const addSingleInvestor = async (req, res) => {
             mobileAttempts: mobileAttempts || "0",
 
         }
-
+        investorObj.exchangeId = askedUser.exchangeId;
+        jsonObj.mobileProcessed = 'false';
+        jsonObj.emailProcessed = 'false';
         var country = investorObj.uccCountry.toLowerCase();
         if (COUNTRY_ARRAY[country]) {
             investorObj.UTCNotification = COUNTRY_ARRAY[country]['hours']
@@ -310,7 +332,7 @@ const shortnerRedirect = (req, res) => {
 const dataByFile = async (req, res) => {
     try {
         const { fileName, page, limit } = req.body;
-    
+
         var options = {
             'method': 'POST',
             'url': `${process.env.HYPERLEDGER_HOST}/users/getInvestorsByKey`,

@@ -10,7 +10,7 @@ const uploadFileToServer = async (req, res) => {
         const askedUser = await User.findOne({
             _id: mongoose.Types.ObjectId(req.user_id)
         });
-        
+
         req.pipe(req.busboy);
         req.busboy.on('file', (fieldname, file, filename) => {
             // if (filename.mimeType != 'application/json') return res.status(RESPONSE_STATUS.CONFLICT).json({ message: 'Only JSON files are accepted.' });
@@ -80,10 +80,14 @@ const getFilesStatus = async (req, res) => {
 
 const search = async (req, res) => {
     try {
+        const askedUser = await User.findOne({
+            _id: mongoose.Types.ObjectId(req.user_id)
+        });
         const { page, limit, TmName, mobileNumber, panNumber, notificationKey } = req.query;
         const body = {
             "page": page || 1,
-            "limit": limit || 100
+            "limit": limit || 100,
+            "exchangeId": askedUser.exchangeId
         };
         if (mobileNumber) body.mobileNumber = mobileNumber
         else if (TmName) body.TmName = TmName
