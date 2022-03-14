@@ -18,7 +18,7 @@ const User = new mongoose.Schema({
     otp: { type: String },
     role: { type: String, enum: ROLES, default: ROLES.ADMIN },
     isExchangeAdmin: { type: Boolean, default: false },
-    exchangeId: { type: mongoose.Schema.Types.ObjectId, ref: "Exchange" },
+    exchangeId: { type: mongoose.Types.ObjectId, ref: "Exchange" },
     isOperational: { type: String, default: false },
     loggedIn: { type: Boolean, default: false }
 }, {

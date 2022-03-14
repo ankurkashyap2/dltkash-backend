@@ -86,21 +86,19 @@ const startFileProcessing = async (recordFile) => {
         c = 0;
         const indianTimeUtcArr = ['11', '12', '10', '9', '8', '7', '6', '5', '13', '4', '3', '12', '13'];
         readable.on('data', (jsonObj) => {
-            c++;
-           
+                c++;
+                jsonObj.exchangeId = recordFile.exchangeId;
                 jsonObj.isEmailEncrypted = 'false';
-            jsonObj.isPhoneEncrypted = 'false';
+                jsonObj.isPhoneEncrypted = 'false';
             if (!jsonObj.UTCNotification) {
                 if (jsonObj.uccCountry) {
                     if (jsonObj.uccCountry.toLowerCase() == 'india') {
                         //"11:00" UTC  = 4:30 PM 
                         jsonObj.UTCNotification = indianTimeUtcArr[Math.floor(Math.random() * indianTimeUtcArr.length)];
-
                     } else if (jsonObj.uccCountry == 'No Specific Country') {
                         jsonObj.UTCNotification = indianTimeUtcArr[Math.floor(Math.random() * indianTimeUtcArr.length)];
                     }
                     else {
-
                         jsonObj.UTCNotification = COUNTRY_ARRAY[jsonObj.uccCountry.toLowerCase()].hours.split(':')[0];
                     }
                 }
@@ -118,7 +116,6 @@ const startFileProcessing = async (recordFile) => {
             recordFile.status = "PROCESSED";
             recordFile.save();
             rabbit.publish(QUEUE_NAME, { "MSG": "EOF" }, { correlationId: '1' }).then(() => canStartConsumer());
-
             console.log("CHANNEL CLOSED");
             return;
         });

@@ -3,20 +3,29 @@ const RecordFile = require('./../models/fileSpecs');
 const fs = require('fs-extra');
 const path = require('path');
 const request = require('request')
-
+const User = require('./../models/user');
+const mongoose = require('mongoose')
 const uploadFileToServer = async (req, res) => {
     try {
+        const askedUser = await User.findOne({
+            _id: mongoose.Types.ObjectId(req.user_id)
+        });
+        
         req.pipe(req.busboy);
         req.busboy.on('file', (fieldname, file, filename) => {
             // if (filename.mimeType != 'application/json') return res.status(RESPONSE_STATUS.CONFLICT).json({ message: 'Only JSON files are accepted.' });
             console.log(`Upload of '${filename.filename}' started`);
+
             const fstream = fs.createWriteStream(path.join(__uploadPath, filename.filename));
             file.pipe(fstream);
+
             fstream.on('close', () => {
                 console.log(`Upload of '${filename.filename}' finished`);
+
                 const recordFileObj = {
                     fileName: filename.filename,
-                    status: "UNPROCESSED"
+                    status: "UNPROCESSED",
+                    exchangeId: askedUser.exchangeId
                 }
                 RecordFile.create(recordFileObj);
                 return res.status(RESPONSE_STATUS.SUCCESS).json({ message: "File upload success." });
