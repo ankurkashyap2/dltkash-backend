@@ -9,23 +9,23 @@ const investorMobileVerify = async (req, res) => {
         const status = req.query.status;
         var options = {
             'method': 'POST',
-            //'url': `${process.env.HYPERLEDGER_HOST}/users/updateInvestorMobileStatus`,
-            'url': `${process.env.HYPERLEDGER_HOST}/users/updateInvestor`,
+            'url': `${process.env.HYPERLEDGER_HOST}/users/updateInvestorMobileStatus`,
+            // 'url': `${process.env.HYPERLEDGER_HOST}/users/updateInvestor`,
             'headers': {
                 'Content-Type': 'application/json'
             },
-            // body: JSON.stringify({
-            //     "uccRequestId": req.reqId,
-            //     "mobileStatus": status,
-            //     'mobileProcessed': 'true'
-            // })
             body: JSON.stringify({
-                "investor": {
-                    "uccRequestId": req.reqId,
-                    "mobileStatus": status,
-                    'mobileProcessed': 'true'
-                }
+                "uccRequestId": req.reqId,
+                "mobileStatus": status,
+                'mobileProcessed': 'true'
             })
+            // body: JSON.stringify({
+            //     "investor": {
+            //         "uccRequestId": req.reqId,
+            //         "mobileStatus": status,
+            //         'mobileProcessed': 'true'
+            //     }
+            // })
             
         };
         request(options, function (error, response) {
@@ -55,23 +55,23 @@ const investorEmailVerify = async (req, res) => {
 
         var options = {
             'method': 'POST',
-            //'url': `${process.env.HYPERLEDGER_HOST}/users/updateInvestorEmailStatus`,
-            'url': `${process.env.HYPERLEDGER_HOST}/users/updateInvestor`,
+            'url': `${process.env.HYPERLEDGER_HOST}/users/updateInvestorEmailStatus`,
+            // 'url': `${process.env.HYPERLEDGER_HOST}/users/updateInvestor`,
             'headers': {
                 'Content-Type': 'application/json'
             },
-            // body: JSON.stringify({
-            //     "uccRequestId": req.reqId,
-            //     "emailIdStatus": status,
-            //     'emailProcessed': 'true'
-            // })
             body: JSON.stringify({
-                "investor": {
-                    "uccRequestId": req.reqId,
-                    "emailIdStatus": status,
-                    'emailProcessed': 'true'
-                }
+                "uccRequestId": req.reqId,
+                "emailIdStatus": status,
+                'emailProcessed': 'true'
             })
+            // body: JSON.stringify({
+            //     "investor": {
+            //         "uccRequestId": req.reqId,
+            //         "emailIdStatus": status,
+            //         'emailProcessed': 'true'
+            //     }
+            // })
         };
         request(options, function (error, response) {
             if (error) return res.status(error.status).json({ message: RESPONSE_MESSAGES.SERVER_ERROR, detail: error.toString() });
