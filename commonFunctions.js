@@ -122,10 +122,10 @@ const shortURL = (url, callback) => {
 const sendSMS = (investorObj, url, callback) => {
   //http://103.16.101.52:8080/bulksms/bulksms?username=DL08-dltkash&password=dltkash@&type=0&dlr=1&destination=${investorObj.uccMobileNo}&source=DLTKTP&message=Please%20confirm%20your%20mobile%20no.%20mapped%20with%20%7B%23vAR%23%7D%7B%23Var%23%7D%20by%20clicking%20on%20the%20%7B%23vAR%23%7D%7B%23Var%23%7D%20-%20DLTKASH&entityid=1601156164334945695&tempid=1607100000000188213
   //PREVIOUS TEST ____---
-   const dltSMS = `http://103.16.101.52:8080/bulksms/bulksms?username=${process.env.RM_USERNAME || 'DL08-dltkash'}&password=${process.env.RM_PASS || 'dltkash@'}&type=0&dlr=1&destination=${investorObj.uccMobileNo}&source=DLTKTP&message=Please%20confirm%20your%20mobile%20no.%20mapped%20with%20${investorObj.uccTmName}%20by%20clicking%20on%20the%20${url}%20-%20DLTKASH&entityid=1601156164334945695&tempid=1607100000000188213`;
+  // const dltSMS = `http://103.16.101.52:8080/bulksms/bulksms?username=${process.env.RM_USERNAME || 'DL08-dltkash'}&password=${process.env.RM_PASS || 'dltkash@'}&type=0&dlr=1&destination=${investorObj.uccMobileNo}&source=DLTKTP&message=Please%20confirm%20your%20mobile%20no.%20mapped%20with%20${investorObj.uccTmName}%20by%20clicking%20on%20the%20${url}%20-%20DLTKASH&entityid=1601156164334945695&tempid=1607100000000188213`;
   
   //NEW
-  // const dltSMS = `http://103.16.101.52:8080/bulksms/bulksms?username=${process.env.RM_USERNAME || 'DL08-dltkash'}&password=${process.env.RM_PASS || 'dltkash@'}&type=0&dlr=1&destination=${investorObj.uccMobileNo}&source=NSEVER&message=Please%20confirm%20your%20mobile%20no.%20mapped%20with%20${investorObj.uccTmName}%20by%20clicking%20on%20the%20${url}%20-%20NSE&entityid=110100001503&tempid=1107164440900649128`;
+  const dltSMS = `http://103.16.101.52:8080/bulksms/bulksms?username=${process.env.RM_USERNAME || 'DL08-dltkash'}&password=${process.env.RM_PASS || 'dltkash@'}&type=0&dlr=1&destination=${investorObj.uccMobileNo}&source=NSEVER&message=Please%20confirm%20your%20mobile%20no.%20mapped%20with%20${investorObj.uccTmName}%20by%20clicking%20on%20the%20${url}%20-%20NSE&entityid=110100001503&tempid=1107164440900649128`;
   const options = {
     'method': 'GET',
     'url': dltSMS,
@@ -135,6 +135,7 @@ const sendSMS = (investorObj, url, callback) => {
   };
   request(options, callback);
 }
+
 
 //UTC+12:00
 function returnHours(UTC) {

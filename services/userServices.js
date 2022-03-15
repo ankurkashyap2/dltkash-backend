@@ -9,7 +9,7 @@ const pug = require('pug')
 const jwt = require('jsonwebtoken');
 const request = require('request');
 const s3services = require('./s3Services');
-
+const mongoose = require('mongoose');
 const loginUser = async (req, res) => {
     try {
         const { user_id } = await verifyPassword(req.body);
@@ -123,19 +123,23 @@ const registerExchange = async (req, res) => {
 
 const addExchangeAdmin = async (req, res) => {
     try {
-        const { phoneNo, userName, email, isFirstExchangeAdmin, password, exchangeId, role } = req.body;
-        const [emailRegistered, mobileRegistered] = await Promise.all([
+        const askedUser = await User.findOne({
+            _id: mongoose.Types.ObjectId(req.user_id)
+        });
+        const { phoneNo, userName, email, isFirstExchangeAdmin, password, role } = req.body;
+        const [emailRegistered, mobileRegistered, userNameRegistered] = await Promise.all([
             User.findOne({ email: email }),
 
             User.findOne({ phoneNo: phoneNo }),
         ]);
         if (emailRegistered) return res.status(RESPONSE_STATUS.CONFLICT).json({ message: RESPONSE_MESSAGES.EMAIL_ALREADY_REGISTERED });
         if (mobileRegistered) return res.status(RESPONSE_STATUS.CONFLICT).json({ message: RESPONSE_MESSAGES.PHONE_ALREADY_REGISTERED });
+        if (userNameRegistered) return res.status(RESPONSE_STATUS.CONFLICT).json({ message: "Username already registered" });
         const adminObj = {
             userName: userName,
             email: email,
             isFirstExchangeAdmin: isFirstExchangeAdmin,//true for first entry admin-- false for others
-            exchangeId: exchangeId,
+            exchangeId: askedUser.exchangeId,
             role: role,
             password: commonFunctions.encryptString(password),
             phoneNo: phoneNo,
