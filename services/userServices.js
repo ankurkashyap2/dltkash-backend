@@ -131,6 +131,7 @@ const addExchangeAdmin = async (req, res) => {
             User.findOne({ email: email }),
 
             User.findOne({ phoneNo: phoneNo }),
+            User.findOne({ userName: userName }),
         ]);
         if (emailRegistered) return res.status(RESPONSE_STATUS.CONFLICT).json({ message: RESPONSE_MESSAGES.EMAIL_ALREADY_REGISTERED });
         if (mobileRegistered) return res.status(RESPONSE_STATUS.CONFLICT).json({ message: RESPONSE_MESSAGES.PHONE_ALREADY_REGISTERED });
