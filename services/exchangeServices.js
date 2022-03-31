@@ -90,7 +90,7 @@ const search = async (req, res) => {
             "exchangeId": askedUser.exchangeId
         };
 
-        console.log("BODY FOR SEARCH", body);
+        
         if (mobileNumber) body.mobileNumber = mobileNumber
         else if (TmName) body.TmName = TmName
         else if (panNumber) body.panNumber = panNumber

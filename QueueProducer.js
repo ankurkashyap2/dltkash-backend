@@ -34,7 +34,7 @@ const numbers = [
     
 ]
 
-connection = rabbit.connect("amqps://ozeiszoe:7gYRxai3pEeQQA5qwU78RUnaz1Y7QFvH@armadillo.rmq.cloudamqp.com/ozeiszoe");
+connection = rabbit.connect("amqps://huhhlhxs:KoDjemkJAycRzCN0ZQIAQ2wrWkbHCAWB@brilliant-cobalt-owl.rmq3.cloudamqp.com/huhhlhxs");
 connection.then(async (conn) => {
     const channel = await conn.createChannel();
     await channel.assertExchange(EXCHANGE_NAME, EXCHANGE_TYPE);
