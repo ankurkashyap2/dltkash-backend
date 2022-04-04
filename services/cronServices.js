@@ -86,7 +86,7 @@ const startFileProcessing = async (recordFile) => {
             socketOptions: {} // socketOptions will be passed as a second param to amqp.connect and from ther to the socket library (net or tls)
         });
         c = 0;
-        const askedExchange = await Exchange.findOne({ _id: mongoose.Types.ObjectId(exchangeId) });
+        const askedExchange = await Exchange.findOne({ _id: mongoose.Types.ObjectId(recordFile.exchangeId) });
         const indianTimeUtcArr = ['11', '12', '10', '9', '8', '7', '6', '5', '13', '4', '3', '12', '13'];
         readable.on('data', (jsonObj) => {
             c++;
