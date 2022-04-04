@@ -1,7 +1,8 @@
-const { RESPONSE_MESSAGES, RESPONSE_STATUS, MOBILE_STATUSES, EMAIL_STATUSES, COUNTRY_ARRAY } = require('./../constants');
+const { RESPONSE_MESSAGES, RESPONSE_STATUS, MOBILE_STATUSES, EMAIL_STATUSES, COUNTRY_ARRAY, UCC_REQUEST_TYPES } = require('./../constants');
 const investorFunctions = require('./../investorFunctions');
 var request = require('request');
 const User = require('./../models/user');
+const Exchange = require('./../models/exchange');
 const mongoose = require('mongoose');
 
 const investorMobileVerify = async (req, res) => {
@@ -26,7 +27,7 @@ const investorMobileVerify = async (req, res) => {
             //         'mobileProcessed': 'true'
             //     }
             // })
-            
+
         };
         request(options, function (error, response) {
             if (error) return res.status(error.status).json({ message: RESPONSE_MESSAGES.SERVER_ERROR, detail: error.toString() });
@@ -214,6 +215,8 @@ const addSingleInvestor = async (req, res) => {
         const askedUser = await User.findOne({
             _id: mongoose.Types.ObjectId(req.user_id)
         });
+
+        const askedExchange = await Exchange.findOne({ _id: mongoose.Types.ObjectId(askedUser.exchangeId) });
         const { uccRequestId,
             uccTmId,
             uccTmName,
@@ -264,6 +267,10 @@ const addSingleInvestor = async (req, res) => {
         investorObj.exchangeId = askedUser.exchangeId;
         investorObj.mobileProcessed = 'false';
         investorObj.emailProcessed = 'false';
+        if (uccRequestType == UCC_REQUEST_TYPES.NEW) { investorObj.totalAttempts = askedExchange.newAttempts; }
+        else if (uccRequestType == UCC_REQUEST_TYPES.EXISTING) {
+            investorObj.totalAttempts = askedExchange.exisitngAttempts;
+        }
         var country = investorObj.uccCountry.toLowerCase();
         if (COUNTRY_ARRAY[country]) {
             investorObj.UTCNotification = COUNTRY_ARRAY[country]['hours']

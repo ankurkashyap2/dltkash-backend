@@ -33,7 +33,7 @@ const sendInvestorMail = async (email, res) => {
 }
 
 
-const processInvestorEmail = async (investorObj , ) => {
+const processInvestorEmail = async (investorObj,) => {
     return new Promise((resolve, reject) => {
 
         const EMAIL_STATUS = investorObj.uccEmailStatus.toUpperCase();
@@ -43,15 +43,15 @@ const processInvestorEmail = async (investorObj , ) => {
                 investorObj.emailProcessed = 'true';
                 resolve(investorObj)
 
-            } 
+            }
             else {
 
-                if (investorObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.NEW && parseInt(investorObj.emailAttempts.toString()) >= 3) {           //check if request type and email attempts
+                if (investorObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.NEW && parseInt(investorObj.emailAttempts.toString()) >= parseInt(investorObj.totalAttempts ?? '15')) {           //check if request type and email attempts
                     investorObj.uccEmailStatus = EMAIL_STATUSES.NOT_VERIFIED;
                     investorObj.emailProcessed = 'true';
                     resolve(investorObj);
 
-                } else if (investorObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.EXISTING && parseInt(investorObj.emailAttempts.toString()) >= 15) {
+                } else if (investorObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.EXISTING && parseInt(investorObj.emailAttempts.toString()) >= parseInt(investorObj.totalAttempts ?? '15')) {
                     investorObj.uccEmailStatus = EMAIL_STATUSES.NOT_VERIFIED;
                     investorObj.emailProcessed = 'true';
                     resolve(investorObj);
@@ -115,12 +115,12 @@ const processInvestorMobile = async (investorObj) => {
             else {
 
 
-                if (investorObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.NEW && parseInt(investorObj.mobileAttempts.toString()) >= 3) {
+                if (investorObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.NEW && parseInt(investorObj.mobileAttempts.toString()) >= parseInt(investorObj.totalAttempts ?? '15')) {
                     investorObj.uccMobileStatus = MOBILE_STATUSES.NOT_VERIFIED;
                     investorObj.mobileProcessed = 'true';
                     resolve(investorObj);
 
-                } else if (investorObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.EXISTING && parseInt(investorObj.mobileAttempts.toString()) >= 15) {
+                } else if (investorObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.EXISTING && parseInt(investorObj.mobileAttempts.toString()) >= parseInt(investorObj.totalAttempts ?? '15')) {
                     investorObj.uccMobileStatus = MOBILE_STATUSES.NOT_VERIFIED;
                     investorObj.mobileProcessed = 'true';
                     resolve(investorObj);

@@ -3,7 +3,7 @@ const ErrorLogs = require('./../models/errorLogs');
 const fs = require('fs');
 const { Rabbit } = require('rabbit-queue');
 const QUEUE_NAME = 'INVESTORS_DATA_BUFF';
-const { COUNTRY_ARRAY, EMAIL_STATUSES, MOBILE_STATUSES } = require('./../constants');
+const { COUNTRY_ARRAY, EMAIL_STATUSES, MOBILE_STATUSES, UCC_REQUEST_TYPES } = require('./../constants');
 const JSONStream = require('JSONStream');
 const request = require('request');
 const path = require('path');
@@ -84,12 +84,13 @@ const startFileProcessing = async (recordFile) => {
             socketOptions: {} // socketOptions will be passed as a second param to amqp.connect and from ther to the socket library (net or tls)
         });
         c = 0;
+        const askedExchange = await Exchange.findOne({ _id: mongoose.Types.ObjectId(exchangeId) });
         const indianTimeUtcArr = ['11', '12', '10', '9', '8', '7', '6', '5', '13', '4', '3', '12', '13'];
         readable.on('data', (jsonObj) => {
-                c++;
-                jsonObj.exchangeId = recordFile.exchangeId;
-                jsonObj.isEmailEncrypted = 'false';
-                jsonObj.isPhoneEncrypted = 'false';
+            c++;
+            jsonObj.exchangeId = recordFile.exchangeId;
+            jsonObj.isEmailEncrypted = 'false';
+            jsonObj.isPhoneEncrypted = 'false';
             if (!jsonObj.UTCNotification) {
                 if (jsonObj.uccCountry) {
                     if (jsonObj.uccCountry.toLowerCase() == 'india') {
@@ -104,7 +105,13 @@ const startFileProcessing = async (recordFile) => {
                 }
             }
             //NEW CHECKS
-            
+            //************************************* */
+            if (jsonObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.NEW) { jsonObj.totalAttempts = askedExchange.newAttempts.toString(); }
+            else if (jsonObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.EXISTING) { jsonObj.totalAttempts = askedExchange.exisitngAttempts }
+            else {
+                jsonObj.totalAttempts = '15'
+            }
+            //************************************ */
             jsonObj.mobileAttempts = '0';
             jsonObj.emailAttempts = '0';
             jsonObj.fileName = recordFile.fileName
@@ -426,7 +433,7 @@ var k2 = [{
     "isPhoneEncrypted": "false",
     "UTCNotification": "15:00"
 }
-] ;
+];
 
 
 
