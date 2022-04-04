@@ -4,7 +4,9 @@ const fs = require('fs-extra');
 const path = require('path');
 const request = require('request')
 const User = require('./../models/user');
-const mongoose = require('mongoose')
+const Exchange = require('./../models/exchange');
+const mongoose = require('mongoose');
+const commonFunctions = require('../commonFunctions');
 const uploadFileToServer = async (req, res) => {
     try {
         const askedUser = await User.findOne({
@@ -90,7 +92,7 @@ const search = async (req, res) => {
             "exchangeId": askedUser.exchangeId
         };
 
-        
+
         if (mobileNumber) body.mobileNumber = mobileNumber
         else if (TmName) body.TmName = TmName
         else if (panNumber) body.panNumber = panNumber
@@ -125,8 +127,41 @@ const search = async (req, res) => {
     }
 }
 
+//MM//DD//YY
+const updateDueDate = async (req, res) => {
+    try {
+        const { newAttempts, exisitngDate, exisitngAttempts, exchangeId } = req.body;
+        const askedExchange = await Exchange.findOne({ _id: mongoose.Types.ObjectId(exchangeId) });
+        askedExchange.newAttempts = newAttempts;
+        if (exisitngDate) {
+            if (!commonFunctions.isDate(exisitngDate)) {
+                return res.status(RESPONSE_STATUS.BAD_REQUEST).json({ message: "Exisitng date not in format!" });
+            }
+            askedExchange.exisitngDate = exisitngDate;
+            askedExchange.exisitngAttempts = commonFunctions.getAttemptsTillDate(exisitngDate);
+        } else {
+            askedExchange.exisitngDate = '';
+            askedExchange.exisitngAttempts = exisitngAttempts;
+        }
+        askedExchange.save();
+        return res.json({ message:"Request Success!" , data : askedExchange});
+    } catch (error) {
+        const error_body = {
+            error_detail: (typeof error == 'object') ? JSON.stringify(error) : error,
+            error_data: req.body,
+            api_path: req.path,
+            stack: error.stack
+        }
+        console.error(error.stack);
+        return res
+            .status(RESPONSE_STATUS.SERVER_ERROR)
+            .json({ message: error.stack });
+    }
+}
+
 module.exports = {
     uploadFileToServer,
+    updateDueDate,
     getFilesStatus,
     search
 }

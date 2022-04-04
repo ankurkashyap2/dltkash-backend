@@ -8,4 +8,5 @@ router.use(verifyToken);
 router.post('/files-status', exchangeServices.getFilesStatus);
 router.post('/send-data', exchangeServices.uploadFileToServer);
 router.get('/search', exchangeServices.search);
+router.post('/update-attempts',exchangeServices.updateDueDate);
 module.exports = router;

@@ -4,13 +4,19 @@ const validator = require("./validator");
 const exchangeApiPathModels = {
     "/send-data": {},
     "/files-status": {
-        fileName : { type: String, required: false },
+        fileName: { type: String, required: false },
     },
     "/search": {
         mobileNumber: { type: String, required: false },
         TmName: { type: String, required: false },
         panNumber: { type: String, required: false },
         notificationKey: { type: String, required: false }
+    },
+    "/update-attempts": {
+        newAttempts: { type: String , required:false},
+        exisitngDate: { type: String , required:false},
+        exisitngAttempts: { type: String , required:false},
+        exchangeId: { type: String , required:false},
     }
 };
 

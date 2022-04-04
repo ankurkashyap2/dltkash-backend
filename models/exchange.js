@@ -9,8 +9,11 @@ const Exchange = new mongoose.Schema({
         sebiCertificate: { type: String },
         cinCertificate: { type: String },
         pan: { type: String },
-        logo :{type:String}
+        logo: { type: String }
     },
+    exisitngDate: { type: String, default: '30' },
+    newAttempts: { type: String, default: '15' },
+    exisitngAttempts: { type: String, default: '' },
     notificationTemplates: [
         {
             html: { type: String },
@@ -19,7 +22,7 @@ const Exchange = new mongoose.Schema({
     ],
     logo: {
         type: String,
-        default:""
+        default: ""
     },
     status: {
         type: String,

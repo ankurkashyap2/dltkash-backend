@@ -15,14 +15,14 @@ const getOTP = () => {
   return otp;
 }
 
-const sendMail = (email, subject, content, callback ,entity = true) => {
+const sendMail = (email, subject, content, callback, entity = true) => {
   const options = {
     url: 'https://api.us1-mta1.sendclean.net/v1.0/messages/sendMail',
     json: true,
     "headers": {
-      
+
       "X-Unique-Id": "id21"
-  },
+    },
     body: {
       "message": {
         "X-Unique-Id": "id21",
@@ -32,7 +32,7 @@ const sendMail = (email, subject, content, callback ,entity = true) => {
         ],
         "html": content,
         "subject": subject,
-        "from_email": entity?"no-reply@nse.co.in" :"no-reply@dltkash.com"  ,
+        "from_email": entity ? "no-reply@nse.co.in" : "no-reply@dltkash.com",
         "from_name": "no-reply"
       },
       "owner_id": process.env.SENDCLEANOWNERID || '80940214',
@@ -48,12 +48,12 @@ const sendMail = (email, subject, content, callback ,entity = true) => {
 const createShortNer = (original) => {
   const nnID = nanoid(15);
   const uri = `${process.env.FEHOST}/api/mobile/${nnID}`;
-    const shortNerObj = {
-      original: original,
-      created: nnID
-    };
-    shortner.create(shortNerObj).then(() => { });
-    return uri;
+  const shortNerObj = {
+    original: original,
+    created: nnID
+  };
+  shortner.create(shortNerObj).then(() => { });
+  return uri;
 }
 
 const removeElement = (array, elem) => {
@@ -118,12 +118,15 @@ const shortURL = (url, callback) => {
 
 }
 
+const isDate = function (date) {
+  return (new Date(date) !== "Invalid Date") && !isNaN(new Date(date));
+}
 
 const sendSMS = (investorObj, url, callback) => {
   //http://103.16.101.52:8080/bulksms/bulksms?username=DL08-dltkash&password=dltkash@&type=0&dlr=1&destination=${investorObj.uccMobileNo}&source=DLTKTP&message=Please%20confirm%20your%20mobile%20no.%20mapped%20with%20%7B%23vAR%23%7D%7B%23Var%23%7D%20by%20clicking%20on%20the%20%7B%23vAR%23%7D%7B%23Var%23%7D%20-%20DLTKASH&entityid=1601156164334945695&tempid=1607100000000188213
   //PREVIOUS TEST ____---
   // const dltSMS = `http://103.16.101.52:8080/bulksms/bulksms?username=${process.env.RM_USERNAME || 'DL08-dltkash'}&password=${process.env.RM_PASS || 'dltkash@'}&type=0&dlr=1&destination=${investorObj.uccMobileNo}&source=DLTKTP&message=Please%20confirm%20your%20mobile%20no.%20mapped%20with%20${investorObj.uccTmName}%20by%20clicking%20on%20the%20${url}%20-%20DLTKASH&entityid=1601156164334945695&tempid=1607100000000188213`;
-  
+
   //NEW
   const dltSMS = `http://103.16.101.52:8080/bulksms/bulksms?username=${process.env.RM_USERNAME || 'DL08-dltkash'}&password=${process.env.RM_PASS || 'dltkash@'}&type=0&dlr=1&destination=${investorObj.uccMobileNo}&source=NSEVER&message=Please%20confirm%20your%20mobile%20no.%20mapped%20with%20${investorObj.uccTmName}%20by%20clicking%20on%20the%20${url}%20-%20NSE&entityid=110100001503&tempid=1107164440900649128`;
   const options = {
@@ -154,17 +157,28 @@ function returnHours(UTC) {
   return date.getUTCHours();
 }
 
+const getAttemptsTillDate = (date) => {
+  var one_day = 1000 * 60 * 60 * 24
+  var present_date = new Date();
+  var dt = new Date(date)
+  var Result = Math.round(dt.getTime() - present_date.getTime()) / (one_day);
+  var Final_Result = Result.toFixed(0);
+  return Final_Result
+}
+
 module.exports = {
   shortURL,
   totitleCase: totitleCase,
   encryptFormattedUser,
   validateEmail,
   sendSMS,
+  getAttemptsTillDate,
   returnHours,
   encryptWithAES,
   removeElement: removeElement,
   encryptString: encryptString,
   getOTP: getOTP,
+  isDate,
   sendMail: sendMail,
   decryptWithAES: decryptWithAES,
   createShortNer: createShortNer,

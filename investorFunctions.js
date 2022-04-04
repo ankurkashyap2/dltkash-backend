@@ -33,45 +33,26 @@ const sendInvestorMail = async (email, res) => {
 }
 
 
-const processInvestorEmail = async (investorObj) => {
+const processInvestorEmail = async (investorObj , ) => {
     return new Promise((resolve, reject) => {
 
         const EMAIL_STATUS = investorObj.uccEmailStatus.toUpperCase();
-        //check if user is verified or not
-        // if user verified do nothing
-        // if not verified ..
-        // if (investorObj.isEmailEncrypted == 'true') {
-        //     investorObj.isEmailEncrypted = 'false'
-        //     var decryptedEmailId = decryptWithAES(investorObj.uccEmailId);
-        //     investorObj.uccEmailId = decryptedEmailId
-        // }
-
         if (EMAIL_STATUS != EMAIL_STATUSES.VERIFIED) {
-
-            // if email not validated set email status as invalid
             if (!commonFunctions.validateEmail(investorObj.uccEmailId)) {
                 investorObj.uccEmailStatus = EMAIL_STATUSES.INVALID;
                 investorObj.emailProcessed = 'true';
                 resolve(investorObj)
 
-            }  //if valid  
+            } 
             else {
 
                 if (investorObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.NEW && parseInt(investorObj.emailAttempts.toString()) >= 3) {           //check if request type and email attempts
                     investorObj.uccEmailStatus = EMAIL_STATUSES.NOT_VERIFIED;
-                    // if (investorObj.isEmailEncrypted == 'false') {
-                    //     investorObj.isEmailEncrypted = 'true';
-                    //     investorObj.uccEmailId = encryptWithAES(investorObj.uccEmailId)
-                    // }
                     investorObj.emailProcessed = 'true';
                     resolve(investorObj);
 
                 } else if (investorObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.EXISTING && parseInt(investorObj.emailAttempts.toString()) >= 15) {
                     investorObj.uccEmailStatus = EMAIL_STATUSES.NOT_VERIFIED;
-                    // if (investorObj.isEmailEncrypted == 'false') {
-                    //     investorObj.isEmailEncrypted = 'true';
-                    //     investorObj.uccEmailId = encryptWithAES(investorObj.uccEmailId)
-                    // }
                     investorObj.emailProcessed = 'true';
                     resolve(investorObj);
                 }
@@ -104,11 +85,6 @@ const processInvestorEmail = async (investorObj) => {
 
                             }
                             investorObj.uccEmailStatus = EMAIL_STATUSES.SENT
-                            // if (investorObj.isEmailEncrypted == 'false') {
-                            //     investorObj.isEmailEncrypted = 'true';
-                            //     investorObj.uccEmailId = encryptWithAES(investorObj.uccEmailId)
-                            // }
-                            // return investorObj;
                             investorObj.emailProcessed = 'true';
                             resolve(investorObj)
 
@@ -128,24 +104,10 @@ const processInvestorEmail = async (investorObj) => {
 const processInvestorMobile = async (investorObj) => {
     return new Promise((resolve, reject) => {
         const MOBILE_STATUS = investorObj.uccMobileStatus.toUpperCase();
-        //check if user is verified or not
-        // if user verified do nothing
-        // if not verified ..
 
-        // if (investorObj.isPhoneEncrypted == 'true') {
-        //     investorObj.isPhoneEncrypted = 'false'
-        //     var decryptedPhoneNo = decryptWithAES(investorObj.uccMobileNo);
-        //     investorObj.uccMobileNo = decryptedPhoneNo
-        // }
         if (MOBILE_STATUS != MOBILE_STATUSES.VERIFIED) {
-            // if email not validated set email status as invalid
-
             if (!commonFunctions.validateMobile(investorObj.uccMobileNo)) {
                 investorObj.uccMobileStatus = MOBILE_STATUSES.INVALID;
-                // if (investorObj.isPhoneEncrypted == 'false') {
-                //     investorObj.isPhoneEncrypted = 'true';
-                //     investorObj.uccMobileNo = encryptWithAES(investorObj.uccMobileNo)
-                // }
                 investorObj.mobileProcessed = 'true';
                 resolve(investorObj)
 
@@ -154,12 +116,7 @@ const processInvestorMobile = async (investorObj) => {
 
 
                 if (investorObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.NEW && parseInt(investorObj.mobileAttempts.toString()) >= 3) {
-                    //check if request type and email attempts
                     investorObj.uccMobileStatus = MOBILE_STATUSES.NOT_VERIFIED;
-                    // if (investorObj.isPhoneEncrypted == 'false') {
-                    //     investorObj.isPhoneEncrypted = 'true';
-                    //     investorObj.uccMobileNo = encryptWithAES(investorObj.uccMobileNo)
-                    // }
                     investorObj.mobileProcessed = 'true';
                     resolve(investorObj);
 
@@ -189,51 +146,13 @@ const processInvestorMobile = async (investorObj) => {
                                 investorObj.mobileAttempts = noMobileAttempts.toString();
                             }
                             investorObj.uccMobileStatus = MOBILE_STATUSES.SENT
-                            // if (investorObj.isPhoneEncrypted == 'false') {
-                            //     investorObj.isPhoneEncrypted = 'true';
-                            //     investorObj.uccMobileNo = encryptWithAES(investorObj.uccMobileNo)
-                            // }
                             investorObj.mobileProcessed = 'true';
                             resolve(investorObj)
                         } else {
-                            // if (investorObj.isPhoneEncrypted == 'false') {
-                            //     investorObj.isPhoneEncrypted = 'true';
-                            //     investorObj.uccMobileNo = encryptWithAES(investorObj.uccMobileNo)
-                            // }
                             investorObj.mobileProcessed = 'true';
                             resolve(investorObj)
                         }
                     })
-                    // commonFunctions.shortURL(ref, function (err, short) {
-                    //     if (err) console.error(err)
-                    //     commonFunctions.sendSMS(investorObj, short, (err, res, body) => {
-                    //         const response = body.split('|')[0];
-                    //         // add mail attempts
-                    //         console.log('send>>>>', response, investorObj.uccMobileNo)
-                    //         if (response == '1701') {
-                    //             if (!investorObj.mobileAttempts) {
-                    //                 investorObj.mobileAttempts = "1";
-                    //             }
-                    //             else {
-                    //                 let noMobileAttempts = parseInt(investorObj.mobileAttempts);
-                    //                 noMobileAttempts = noMobileAttempts + 1;
-                    //                 investorObj.mobileAttempts = noMobileAttempts.toString();
-                    //             }
-                    //             investorObj.uccMobileStatus = MOBILE_STATUSES.SENT
-                    //             // if (investorObj.isPhoneEncrypted == 'false') {
-                    //             //     investorObj.isPhoneEncrypted = 'true';
-                    //             //     investorObj.uccMobileNo = encryptWithAES(investorObj.uccMobileNo)
-                    //             // }
-                    //             resolve(investorObj)
-                    //         } else {
-                    //             // if (investorObj.isPhoneEncrypted == 'false') {
-                    //             //     investorObj.isPhoneEncrypted = 'true';
-                    //             //     investorObj.uccMobileNo = encryptWithAES(investorObj.uccMobileNo)
-                    //             // }
-                    //             resolve(investorObj)
-                    //         }
-                    //     })
-                    // });
                 }
             }
         } if (MOBILE_STATUS == MOBILE_STATUSES.VERIFIED) {

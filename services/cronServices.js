@@ -103,6 +103,8 @@ const startFileProcessing = async (recordFile) => {
                     }
                 }
             }
+            //NEW CHECKS
+            
             jsonObj.mobileAttempts = '0';
             jsonObj.emailAttempts = '0';
             jsonObj.fileName = recordFile.fileName
@@ -424,7 +426,7 @@ var k2 = [{
     "isPhoneEncrypted": "false",
     "UTCNotification": "15:00"
 }
-];
+] ;
 
 
 
@@ -444,7 +446,6 @@ const notificationSendingLogic = async () => {
 }
 
 
-// notificationSendingLogic();
 
 module.exports = {
     checkForUnprocessedFiles,
