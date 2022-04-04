@@ -8,6 +8,7 @@ const JSONStream = require('JSONStream');
 const request = require('request');
 const path = require('path');
 const commonFunctions = require('./../commonFunctions');
+const Exchange = require('./../models/exchange');
 const { processInvestorEmail, processInvestorMobile } = require('../investorFunctions');
 
 const checkForUnprocessedFiles = async () => {
