@@ -7,6 +7,7 @@ const { COUNTRY_ARRAY, EMAIL_STATUSES, MOBILE_STATUSES, UCC_REQUEST_TYPES } = re
 const JSONStream = require('JSONStream');
 const request = require('request');
 const path = require('path');
+const mongoose = require('mongoose');
 const commonFunctions = require('./../commonFunctions');
 const Exchange = require('./../models/exchange');
 const { processInvestorEmail, processInvestorMobile } = require('../investorFunctions');
