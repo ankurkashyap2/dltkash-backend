@@ -13,7 +13,7 @@ const Exchange = new mongoose.Schema({
     },
     exisitngDate: { type: String, default: '30' },
     newAttempts: { type: String, default: '15' },
-    exisitngAttempts: { type: String, default: '' },
+    exisitingAttempts: { type: String, default: '' },
     notificationTemplates: [
         {
             html: { type: String },
