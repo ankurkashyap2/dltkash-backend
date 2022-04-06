@@ -130,17 +130,17 @@ const search = async (req, res) => {
 //MM//DD//YY
 const updateDueDate = async (req, res) => {
     try {
-        const { newAttempts, exisitngDate, exisitngAttempts, exchangeId } = req.body;
+        const { newAttempts, existingAttempts, exisitngAttempts, exchangeId } = req.body;
         const askedExchange = await Exchange.findOne({ _id: mongoose.Types.ObjectId(exchangeId) });
         askedExchange.newAttempts = newAttempts;
-        if (exisitngDate) {
-            if (!commonFunctions.isDate(exisitngDate)) {
+        if (existingAttempts) {
+            if (!commonFunctions.isDate(existingAttempts)) {
                 return res.status(RESPONSE_STATUS.BAD_REQUEST).json({ message: "Exisitng date not in format!" });
             }
-            askedExchange.exisitngDate = exisitngDate;
-            askedExchange.exisitngAttempts = commonFunctions.getAttemptsTillDate(exisitngDate);
+            askedExchange.existingAttempts = existingAttempts;
+            askedExchange.exisitngAttempts = commonFunctions.getAttemptsTillDate(existingAttempts);
         } else {
-            askedExchange.exisitngDate = '';
+            askedExchange.existingAttempts = '';
             askedExchange.exisitngAttempts = exisitngAttempts;
         }
         askedExchange.save();
