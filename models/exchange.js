@@ -11,7 +11,7 @@ const Exchange = new mongoose.Schema({
         pan: { type: String },
         logo: { type: String }
     },
-    exisitngDate: { type: String, default: '' },
+    existingDate: { type: String, default: '' },
     newAttempts: { type: String, default: '15' },
     existingAttempts: { type: String, default: '30' },
     notificationTemplates: [
