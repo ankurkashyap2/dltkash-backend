@@ -269,7 +269,8 @@ const addSingleInvestor = async (req, res) => {
         investorObj.emailProcessed = 'false';
         if (uccRequestType == UCC_REQUEST_TYPES.NEW) { investorObj.totalAttempts = askedExchange.newAttempts; }
         else if (uccRequestType == UCC_REQUEST_TYPES.EXISTING) {
-            investorObj.totalAttempts = askedExchange.existingAttempts;
+            console.log('Exising attempts>>>>>>>>>>>>>>>>>>>>>>>>>>>>>..', askedExchange.existingAttempts)
+            investorObj.totalAttempts = askedExchange.existingAttempts.toString();
         }
         var country = investorObj.uccCountry.toLowerCase();
         if (COUNTRY_ARRAY[country]) {
