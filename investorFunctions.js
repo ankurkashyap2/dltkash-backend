@@ -63,11 +63,12 @@ const processInvestorEmail = async (investorObj,) => {
                     });
                     const mailBody = {
                         email: investorObj.uccEmailId,
-                        ref: `${process.env.FEHOST}/investor/email-verification/${investorObj.uccRequestId}/${token}`
+                        ref: `${process.env.FEHOST}/investor/email-verification/${investorObj.uccRequestId}/${token}`,
+                        investorObj:investorObj
                     }
 
                     const html = pug.renderFile(__root + "emailTemplates/investorEmailVerificaton.pug", mailBody);
-                    return commonFunctions.sendMail(investorObj.uccEmailId, 'Investor Email Verify', html, (err, res, body) => {
+                    return commonFunctions.sendMail(investorObj.uccEmailId, 'Verification of e-mail ID linked to your UCC', html, (err, res, body) => {
                         if (err) {
                             // handle email error
                             console.log(err)

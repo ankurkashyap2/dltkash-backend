@@ -132,8 +132,10 @@ const updateDueDate = async (req, res) => {
     try {
         const { newAttempts, existingDate, existingAttempts, exchangeId } = req.body;
         const askedExchange = await Exchange.findOne({ _id: mongoose.Types.ObjectId(exchangeId) });
-        console.log(askedExchange)
-        askedExchange.newAttempts = newAttempts;
+        if(newAttempts)
+        {askedExchange.newAttempts = newAttempts;
+        
+        }
         if (existingDate) {
             if (!commonFunctions.isDate(existingDate)) {
                 return res.status(RESPONSE_STATUS.BAD_REQUEST).json({ message: "Exisitng date not in format!" });
