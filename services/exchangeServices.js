@@ -142,7 +142,7 @@ const updateDueDate = async (req, res) => {
             }
             askedExchange.existingDate = existingDate;
             askedExchange.existingAttempts = commonFunctions.getAttemptsTillDate(existingDate);
-        } else {
+        } else if(existingAttempts) {
             askedExchange.existingDate = '';
             askedExchange.existingAttempts = existingAttempts;
         }
