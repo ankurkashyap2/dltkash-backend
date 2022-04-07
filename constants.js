@@ -72,7 +72,7 @@ exports.NODE_STATUSES = {
 
 exports.UCC_REQUEST_TYPES = {
     NEW: "NEW",
-    EXISTING: "EXIST"
+    EXISTING: "EXISTING"
 }
 
 exports.UCC_PAN_EXEMPT = {
