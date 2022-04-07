@@ -268,7 +268,7 @@ const addSingleInvestor = async (req, res) => {
         investorObj.mobileProcessed = 'false';
         investorObj.emailProcessed = 'false';
         if (uccRequestType == UCC_REQUEST_TYPES.NEW) { investorObj.totalAttempts = askedExchange.newAttempts; }
-        else if (uccRequestType == UCC_REQUEST_TYPES.EXISTING) {
+        else {
             console.log('Exising attempts>>>>>>>>>>>>>>>>>>>>>>>>>>>>>..', askedExchange.existingAttempts)
             investorObj.totalAttempts = askedExchange.existingAttempts.toString();
         }
