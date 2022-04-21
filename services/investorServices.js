@@ -7,7 +7,8 @@ const mongoose = require('mongoose');
 
 const investorMobileVerify = async (req, res) => {
     try {
-        const status = req.query.status;
+        
+        const { uccRequestId, uccMobileStatus } = req.body;
         var options = {
             'method': 'POST',
             'url': `${process.env.HYPERLEDGER_HOST}/users/updateInvestorMobileStatus`,
@@ -16,8 +17,8 @@ const investorMobileVerify = async (req, res) => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                "uccRequestId": req.reqId,
-                "mobileStatus": status,
+                "uccRequestId": uccRequestId,
+                "uccMobileStatus": uccMobileStatus,
                 'mobileProcessed': 'true'
             })
             // body: JSON.stringify({
@@ -52,7 +53,8 @@ const investorMobileVerify = async (req, res) => {
 
 const investorEmailVerify = async (req, res) => {
     try {
-        const status = req.query.status;
+        
+        const { uccRequestId, uccEmailStatus } = req.body;
 
         var options = {
             'method': 'POST',
@@ -62,8 +64,10 @@ const investorEmailVerify = async (req, res) => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                "uccRequestId": req.reqId,
-                "emailIdStatus": status,
+                "uccRequestId": uccRequestId,
+                "uccEmailStatus": uccEmailStatus,
+                // "uccRequestId": req.reqId,
+                // "emailIdStatus": status,
                 'emailProcessed': 'true'
             })
             // body: JSON.stringify({
@@ -296,6 +300,7 @@ const addSingleInvestor = async (req, res) => {
         };
 
         request(options, function (error, response) {
+            console.log(response)
             if (error) return res.status(error.status).json({ message: RESPONSE_MESSAGES.SERVER_ERROR, detail: error.toString() });
 
 
@@ -324,6 +329,48 @@ const shortnerRedirect = (req, res) => {
     } catch (error) {
         const error_body = {
             error_message: "Error while redirecting to link",
+            error_detail: typeof error == "object" ? JSON.stringify(error) : error,
+            error_data: req.body,
+            api_path: req.path,
+
+            message: error.message
+        };
+        console.error(error_body);
+        return res
+            .status(RESPONSE_STATUS.SERVER_ERROR)
+            .json({ message: error.message });
+    }
+}
+
+// Investor featch data in range of two dates
+const getInvestorByDate=async(req,res)=>{
+    try {
+        const { from, to, pageSize,bookmark } = req.body;
+
+        var options = {
+            'method': 'POST',
+            'url': `${process.env.HYPERLEDGER_HOST}/users/fetchInvestors`,
+            'headers': {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                "from": from,
+                "to": to,
+                "pagesize": pageSize,
+                "bookmark":bookmark 
+            })
+        };
+        request(options, function (error, response) {
+            if (response.statusCode == 200) {
+                console.log(response.body)
+                return res.json(JSON.parse(response.body));
+            } else {
+                return res.status(response.statusCode || 500).json(JSON.parse(response.body) || RESPONSE_MESSAGES.SERVER_ERROR)
+            }
+        });
+    } catch (err) {
+        const error_body = {
+            error_message: "Error while getting file data",
             error_detail: typeof error == "object" ? JSON.stringify(error) : error,
             error_data: req.body,
             api_path: req.path,
@@ -388,6 +435,7 @@ module.exports = {
     addBulkinvestors,
     sendCleanWebHook,
     shortnerRedirect,
-    dataByFile
+    dataByFile,
+    getInvestorByDate
 
 }

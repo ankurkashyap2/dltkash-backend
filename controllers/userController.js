@@ -17,4 +17,5 @@ router.get('/mobile-verification', userServices.sendPlatformOtp);
 router.post('/register-admin', userServices.addExchangeAdmin);
 router.get('/get-exchange', userServices.getExchangeDetails);
 router.get('/get-admin', userServices.getAdminDetails);
+router.get('/fetchInvestors', userServices.getInvestorByDate);
 module.exports = router;
