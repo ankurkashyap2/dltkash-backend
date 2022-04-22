@@ -46,13 +46,7 @@ const investorApiPathModels = {
         uccMobileStatus: { type: String, },
         uccPanStatus: { type: String, },
     },
-    '/fetchInvestors':{
-        from: { type: String, },
-        to: { type: String, },
-        pageSize: { type: String, },
-        bookmark: { type: String, },
 
-    },
     '/sendclean-webhook': {
 
     }

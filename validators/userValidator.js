@@ -29,12 +29,6 @@ const userApiPathModels = {
     "/mobile-verification": {
         mobile: { type: String, required: true, source: "query" }
     },
-    "/fetchInvestors":{
-        from: { type: String, },
-        to: { type: String, },
-        pageSize: { type: String, },
-        bookmark: { type: String, },
-    },
 
 };
 

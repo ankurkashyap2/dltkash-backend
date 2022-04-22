@@ -14,5 +14,5 @@ router.post('/data-by-fileName',investorServices.dataByFile),
 router.post('/create-investor', investorServices.addSingleInvestor);
 router.post('/bulk/create-investor', investorServices.addBulkinvestors);
 router.post('/sendclean-webhook', investorServices.sendCleanWebHook);
-router.post('/fetchInvestors', investorServices.getInvestorByDate);
+
 module.exports = router;
