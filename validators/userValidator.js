@@ -28,7 +28,7 @@ const userApiPathModels = {
     },
     "/mobile-verification": {
         mobile: { type: String, required: true, source: "query" }
-    }
+    },
 
 };
 

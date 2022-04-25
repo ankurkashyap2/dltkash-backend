@@ -7,8 +7,9 @@ const mongoose = require('mongoose');
 
 const investorMobileVerify = async (req, res) => {
     try {
-        const status = req.query.status;
-        var options = {
+        
+        const { uccRequestId, uccMobileStatus } = req.body;
+        const options = {
             'method': 'POST',
             'url': `${process.env.HYPERLEDGER_HOST}/users/updateInvestorMobileStatus`,
             // 'url': `${process.env.HYPERLEDGER_HOST}/users/updateInvestor`,
@@ -16,8 +17,8 @@ const investorMobileVerify = async (req, res) => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                "uccRequestId": req.reqId,
-                "mobileStatus": status,
+                "uccRequestId": uccRequestId,
+                "uccMobileStatus": uccMobileStatus,
                 'mobileProcessed': 'true'
             })
             // body: JSON.stringify({
@@ -52,7 +53,8 @@ const investorMobileVerify = async (req, res) => {
 
 const investorEmailVerify = async (req, res) => {
     try {
-        const status = req.query.status;
+        
+        const { uccRequestId, uccEmailStatus } = req.body;
 
         var options = {
             'method': 'POST',
@@ -62,8 +64,10 @@ const investorEmailVerify = async (req, res) => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                "uccRequestId": req.reqId,
-                "emailIdStatus": status,
+                "uccRequestId": uccRequestId,
+                "uccEmailStatus": uccEmailStatus,
+                // "uccRequestId": req.reqId,
+                // "emailIdStatus": status,
                 'emailProcessed': 'true'
             })
             // body: JSON.stringify({
@@ -288,8 +292,11 @@ const addSingleInvestor = async (req, res) => {
         if (uccMobileStatus.toUpperCase() == MOBILE_STATUSES.NOT_VERIFIED) {
             investorObj = await investorFunctions.processInvestorMobile(investorObj);
         }
-
-        var options = {
+        
+        if(askedExchange){
+            investorObj.exchangeId = askedExchange._id
+        }
+        const options = {
             'method': 'POST',
             'url': `${process.env.HYPERLEDGER_HOST}/users/createInvestor`,
             'headers': {
@@ -297,6 +304,7 @@ const addSingleInvestor = async (req, res) => {
             },
             body: JSON.stringify(investorObj)
         };
+    
 
         request(options, function (error, response) {
             if (error) return res.status(error.status).json({ message: RESPONSE_MESSAGES.SERVER_ERROR, detail: error.toString() });
@@ -304,7 +312,8 @@ const addSingleInvestor = async (req, res) => {
 
             return res.status(response.statusCode || 500).json(JSON.parse(response.body));
         });
-
+        
+    
     } catch (error) {
         const error_body = {
             error_message: "Error while sending verification email",
@@ -339,6 +348,8 @@ const shortnerRedirect = (req, res) => {
             .json({ message: error.message });
     }
 }
+
+
 
 const dataByFile = async (req, res) => {
     try {
@@ -391,6 +402,7 @@ module.exports = {
     addBulkinvestors,
     sendCleanWebHook,
     shortnerRedirect,
-    dataByFile
+    dataByFile,
+
 
 }
