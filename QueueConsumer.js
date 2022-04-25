@@ -1,10 +1,11 @@
 const rabbit = require('amqplib');
 const QUEUE_NAME = 'INVESTORS_DATA_BUFF';
-connection = rabbit.connect('amqps://huhhlhxs:KoDjemkJAycRzCN0ZQIAQ2wrWkbHCAWB@brilliant-cobalt-owl.rmq3.cloudamqp.com/huhhlhxs');
+pw ='amqps://admin:uaHFhFb90g1acugStY7SclkVHkkMCnPC@u8y0rp.stackhero-network.com:5671'
+connection = rabbit.connect(pw);
 
 function doSomething(){
     return new Promise((resolve, reject)=>{
-        setTimeout(resolve, 1000);
+        setTimeout(resolve, 1);
     })
 }
 
@@ -20,7 +21,8 @@ connection.then(async (conn) => {
         let msg = await channel.get(QUEUE_NAME);
         if(!msg) break;
         console.log(JSON.parse(msg.content.toString()))
-        await doSomething();        // channel.ack(msg)
+        // await doSomething();  
+              channel.ack(msg)
 
     }
 })

@@ -350,6 +350,23 @@ const sendPlatformVerificationEmail = async (req, res) => {
 
 }
 
+const fetchInvestorsByTimeStamp = async (req, res) => {
+    try {
+
+        
+    } catch (error) {
+        const error_body = {
+            error_detail: (typeof error == 'object') ? JSON.stringify(error) : error,
+            error_data: req.body,
+            api_path: req.path,
+            stack: error.stack
+        }
+        console.error(error.stack);
+        return res
+            .status(RESPONSE_STATUS.SERVER_ERROR)
+            .json({ message: error.stack });
+    }
+}
 
 
 module.exports = {
@@ -357,6 +374,7 @@ module.exports = {
     loginUser,
     registerExchange,
     addExchangeAdmin,
+    fetchInvestorsByTimeStamp,
     resetPassword,
     forgetPassword,
     getAdminDetails,

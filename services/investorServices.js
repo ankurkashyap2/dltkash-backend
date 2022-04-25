@@ -98,13 +98,16 @@ const getInvestorDetailByUccId = async (req, res) => {
         const { uccRequestId } = req.body;
         var options = {
             'method': 'GET',
-            'url': `${process.env.HYPERLEDGER_HOST}/users/viewInvestorRequest/${uccRequestId}`,
+            'url': `${process.env.HYPERLEDGER_HOST}/users/getInvestorsByKey`,
+            body: JSON.stringify({
+                "uccRequestId": uccRequestId
+            }),
             'headers': {
                 'Content-Type': 'application/json'
             },
         };
         request(options, function (error, response) {
-            if (error) return res.status(error.status).json({ message: RESPONSE_MESSAGES.SERVER_ERROR, detail: error.toString() });
+            if (error) return res.status(error.status).json({ message: error.message });
             if (response.statusCode == 404) return res.status(response.statusCode || 500).json({ message: 'Hyperledger error' });
             return res.status(response.statusCode || 500).json({ data: JSON.parse(response.body) });
         });
@@ -269,7 +272,7 @@ const addSingleInvestor = async (req, res) => {
         investorObj.emailProcessed = 'false';
         if (uccRequestType == UCC_REQUEST_TYPES.NEW) { investorObj.totalAttempts = askedExchange.newAttempts; }
         else {
-            
+
             investorObj.totalAttempts = askedExchange.existingAttempts.toString();
         }
         var country = investorObj.uccCountry.toLowerCase();
