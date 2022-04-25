@@ -7,18 +7,14 @@ const mongoose = require('mongoose');
 // Investor featch data in range of two dates
 const getInvestorByDate=async(req,res)=>{
     try {
-        console.log("kuch bhi ")
         const askedUser = await User.findOne({
             _id: mongoose.Types.ObjectId(req.user_id)
         });
         const askedExchange = await Exchange.findOne({ _id: mongoose.Types.ObjectId(askedUser.exchangeId) });
         const { from, to, pageSize,bookmark } = req.body;
        
-        // if(askedExchange){
-        //     investorObj.exchangeId = askedExchange._id
-        // }
+        
         const exchangeId = askedExchange._id ; 
-        console.log(exchangeId,":lllllllllllllllllllll")
         var options = {
             'method': 'POST',
             'url': `${process.env.HYPERLEDGER_HOST}/users/fetchInvestors`,
@@ -34,9 +30,7 @@ const getInvestorByDate=async(req,res)=>{
             })
         };
         request(options, function (error, response) {
-            console.log(response.body.exchangeId)
             if (response.statusCode == 200) {
-                console.log(response.body)
                 return res.json(JSON.parse(response.body));
             } else {
                 return res.status(response.statusCode || 500).json(JSON.parse(response.body) || RESPONSE_MESSAGES.SERVER_ERROR)
