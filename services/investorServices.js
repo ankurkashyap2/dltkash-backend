@@ -99,12 +99,14 @@ const investorEmailVerify = async (req, res) => {
 
 const getInvestorDetailByUccId = async (req, res) => {
     try {
-        const { uccRequestId } = req.body;
+        const { uccRequestId ,pageSize, bookmark} = req.body;
         var options = {
             'method': 'POST',
             'url': `${process.env.HYPERLEDGER_HOST}/users/getInvestorsByKey`,
             body: JSON.stringify({
-                "uccRequestId": uccRequestId
+                "uccRequestId": uccRequestId,
+                "pageSize":pageSize,
+                "bookmark":bookmark
             }),
             'headers': {
                 'Content-Type': 'application/json'
