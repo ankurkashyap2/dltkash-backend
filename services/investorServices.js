@@ -222,9 +222,9 @@ const addSingleInvestor = async (req, res) => {
         const askedUser = await User.findOne({
             _id: mongoose.Types.ObjectId(req.user_id)
         });
-        console.log(askedUser)
+       
         const askedExchange = await Exchange.findOne({ _id: mongoose.Types.ObjectId(askedUser.exchangeId) });
-        console.log(askedExchange)
+
         const { uccRequestId,
             uccTmId,
             uccTmName,
