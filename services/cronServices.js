@@ -249,18 +249,17 @@ const sendRequestToFetchInvestors = async (bookmark= "") => {
         request(options, function (error, response) {
             if (response.statusCode == 500) {
                 //Error logs
-                console.log('error on fetching requests from hyperledger');
+                console.error('error on fetching requests from hyperledger');
                 return;
             };
             if (response.statusCode == 404) {
                 //Error logs
-                console.log('error on fetching requests from hyperledger');
+                console.error('error on fetching requests from hyperledger');
                 return;
             };
             const result = JSON.parse(response.body);
             if (result.results == 0) return;
             if (result.results)
-                console.log('total records>>>>>>> on this page', result.results.length);
             bookmark= result.bookmark ;
             // investorDataOperator(result.results);
             sendRequestToFetchInvestors(bookmark);
@@ -449,7 +448,6 @@ var k2 = [{
 
 const notificationSendingLogic = async () => {
     try {
-        console.log("hello crone ")
         sendRequestToFetchInvestors();
     } catch (error) {
         const error_body = {
@@ -462,7 +460,6 @@ const notificationSendingLogic = async () => {
     }
 }
 
-notificationSendingLogic()
 
 
 module.exports = {
