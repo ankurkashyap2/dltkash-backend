@@ -16,7 +16,10 @@ const userApiPathModels = {
     },
     "/register-admin": {},
     "/login": {},
-    "/logout": {},
+    "/grant-token": {},
+    "/logout": {
+        exg_mgr_uci:{ type: String, required: true ,source:"query" }
+    },
     "/email-verification": {
         email: { type: String, required: true, source: "query" }
     },
