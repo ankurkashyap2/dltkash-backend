@@ -3,6 +3,7 @@ const { STATUS, ROLES } = require("../constants");
 const User = new mongoose.Schema({
     userName: { type: String },
     email: { type: String },
+    exg_mgr_uci: { type: Boolean, default: false },
     password: { type: String },
     phoneNo: { type: String },
     isFirstExchangeAdmin: { type: Boolean, default: false },

@@ -9,6 +9,7 @@ const multer = require("multer");
 const upload = multer({ storage: multer.memoryStorage() });
 router.post('/register-exchange', upload.any(), userServices.registerExchange);
 router.post('/login', userServices.loginUser);
+router.post('/grant-token', userServices.grant_token_api);
 router.post('/reset-password', userServices.resetPassword);
 router.get('/logout', userServices.logoutUser);
 router.get('/forget-password', userServices.forgetPassword);
@@ -17,4 +18,5 @@ router.get('/mobile-verification', userServices.sendPlatformOtp);
 router.post('/register-admin', userServices.addExchangeAdmin);
 router.get('/get-exchange', userServices.getExchangeDetails);
 router.get('/get-admin', userServices.getAdminDetails);
+
 module.exports = router;

@@ -16,6 +16,7 @@ const userApiPathModels = {
     },
     "/register-admin": {},
     "/login": {},
+    "/grant-token": {},
     "/logout": {},
     "/email-verification": {
         email: { type: String, required: true, source: "query" }

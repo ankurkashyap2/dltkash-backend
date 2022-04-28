@@ -80,7 +80,7 @@ const investorEmailVerify = async (req, res) => {
         };
         request(options, function (error, response) {
             if (error) return res.status(error.status).json({ message: RESPONSE_MESSAGES.SERVER_ERROR, detail: error.toString() });
-            console.log(response.body)
+            
             return res.status(response.statusCode || 500).json({ data: JSON.parse(response.body) });
         });
     } catch (error) {
@@ -222,8 +222,9 @@ const addSingleInvestor = async (req, res) => {
         const askedUser = await User.findOne({
             _id: mongoose.Types.ObjectId(req.user_id)
         });
-
+        console.log(askedUser)
         const askedExchange = await Exchange.findOne({ _id: mongoose.Types.ObjectId(askedUser.exchangeId) });
+        console.log(askedExchange)
         const { uccRequestId,
             uccTmId,
             uccTmName,
@@ -320,7 +321,7 @@ const addSingleInvestor = async (req, res) => {
             error_detail: typeof error == "object" ? JSON.stringify(error) : error,
             error_data: req.body,
             api_path: req.path,
-
+            error_stack: error.stack,
             message: error.message
         };
         console.error(error_body);

@@ -1,6 +1,6 @@
 
 const commonFunctions = require('../commonFunctions');
-const { generateToken, verifyPassword } = require("../auth/verifyToken");
+const { generateToken, verifyPassword,verifyPassword2 } = require("../auth/verifyToken");
 const User = require('./../models/user');
 const { RESPONSE_STATUS, RESPONSE_MESSAGES } = require('../constants');
 const exchange = require('../models/exchange');
@@ -10,9 +10,30 @@ const jwt = require('jsonwebtoken');
 const request = require('request');
 const s3services = require('./s3Services');
 const mongoose = require('mongoose');
+const bcrypt = require("bcryptjs");
+
 const loginUser = async (req, res) => {
     try {
         const { user_id } = await verifyPassword(req.body);
+        var token = generateToken({ request: req.body, user_id, });
+        return res.status(RESPONSE_STATUS.SUCCESS).json({ message: RESPONSE_MESSAGES.SUCCESS, token: token });
+    } catch (error) {
+        const error_body = {
+            error_message: "Error while login user",
+            error_detail: typeof error == "object" ? JSON.stringify(error) : error,
+            error_data: req.body,
+            api_path: req.path,
+        };
+        console.error(error_body);
+        return res
+            .status(RESPONSE_STATUS.NOT_FOUND)
+            .json({ message: error.message });
+    }
+}
+
+const grant_token_api= async (req, res) => {
+    try {
+        const { user_id } = await verifyPassword2(req.body);
         var token = generateToken({ request: req.body, user_id, });
         return res.status(RESPONSE_STATUS.SUCCESS).json({ message: RESPONSE_MESSAGES.SUCCESS, token: token });
     } catch (error) {
@@ -58,14 +79,14 @@ const registerExchange = async (req, res) => {
         const documentLinks = {};
         var allFiles = true;
         if (!allFiles) return res.json({ message: 'All documents required' }).status(RESPONSE_STATUS.BAD_REQUEST);
-        for await (var file of req.files) {
-            const filename = legalEntityName + '-' + file.originalname;
+        // for await (var file of req.files) {
+        //     const filename = legalEntityName + '-' + file.originalname;
 
-            const fileLink = await s3services.fileUpload('exchanges', filename, file.buffer);
-            console.log(fileLink)
-            documentLinks[file.fieldname] = fileLink;
-            //s3 upload
-        }
+        //     const fileLink = await s3services.fileUpload('exchanges', filename, file.buffer);
+        //     console.log(fileLink)
+        //     documentLinks[file.fieldname] = fileLink;
+        //     //s3 upload
+        // }
         const exchangeObject = {
             legalEntityName: legalEntityName,
             sebiCertificateNumber: sebiCertificateNumber,
@@ -80,11 +101,33 @@ const registerExchange = async (req, res) => {
             User.findOne({ phoneNo: phoneNo }),
             User.findOne({ userName: userName }),
         ]);
-        if (emailRegistered) return res.status(RESPONSE_STATUS.CONFLICT).json({ message: RESPONSE_MESSAGES.EMAIL_ALREADY_REGISTERED });
-        if (panRegistered) return res.status(RESPONSE_STATUS.CONFLICT).json({ message: RESPONSE_MESSAGES.PAN_ALREADY_REGISTERED });
-        if (mobileRegistered) return res.status(RESPONSE_STATUS.CONFLICT).json({ message: RESPONSE_MESSAGES.PHONE_ALREADY_REGISTERED });
-        if (userNameRegistered) return res.status(RESPONSE_STATUS.CONFLICT).json({ message: RESPONSE_MESSAGES.USERNAME_REGISTERED });
+        // if (emailRegistered) return res.status(RESPONSE_STATUS.CONFLICT).json({ message: RESPONSE_MESSAGES.EMAIL_ALREADY_REGISTERED });
+        // if (panRegistered) return res.status(RESPONSE_STATUS.CONFLICT).json({ message: RESPONSE_MESSAGES.PAN_ALREADY_REGISTERED });
+        // if (mobileRegistered) return res.status(RESPONSE_STATUS.CONFLICT).json({ message: RESPONSE_MESSAGES.PHONE_ALREADY_REGISTERED });
+        // if (userNameRegistered) return res.status(RESPONSE_STATUS.CONFLICT).json({ message: RESPONSE_MESSAGES.USERNAME_REGISTERED });
         const exchangeObj = await exchange.create(exchangeObject);
+         const random = Math.floor((Math.random()*1000000)+1)// by this we create random 6 digit no 
+        const Exchange_adminObj ={
+            exg_mgr_uci: true , 
+            exchangeId: exchangeObj._id,
+            userName : legalEntityName+"_Admin_"+random,
+            password: commonFunctions.encryptString(legalEntityName+"_Admin_"+random),
+        }
+       
+        const Exg_mailBody ={
+            userName: userName,
+            exg_mgr_uci:Exchange_adminObj.userName,
+        }
+        const Exg_html = pug.renderFile(__root + "/emailTemplates/exg_mail.pug", Exg_mailBody);
+        commonFunctions.sendMail(email, "Regarding Registration Success", Exg_html, (err, response) => {
+            console.log(response.body, 'MAIL FOR exg_mgr_uci is sucessfully send >>>');
+            if (err)
+                return res.status(RESPONSE_STATUS.SERVER_ERROR).json({ message: RESPONSE_MESSAGES.SERVER_ERROR });
+
+        });
+        const Exg_AdminObject = await User.create(Exchange_adminObj) ; 
+        console.log("here we finding exchange id ") ;
+        console.log(Exg_AdminObject)
         const adminObj = {
             userName: userName,
             email: email,
@@ -381,5 +424,6 @@ module.exports = {
     getExchangeDetails,
     sendPlatformOtp,
     logoutUser,
+    grant_token_api,
 
 }
