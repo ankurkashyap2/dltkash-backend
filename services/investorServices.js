@@ -101,7 +101,7 @@ const getInvestorDetailByUccId = async (req, res) => {
     try {
         const { uccRequestId } = req.body;
         var options = {
-            'method': 'GET',
+            'method': 'POST',
             'url': `${process.env.HYPERLEDGER_HOST}/users/getInvestorsByKey`,
             body: JSON.stringify({
                 "uccRequestId": uccRequestId
@@ -112,8 +112,8 @@ const getInvestorDetailByUccId = async (req, res) => {
         };
         request(options, function (error, response) {
             if (error) return res.status(error.status).json({ message: error.message });
-            if (response.statusCode == 404) return res.status(response.statusCode || 500).json({ message: 'Hyperledger error' });
-            return res.status(response.statusCode || 500).json({ data: JSON.parse(response.body) });
+            if (response.statusCode == 404) return res.status(response.statusCode || 500).json({ message:response.body });
+            return res.status(response.statusCode || 500).json({ data: JSON.parse(response.body)});
         });
 
     } catch (error) {
