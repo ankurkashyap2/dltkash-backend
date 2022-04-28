@@ -14,7 +14,7 @@ const investorApiPathModels = {
         uccMobileStatus:{ type: String, required: true },
     },
     "/get-data": {
-        uccRequestId: { type: String, required: true }
+        uccRequestId: { type: String, required: false }
     },
     "/bulk/create-investor": {
         investorsData: {
