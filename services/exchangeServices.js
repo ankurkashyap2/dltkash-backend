@@ -19,6 +19,7 @@ const uploadFileToServer = async (req, res) => {
             console.log(`Upload of '${filename.filename}' started`);
 
             const fstream = fs.createWriteStream(path.join(__uploadPath, filename.filename));
+            
             file.pipe(fstream);
 
             fstream.on('close', () => {

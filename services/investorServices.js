@@ -3,11 +3,63 @@ const investorFunctions = require('./../investorFunctions');
 var request = require('request');
 const User = require('./../models/user');
 const Exchange = require('./../models/exchange');
+const RecordCounter = require('./../models/recordCounter');
 const mongoose = require('mongoose');
 
 const investorMobileVerify = async (req, res) => {
     try {
-        
+        // const a = {
+        //     date:new Date().toLocaleDateString(),
+        //     perHourCounterArr:[{hour:new Date().getHours() , count:1 }]
+        // }
+        // const b = {hour:new Date().getHours() , count:1 }
+        // // perHourCounterArr.push(b)
+        // RecordCounter.create(a) ;
+        // console.log(a) ;
+        // if(RecordCounter.find().count()==0){
+        //     const recordObj ={
+        //     date : new Date().toLocaleDateString() ,
+        //     perHourCounterArr:[{hour:new Date().getHours() , count:1 }]
+        //     }
+            
+
+        //     console.log(recordObj)
+        //     RecordCounter.create(recordObj) ;
+        // }else{
+            const date = new Date().toLocaleDateString();
+            const recordObj = await RecordCounter.findOne({"date" : date}) ;
+            // console.log(recordObj)
+            let updatedCounterArr =recordObj.perHourCounterArr ;
+            updatedCounterArr.forEach((eachObj)=>{
+                console.log(recordObj)
+                if(eachObj.hour == new Date().getHours()){
+                    eachObj.count +=1;
+                    let dummy ={
+                        hour:new Date().getHours(),
+                        count:eachObj.count
+                    }
+                    recordObj.perHourCounterArr.push(dummy)
+                    console.log(recordObj)
+                     recordObj.save() ;
+                }
+            });
+            // recordObj.per_hour_counter = updatedCounterArr;
+       
+            // if(recordObj.count()==0){
+            //     var dummy = {
+            //         hour:new Date().getHours(),
+            //         count : recordObj.per_hour_counter.count+1 
+            //     }
+            //     recordObj.date =date 
+            //     recordObj.per_hour_counter.push(dummy);
+            //     await recordObj.save()
+            // }else {
+            //     recordObj.per_hour_counter.count=recordObj.per_hour_counter.count+1
+            // }
+            // recordObj.count = recordObj.count+1 ; 
+            // await recordObj.save() ; 
+        // }
+
         const { uccRequestId, uccMobileStatus } = req.body;
         const options = {
             'method': 'POST',
@@ -41,6 +93,7 @@ const investorMobileVerify = async (req, res) => {
             error_detail: typeof error == "object" ? JSON.stringify(error) : error,
             error_data: req.body,
             api_path: req.path,
+            stack:error.stack
         };
         console.error(error_body);
         return res
@@ -55,7 +108,7 @@ const investorEmailVerify = async (req, res) => {
     try {
         
         const { uccRequestId, uccEmailStatus } = req.body;
-
+        
         var options = {
             'method': 'POST',
             'url': `${process.env.HYPERLEDGER_HOST}/users/updateInvestorEmailStatus`,
