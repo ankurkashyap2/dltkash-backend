@@ -234,22 +234,23 @@ const sendRequestToFetchInvestors = async (bookmark= "") => {
         // const hoursToMatch = (new Date()).getHours();
         var options = {
             'method': 'POST',
-            'url': `${process.env.HYPERLEDGER_HOST}/users/getInvestorsByKey`,
-            // 'url': `http://54.159.25.214/api/users/getInvestorsByKey`,
+            // 'url': `${process.env.HYPERLEDGER_HOST}/users/getInvestorsByKey`,
+            'url': `http://54.159.25.214/api/users/getInvestorsByKey`,
+            // 'url': `https://pedantic-tree-17153.pktriot.net/api/users/getInvestorsByKey`,
             'headers': {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
                 // "notificationKey": hoursToMatch,
                 // "page": `${page}`,
-                "pageSize": "10",
+                "pageSize": "5",
                 "bookmark":`${bookmark}`
             })
         };
         request(options, function (error, response) {
             if (response.statusCode == 500) {
                 //Error logs
-                console.error('error on fetching requests from hyperledger');
+                console.error('error on fetching requests from hyperledger',response.body);
                 return;
             };
             if (response.statusCode == 404) {
@@ -259,6 +260,7 @@ const sendRequestToFetchInvestors = async (bookmark= "") => {
             };
             const result = JSON.parse(response.body);
             if (result.results == 0) return;
+            console.log(result)            
             if (result.results)
             bookmark= result.bookmark ;
             // investorDataOperator(result.results);
@@ -275,6 +277,8 @@ const sendRequestToFetchInvestors = async (bookmark= "") => {
     }
 
 }
+
+// sendRequestToFetchInvestors()
 var k = [{
     "uccRequestId": "234718212902",
     "uccTmId": "98234921",
@@ -460,7 +464,7 @@ const notificationSendingLogic = async () => {
     }
 }
 
-
+notificationSendingLogic()
 
 module.exports = {
     checkForUnprocessedFiles,
