@@ -19,37 +19,36 @@ const getInvestorByDate = async (req, res) => {
         let totalRecord = 0;
         const epocFrom = commonFunctions.returnEpoch(from);
         const epocTo = commonFunctions.returnEpoch(to);
+        const start = new Date(epocFrom);
+        const end = new Date(epocTo);
+        const setStart = commonFunctions.setRecordDate(start);
+        const setEnd = commonFunctions.setRecordDate(end);
         const toHour = new Date(epocFrom).getHours();
         const fromHour = new Date(epocTo).getHours();
-
-        const fromMoment = moment(epocFrom).format('MM/DD/YYYY');
-        const toMoment = moment(epocTo).format('MM/DD/YYYY');
-
-        const askedDates = await RecordCounter.find({ 'date': { $gte: fromMoment, $lte: toMoment } });
+        const askedDates = await RecordCounter.find({ 'date': { $gte: setStart, $lte: setEnd } });
         askedDates.forEach((e) => {
-            if (e.date == fromMoment) {
+            if (e.date == setStart) {
                 let perHourArray = e.perHourCounterArr
                 perHourArray.forEach((perHourArrayObj) => {
                     if (perHourArrayObj >= fromHour)
                         totalRecord = totalRecord + perHourArrayObj.count;
                 })
-            } 
-             if (e.date == toMoment) {
+            }
+            if (e.date == setEnd) {
                 let perHourArray = e.perHourCounterArr
                 perHourArray.forEach((perHourArrayObj) => {
                     if (perHourArrayObj <= toHour)
                         totalRecord = totalRecord + perHourArrayObj.count;
                 })
-            } 
-            if(e.date!=fromMoment ||e.date!=toMoment) {
+            }
+            if ((e.date != setStart) && (e.date != setEnd)) {
                 let perHourArray = e.perHourCounterArr
                 perHourArray.forEach((perHourArrayObj) => {
-
-                    totalRecord = totalRecord + perHourArrayObj.count;
+                        totalRecord = totalRecord + perHourArrayObj.count;
                 })
             }
         })
-       
+
 
 
         const exchangeId = askedExchange._id;
@@ -69,12 +68,12 @@ const getInvestorByDate = async (req, res) => {
         };
         request(options, function (error, response) {
             if (response.statusCode == 200) {
-                return res.json({data: JSON.parse(response.body), totalRecord: totalRecord});
+                return res.json({ data: JSON.parse(response.body), totalRecord: totalRecord });
             } else {
                 return res.status(response.statusCode || 500).json(JSON.parse(response.body) || RESPONSE_MESSAGES.SERVER_ERROR)
             }
         });
-    } catch (err) {
+    } catch (error) {
         const error_body = {
             error_message: "Error while getting file data",
             error_detail: typeof error == "object" ? JSON.stringify(error) : error,

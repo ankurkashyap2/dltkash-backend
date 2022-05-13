@@ -1,9 +1,9 @@
 const mongoose = require("mongoose");
 
 const recordCounter = new mongoose.Schema({
-   
-    date : {type: String},
-    perHourCounterArr:{type:Array ,default:[]}
+    date: { type: Date },
+    // date :{type:Number},
+    perHourCounterArr: { type: Array, default: [] }
 
 });
 mongoose.model("recordCounter", recordCounter);
