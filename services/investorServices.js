@@ -10,15 +10,14 @@ const moment = require("moment");
 
 const investorMobileVerify = async (req, res) => {
     try {
-
-        const { uccRequestId, uccMobileStatus, updatedAt } = req.body;
-        var updatedAtNum = Number(updatedAt)
-        if (updatedAt.length == 0) {
-     
-          const recordObj = await RecordCounter.findOne({ "date": moment(Date.now()).format('MM/DD/YYYY') });
+        const { uccRequestId, uccMobileStatus, uccUpdatedAt } = req.body;
+        var updatedAtNum = Number(uccUpdatedAt)
+        if (!uccUpdatedAt) {
+            const setDate = commonFunctions.setRecordDate(new Date(Date.now()));
+            const recordObj = await RecordCounter.findOne({ "date": setDate });
             if (!recordObj) {
                 const newRecordObj = {
-                    date: moment(Date.now()).format('MM/DD/YYYY'),
+                    date: setDate,
                     perHourCounterArr: [{ hour: new Date(Date.now()).getHours(), count: 1 }]
                 }
                 await RecordCounter.create(newRecordObj);
@@ -42,14 +41,15 @@ const investorMobileVerify = async (req, res) => {
                 await savedObj.save();
             }
         } else {
-            const togetDate = new Date(updatedAtNum);
-            const momentDate = moment(updatedAtNum).format('MM/DD/YYYY');
-            const recordObj = await RecordCounter.findOne({ "date": moment(updatedAtNum).format('MM/DD/YYYY') });
-            if (moment(updatedAtNum).format('MM/DD/YYYY') != moment(Date.now()).format('MM/DD/YYYY')) {
+            const updatedDate = new Date(updatedAtNum);
+            const setUpdatedDate = commonFunctions.setRecordDate(updatedDate);
+            const recordObj = await RecordCounter.findOne({ "date": setUpdatedDate });
+
+            if (setUpdatedDate.toString() != commonFunctions.setRecordDate(new Date(Date.now())).toString()) {
                 if (!recordObj) {
                     const newRecordObj = {
-                        date: momentDate,
-                        perHourCounterArr: [{ hour: togetDate.getHours(), count: 1 }]
+                        date: setUpdatedDate,
+                        perHourCounterArr: [{ hour: updatedDate.getHours(), count: 1 }]
                     }
                     await RecordCounter.create(newRecordObj);
                 } else {
@@ -59,14 +59,14 @@ const investorMobileVerify = async (req, res) => {
                         presentHours.push(eachObj.hour);
                     });
 
-                    if (presentHours.includes(togetDate.getHours())) {
+                    if (presentHours.includes(updatedDate.getHours())) {
                         updatedCounterArr.forEach((eachObj) => {
-                            if (eachObj.hour == togetDate.getHours()) {
+                            if (eachObj.hour == updatedDate.getHours()) {
                                 eachObj.count += 1;
                             }
                         });
                     } else
-                        updatedCounterArr.push({ hour: togetDate.getHours(), count: 1 })
+                        updatedCounterArr.push({ hour: updatedDate.getHours(), count: 1 })
                     recordObj.perHourCounterArr = updatedCounterArr;
                     const savedObj = new RecordCounter(recordObj);
                     await savedObj.save();
@@ -120,18 +120,18 @@ const investorMobileVerify = async (req, res) => {
 const investorEmailVerify = async (req, res) => {
     try {
 
-        const { uccRequestId, uccEmailStatus, updatedAt } = req.body;
-        var updatedAtNum = Number(updatedAt)
-
-        if (updatedAt.length == 0) {
-            const recordObj = await RecordCounter.findOne({ "date": moment(Date.now()).format('MM/DD/YYYY') });
+        const { uccRequestId, uccEmailStatus, uccUpdatedAt } = req.body;
+        var updatedAtNum = Number(uccUpdatedAt)
+        if (!uccUpdatedAt) {
+            const setDate = commonFunctions.setRecordDate(new Date(Date.now()));
+            const recordObj = await RecordCounter.findOne({ "date": setDate });
             if (!recordObj) {
                 const newRecordObj = {
-                    date: moment(Date.now()).format('MM/DD/YYYY'),
+                    date: setDate,
                     perHourCounterArr: [{ hour: new Date(Date.now()).getHours(), count: 1 }]
                 }
                 await RecordCounter.create(newRecordObj);
-            } else {  // second user comes today by passing updatedat==""
+            } else {
                 let updatedCounterArr = recordObj.perHourCounterArr;
                 let presentHours = [];
                 updatedCounterArr.forEach((eachObj) => {
@@ -150,15 +150,15 @@ const investorEmailVerify = async (req, res) => {
                 const savedObj = new RecordCounter(recordObj);
                 await savedObj.save();
             }
-        } else {//this is for user pass a particular updatedAt 
-            const togetDate = new Date(updatedAtNum);
-            const momentDate = moment(updatedAtNum).format('MM/DD/YYYY');
-            const recordObj = await RecordCounter.findOne({ "date": moment(updatedAtNum).format('MM/DD/YYYY') });
-            if (moment(updatedAtNum).format('MM/DD/YYYY') != moment(Date.now()).format('MM/DD/YYYY')) {
+        } else {
+            const updatedDate = new Date(updatedAtNum);
+            const setUpdatedDate = commonFunctions.setRecordDate(updatedDate);
+            const recordObj = await RecordCounter.findOne({ "date": setUpdatedDate });
+            if (setUpdatedDate.toString() != commonFunctions.setRecordDate(new Date(Date.now())).toString()) {
                 if (!recordObj) {
                     const newRecordObj = {
-                        date: momentDate,
-                        perHourCounterArr: [{ hour: togetDate.getHours(), count: 1 }]
+                        date: setUpdatedDate,
+                        perHourCounterArr: [{ hour: updatedDate.getHours(), count: 1 }]
                     }
                     await RecordCounter.create(newRecordObj);
                 } else {
@@ -168,14 +168,14 @@ const investorEmailVerify = async (req, res) => {
                         presentHours.push(eachObj.hour);
                     });
 
-                    if (presentHours.includes(togetDate.getHours())) {
+                    if (presentHours.includes(updatedDate.getHours())) {
                         updatedCounterArr.forEach((eachObj) => {
-                            if (eachObj.hour == togetDate.getHours()) {
+                            if (eachObj.hour == updatedDate.getHours()) {
                                 eachObj.count += 1;
                             }
                         });
                     } else
-                        updatedCounterArr.push({ hour: togetDate.getHours(), count: 1 })
+                        updatedCounterArr.push({ hour: updatedDate.getHours(), count: 1 })
                     recordObj.perHourCounterArr = updatedCounterArr;
                     const savedObj = new RecordCounter(recordObj);
                     await savedObj.save();
