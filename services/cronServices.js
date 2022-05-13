@@ -225,39 +225,44 @@ const investorDataOperator = async (investorsData) => {
 }
 
 
-const sendRequestToFetchInvestors = async (page = 1) => {
+
+const sendRequestToFetchInvestors = async (bookmark= "") => {
     try {
-        const hoursToMatch = (new Date()).getHours();
+        
+        // const hoursToMatch = (new Date()).getHours();
         var options = {
             'method': 'POST',
-            'url': `${process.env.HYPERLEDGER_HOST}/users/getInvestorsByKey`,
+            // 'url': `${process.env.HYPERLEDGER_HOST}/users/getInvestorsByKey`,
+            'url': `http://54.159.25.214/api/users/getInvestorsByKey`,
+            // 'url': `https://pedantic-tree-17153.pktriot.net/api/users/getInvestorsByKey`,
             'headers': {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                "notificationKey": hoursToMatch,
-                "page": `${page}`,
-                "limit": "100"
+                // "notificationKey": hoursToMatch,
+                // "page": `${page}`,
+                "pageSize": "5",
+                "bookmark":`${bookmark}`
             })
         };
         request(options, function (error, response) {
             if (response.statusCode == 500) {
                 //Error logs
-                console.log('error on fetching requests from hyperledger');
+                console.error('error on fetching requests from hyperledger',response.body);
                 return;
             };
             if (response.statusCode == 404) {
                 //Error logs
-                console.log('error on fetching requests from hyperledger');
+                console.error('error on fetching requests from hyperledger');
                 return;
             };
-
             const result = JSON.parse(response.body);
-            if (result.results)
-                console.log('total records>>>>>>> on this page', result.results.length);
             if (result.results == 0) return;
-            investorDataOperator(result.results);
-            sendRequestToFetchInvestors(page + 1);
+            console.log(result)            
+            if (result.results)
+            bookmark= result.bookmark ;
+            // investorDataOperator(result.results);
+            sendRequestToFetchInvestors(bookmark);
         });
     } catch (error) {
         const error_body = {
@@ -270,6 +275,8 @@ const sendRequestToFetchInvestors = async (page = 1) => {
     }
 
 }
+
+// sendRequestToFetchInvestors()
 var k = [{
     "uccRequestId": "234718212902",
     "uccTmId": "98234921",
@@ -455,7 +462,7 @@ const notificationSendingLogic = async () => {
     }
 }
 
-
+notificationSendingLogic()
 
 module.exports = {
     checkForUnprocessedFiles,

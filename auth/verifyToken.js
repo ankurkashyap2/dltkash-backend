@@ -17,6 +17,8 @@ const apisToBeByPassed = [
     '/send-verification/email',
     '/mobile-verification',
     '/sendclean-webhook',
+    '/verify/email',
+    '/verify/mobile',
     
 ];
 
@@ -74,6 +76,29 @@ function generateToken(params) {
     }
 }
 
+function verifyPassword2({exg_mgr_uci}) {
+    return new Promise(async (resolve, reject) => {
+        let askedUser = await User.findOne({userName:exg_mgr_uci});
+
+        if (!askedUser) {
+            return reject({
+                code: RESPONSE_STATUS.NOT_FOUND,
+                message: RESPONSE_MESSAGES.EMAIL_NOT_REGISTERED,
+            });
+        }
+        // let password_verify = bcrypt.compareSync(exg_mgr_uci, askedUser.userName);
+        // if (!password_verify) {
+        //     return reject({
+        //         code: RESPONSE_STATUS.UNAUTHORIZED,
+        //         message: RESPONSE_MESSAGES.INVALID_CRED,
+        //     });
+        // }
+        askedUser.loggedIn = true;
+        askedUser.save()
+        return resolve({ status: RESPONSE_STATUS.SUCCESS, user_id: askedUser._id, profile_pic: askedUser.profile_pic });
+    });
+}
+
 function verifyPassword({ email, password }) {
     return new Promise(async (resolve, reject) => {
         let askedUser = await User.findOne({ $or: [{ email: email }, { userName: email }] }, { password: 1 });
@@ -101,4 +126,5 @@ function verifyPassword({ email, password }) {
 exports.verifyToken = verifyToken;
 exports.generateToken = generateToken;
 exports.verifyPassword = verifyPassword;
+exports.verifyPassword2 = verifyPassword2;
 
