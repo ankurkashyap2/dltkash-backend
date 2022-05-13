@@ -1,5 +1,5 @@
-// const cron = require('node-cron')
-// const cronServices = require('./services/cronServices');
+const cron = require('node-cron')
+const cronServices = require('./services/cronServices');
 
 
 // // CRON RUN AT  EVERY 4 HOURS TO CHECK FOR UNPROCESSED FILES ON SERVER

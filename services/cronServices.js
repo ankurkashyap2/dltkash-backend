@@ -94,8 +94,6 @@ const startFileProcessing = async (recordFile, askedExchange) => {
         readable.on('data', (jsonObj) => {
             c++;
             jsonObj.exchangeId = recordFile.exchangeId;
-            jsonObj.isEmailEncrypted = 'false';
-            jsonObj.isPhoneEncrypted = 'false';
             if (!jsonObj.UTCNotification) {
                 if (jsonObj.uccCountry) {
                     if (jsonObj.uccCountry.toLowerCase() == 'india') {
