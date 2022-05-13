@@ -27,8 +27,6 @@ const getInvestorByDate = async (req, res) => {
         const fromHour = new Date(epocTo).getHours();
         const askedDates = await RecordCounter.find({ 'date': { $gte: setStart, $lte: setEnd } });
         askedDates.forEach((e) => {
-            // const epocRecounterDate = commonFunctions.returnEpoch(e.date);
-            // console.log(epocRecounterDate)
             if (e.date == setStart) {
                 let perHourArray = e.perHourCounterArr
                 perHourArray.forEach((perHourArrayObj) => {
@@ -43,11 +41,9 @@ const getInvestorByDate = async (req, res) => {
                         totalRecord = totalRecord + perHourArrayObj.count;
                 })
             }
-            // if(e.date!=fromMoment ||e.date!=toMoment) {
             if ((e.date != setStart) && (e.date != setEnd)) {
                 let perHourArray = e.perHourCounterArr
                 perHourArray.forEach((perHourArrayObj) => {
-                    // if (perHourArrayObj >= fromHour && perHourArrayObj <= toHour)
                         totalRecord = totalRecord + perHourArrayObj.count;
                 })
             }
