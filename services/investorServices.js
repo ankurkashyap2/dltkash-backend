@@ -1,14 +1,79 @@
 const { RESPONSE_MESSAGES, RESPONSE_STATUS, MOBILE_STATUSES, EMAIL_STATUSES, COUNTRY_ARRAY, UCC_REQUEST_TYPES } = require('./../constants');
 const investorFunctions = require('./../investorFunctions');
+const commonFunctions = require('../commonFunctions');
 var request = require('request');
 const User = require('./../models/user');
 const Exchange = require('./../models/exchange');
+const RecordCounter = require('./../models/recordCounter');
 const mongoose = require('mongoose');
+const moment = require("moment");
 
 const investorMobileVerify = async (req, res) => {
     try {
-        
-        const { uccRequestId, uccMobileStatus } = req.body;
+        const { uccRequestId, uccMobileStatus, uccUpdatedAt } = req.body;
+        var updatedAtNum = Number(uccUpdatedAt)
+        if (!uccUpdatedAt) {
+            const setDate = commonFunctions.setRecordDate(new Date(Date.now()));
+            const recordObj = await RecordCounter.findOne({ "date": setDate });
+            if (!recordObj) {
+                const newRecordObj = {
+                    date: setDate,
+                    perHourCounterArr: [{ hour: new Date(Date.now()).getHours(), count: 1 }]
+                }
+                await RecordCounter.create(newRecordObj);
+            } else {
+                let updatedCounterArr = recordObj.perHourCounterArr;
+                let presentHours = [];
+                updatedCounterArr.forEach((eachObj) => {
+                    presentHours.push(eachObj.hour);
+                });
+
+                if (presentHours.includes(new Date(Date.now()).getHours())) {
+                    updatedCounterArr.forEach((eachObj) => {
+                        if (eachObj.hour == new Date(Date.now()).getHours()) {
+                            eachObj.count += 1;
+                        }
+                    });
+                } else
+                    updatedCounterArr.push({ hour: new Date(Date.now()).getHours(), count: 1 })
+                recordObj.perHourCounterArr = updatedCounterArr;
+                const savedObj = new RecordCounter(recordObj);
+                await savedObj.save();
+            }
+        } else {
+            const updatedDate = new Date(updatedAtNum);
+            const setUpdatedDate = commonFunctions.setRecordDate(updatedDate);
+            const recordObj = await RecordCounter.findOne({ "date": setUpdatedDate });
+
+            if (setUpdatedDate.toString() != commonFunctions.setRecordDate(new Date(Date.now())).toString()) {
+                if (!recordObj) {
+                    const newRecordObj = {
+                        date: setUpdatedDate,
+                        perHourCounterArr: [{ hour: updatedDate.getHours(), count: 1 }]
+                    }
+                    await RecordCounter.create(newRecordObj);
+                } else {
+                    let updatedCounterArr = recordObj.perHourCounterArr;
+                    let presentHours = [];
+                    updatedCounterArr.forEach((eachObj) => {
+                        presentHours.push(eachObj.hour);
+                    });
+
+                    if (presentHours.includes(updatedDate.getHours())) {
+                        updatedCounterArr.forEach((eachObj) => {
+                            if (eachObj.hour == updatedDate.getHours()) {
+                                eachObj.count += 1;
+                            }
+                        });
+                    } else
+                        updatedCounterArr.push({ hour: updatedDate.getHours(), count: 1 })
+                    recordObj.perHourCounterArr = updatedCounterArr;
+                    const savedObj = new RecordCounter(recordObj);
+                    await savedObj.save();
+                }
+            }
+        }
+
         const options = {
             'method': 'POST',
             'url': `${process.env.HYPERLEDGER_HOST}/users/updateInvestorMobileStatus`,
@@ -41,6 +106,7 @@ const investorMobileVerify = async (req, res) => {
             error_detail: typeof error == "object" ? JSON.stringify(error) : error,
             error_data: req.body,
             api_path: req.path,
+            stack: error.stack
         };
         console.error(error_body);
         return res
@@ -53,8 +119,69 @@ const investorMobileVerify = async (req, res) => {
 
 const investorEmailVerify = async (req, res) => {
     try {
-        
-        const { uccRequestId, uccEmailStatus } = req.body;
+
+        const { uccRequestId, uccEmailStatus, uccUpdatedAt } = req.body;
+        var updatedAtNum = Number(uccUpdatedAt)
+        if (!uccUpdatedAt) {
+            const setDate = commonFunctions.setRecordDate(new Date(Date.now()));
+            const recordObj = await RecordCounter.findOne({ "date": setDate });
+            if (!recordObj) {
+                const newRecordObj = {
+                    date: setDate,
+                    perHourCounterArr: [{ hour: new Date(Date.now()).getHours(), count: 1 }]
+                }
+                await RecordCounter.create(newRecordObj);
+            } else {
+                let updatedCounterArr = recordObj.perHourCounterArr;
+                let presentHours = [];
+                updatedCounterArr.forEach((eachObj) => {
+                    presentHours.push(eachObj.hour);
+                });
+
+                if (presentHours.includes(new Date(Date.now()).getHours())) {
+                    updatedCounterArr.forEach((eachObj) => {
+                        if (eachObj.hour == new Date(Date.now()).getHours()) {
+                            eachObj.count += 1;
+                        }
+                    });
+                } else
+                    updatedCounterArr.push({ hour: new Date(Date.now()).getHours(), count: 1 })
+                recordObj.perHourCounterArr = updatedCounterArr;
+                const savedObj = new RecordCounter(recordObj);
+                await savedObj.save();
+            }
+        } else {
+            const updatedDate = new Date(updatedAtNum);
+            const setUpdatedDate = commonFunctions.setRecordDate(updatedDate);
+            const recordObj = await RecordCounter.findOne({ "date": setUpdatedDate });
+            if (setUpdatedDate.toString() != commonFunctions.setRecordDate(new Date(Date.now())).toString()) {
+                if (!recordObj) {
+                    const newRecordObj = {
+                        date: setUpdatedDate,
+                        perHourCounterArr: [{ hour: updatedDate.getHours(), count: 1 }]
+                    }
+                    await RecordCounter.create(newRecordObj);
+                } else {
+                    let updatedCounterArr = recordObj.perHourCounterArr;
+                    let presentHours = [];
+                    updatedCounterArr.forEach((eachObj) => {
+                        presentHours.push(eachObj.hour);
+                    });
+
+                    if (presentHours.includes(updatedDate.getHours())) {
+                        updatedCounterArr.forEach((eachObj) => {
+                            if (eachObj.hour == updatedDate.getHours()) {
+                                eachObj.count += 1;
+                            }
+                        });
+                    } else
+                        updatedCounterArr.push({ hour: updatedDate.getHours(), count: 1 })
+                    recordObj.perHourCounterArr = updatedCounterArr;
+                    const savedObj = new RecordCounter(recordObj);
+                    await savedObj.save();
+                }
+            }
+        }
 
         var options = {
             'method': 'POST',
@@ -80,7 +207,7 @@ const investorEmailVerify = async (req, res) => {
         };
         request(options, function (error, response) {
             if (error) return res.status(error.status).json({ message: RESPONSE_MESSAGES.SERVER_ERROR, detail: error.toString() });
-            
+
             return res.status(response.statusCode || 500).json({ data: JSON.parse(response.body) });
         });
     } catch (error) {
@@ -99,14 +226,14 @@ const investorEmailVerify = async (req, res) => {
 
 const getInvestorDetailByUccId = async (req, res) => {
     try {
-        const { uccRequestId ,pageSize, bookmark} = req.body;
+        const { uccRequestId, pageSize, bookmark } = req.body;
         var options = {
             'method': 'POST',
             'url': `${process.env.HYPERLEDGER_HOST}/users/getInvestorsByKey`,
             body: JSON.stringify({
                 "uccRequestId": uccRequestId,
-                "pageSize":pageSize,
-                "bookmark":bookmark
+                "pageSize": pageSize,
+                "bookmark": bookmark
             }),
             'headers': {
                 'Content-Type': 'application/json'
@@ -114,8 +241,8 @@ const getInvestorDetailByUccId = async (req, res) => {
         };
         request(options, function (error, response) {
             if (error) return res.status(error.status).json({ message: error.message });
-            if (response.statusCode == 404) return res.status(response.statusCode || 500).json({ message:response.body });
-            return res.status(response.statusCode || 500).json({ data: JSON.parse(response.body)});
+            if (response.statusCode == 404) return res.status(response.statusCode || 500).json({ message: response.body });
+            return res.status(response.statusCode || 500).json({ data: JSON.parse(response.body) });
         });
 
     } catch (error) {
@@ -224,7 +351,7 @@ const addSingleInvestor = async (req, res) => {
         const askedUser = await User.findOne({
             _id: mongoose.Types.ObjectId(req.user_id)
         });
-       
+
         const askedExchange = await Exchange.findOne({ _id: mongoose.Types.ObjectId(askedUser.exchangeId) });
 
         const { uccRequestId,
@@ -295,8 +422,8 @@ const addSingleInvestor = async (req, res) => {
         if (uccMobileStatus.toUpperCase() == MOBILE_STATUSES.NOT_VERIFIED) {
             investorObj = await investorFunctions.processInvestorMobile(investorObj);
         }
-        
-        if(askedExchange){
+
+        if (askedExchange) {
             investorObj.exchangeId = askedExchange._id
         }
         const options = {
@@ -307,7 +434,7 @@ const addSingleInvestor = async (req, res) => {
             },
             body: JSON.stringify(investorObj)
         };
-    
+
 
         request(options, function (error, response) {
             if (error) return res.status(error.status).json({ message: RESPONSE_MESSAGES.SERVER_ERROR, detail: error.toString() });
@@ -315,8 +442,8 @@ const addSingleInvestor = async (req, res) => {
 
             return res.status(response.statusCode || 500).json(JSON.parse(response.body));
         });
-        
-    
+
+
     } catch (error) {
         const error_body = {
             error_message: "Error while sending verification email",

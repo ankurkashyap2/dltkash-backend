@@ -117,7 +117,18 @@ const shortURL = (url, callback) => {
 
 
 }
-
+const returnEpoch = (dateString) => {
+  let epoch = Number(new Date(dateString))
+  if (isNaN(epoch)) throw Error(`Not a valid date String `)
+  return epoch;
+}
+const setRecordDate = (date) => {
+  date.setHours(0)
+  date.setSeconds(0)
+  date.setMinutes(0)
+  date.setMilliseconds(0)
+  return date
+}
 const isDate = function (date) {
   return (new Date(date) !== "Invalid Date") && !isNaN(new Date(date));
 }
@@ -178,6 +189,8 @@ module.exports = {
   removeElement: removeElement,
   encryptString: encryptString,
   getOTP: getOTP,
+  returnEpoch,
+  setRecordDate,
   isDate,
   sendMail: sendMail,
   decryptWithAES: decryptWithAES,
