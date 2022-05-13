@@ -47,3 +47,42 @@ connection.then(async (conn) => {
     }
     // setTimeout(function () { conn.close(); console.log("Close"); process.exit(0); }, 10000);
 });
+
+
+
+// module.exports = {
+//     apps: [{
+//         name: 'DLTKASH-UAT',
+//         script: 'server.js',
+//         autorestart: true,
+//         watch: false,
+//         ignore_watch: [".git", "**/node_modules/**"],
+//         watch_options: {
+//             followSymlinks: false,
+//             persistent: true,
+//             // usePolling: true,
+//             ignoreInitial: true
+//         },
+//         env: {
+//                 PORT: 3003,
+//                 DBURI:'mongodb+srv://DLTkash:Wpadmin123@dltkashcluster.sjpzq.mongodb.net/test',
+//                 JWTSECRET:'DLTKASH+++++123Xvc45782dbvd$%&^%',
+//                 EMAILUSER:'dltkash.dev@gmail.com',
+//                 EMAILPASS:'Wpadmin123#',
+//                 SENDCLEANTOKEN:'2bZ1zHM3tNHK43DotA9DfAdF',
+//                 SENDCLEANOWNERID:'80940214',
+//                 SENDCLEANSMTPUSERNAME:'smtp34269159',
+//                 FEHOST:'https://uat.dltkash.com',
+//                 PROCESS_QUEUE:"amqps://ozeiszoe:7mESUDeEhObDqs8FOIDIPyKDCq9Pt9vf@armadillo.rmq.cloudamqp.com/ozeiszoe",
+//                 HYPERLEDGER_HOST : 'https://dltkash.ddns.net/api',
+//                 S3ACCESSKEYID:'AKIA3OUK3YH4WGMORGDG',
+//                 S3SECRETACCESSKEY: '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',
+//                 RM_USERNAME:'DL08-dltkash',
+//                 RM_PASS:'dltkash@',
+//                 BUCKET_NAME:'dltkash-test'
+//         },
+//         debug: true,
+//         max_memory_restart: '1G',
+//         log_date_format: "YYYY-MM-DD HH:mm:ss.SSS",
+//     }]
+// };
