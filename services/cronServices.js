@@ -234,8 +234,8 @@ const sendRequestToFetchInvestors = async (bookmark= "") => {
         // const hoursToMatch = (new Date()).getHours();
         var options = {
             'method': 'POST',
-            // 'url': `${process.env.HYPERLEDGER_HOST}/users/getInvestorsByKey`,
-            'url': `http://54.159.25.214/api/users/getInvestorsByKey`,
+            'url': `${process.env.HYPERLEDGER_HOST}/users/getInvestorsByKey`,
+            // 'url': `http://54.159.25.214/api/users/getInvestorsByKey`,
             // 'url': `https://pedantic-tree-17153.pktriot.net/api/users/getInvestorsByKey`,
             'headers': {
                 'Content-Type': 'application/json'
@@ -464,7 +464,7 @@ const notificationSendingLogic = async () => {
     }
 }
 
-notificationSendingLogic()
+// notificationSendingLogic()
 
 module.exports = {
     checkForUnprocessedFiles,
