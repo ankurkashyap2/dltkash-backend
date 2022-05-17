@@ -73,7 +73,7 @@ const canStartConsumer = async () => {
     };
     request(options, function (error, response) {
         if (error) console.info('ERROR ON START CONSUMER API ...');
-        
+
     });
 }
 
@@ -190,24 +190,7 @@ const FileParser = (recordFile) => {
 
 
 const investorDataOperator = async (investorsData) => {
-    // const promises = [];
-    // const innerpromises = [];
 
-    // investorsData.forEach((investor) => {
-    //     const investorObj = { ...investor }
-    //     promises.push(processInvestorEmail(investorObj));
-    // })
-
-    // const investerEmailResults = await Promise.all(promises);
-
-    // investerEmailResults.forEach((emailProcessed) => {
-
-    //     const emailProcessedObj = { ...emailProcessed }
-    //     innerpromises.push(processInvestorMobile(emailProcessedObj))
-    // })
-
-    // const resultsFinal = await Promise.all(investerEmailResults);
-    // console.log(resultsFinal);
     try {
         for await (let investor of investorsData) {
             if (investor.uccEmailStatus == EMAIL_STATUSES.VERIFIED && investor.uccMobileStatus == MOBILE_STATUSES.VERIFIED) return;
@@ -225,30 +208,29 @@ const investorDataOperator = async (investorsData) => {
 }
 
 
-
-const sendRequestToFetchInvestors = async (bookmark= "") => {
+const sendRequestToFetchInvestors = async (bookmark = "") => {
     try {
-        
+        const pageSize = 1000;
         // const hoursToMatch = (new Date()).getHours();
         var options = {
             'method': 'POST',
             'url': `${process.env.HYPERLEDGER_HOST}/users/getInvestorsByKey`,
             // 'url': `http://54.159.25.214/api/users/getInvestorsByKey`,
-            // 'url': `https://pedantic-tree-17153.pktriot.net/api/users/getInvestorsByKey`,
+            // 'url': `https://silent-paper-45295.pktriot.net/api/users/getInvestorsByKey`,
             'headers': {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
                 // "notificationKey": hoursToMatch,
                 // "page": `${page}`,
-                "pageSize": "5",
-                "bookmark":`${bookmark}`
+                "pageSize": pageSize,
+                "bookmark": `${bookmark}`
             })
         };
         request(options, function (error, response) {
             if (response.statusCode == 500) {
                 //Error logs
-                console.error('error on fetching requests from hyperledger',response.body);
+                console.error('error on fetching requests from hyperledger', response.body);
                 return;
             };
             if (response.statusCode == 404) {
@@ -257,10 +239,9 @@ const sendRequestToFetchInvestors = async (bookmark= "") => {
                 return;
             };
             const result = JSON.parse(response.body);
-            if (result.results == 0) return;
-            console.log(result)            
             if (result.results)
-            bookmark= result.bookmark ;
+                bookmark = result.bookmark;
+            if (result.results == 0||result.recordsCount<pageSize) { return; }
             // investorDataOperator(result.results);
             sendRequestToFetchInvestors(bookmark);
         });
