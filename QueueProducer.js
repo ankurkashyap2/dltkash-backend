@@ -7,7 +7,7 @@ const numbers = [
     {
                     "emailProcessed": true,
                     "mobileProcessed": true,
-                    "uccClientId": "82340918043",
+                    "uccClientId": "823409180434",
                     "uccCountry": "India",
                     "uccDpId": "2384092431",
                     "uccEmailId": "ankit3@getnada.com",
@@ -39,9 +39,9 @@ connection.then(async (conn) => {
     await channel.assertExchange(EXCHANGE_NAME, EXCHANGE_TYPE);
     await channel.assertQueue(QUEUE_NAME);
     channel.bindQueue(QUEUE_NAME, EXCHANGE_NAME, KEY);
-    for (i = 0; i < 10000; i++) {
+    for (i = 0; i < 1000; i++) {
         numbers.forEach((number) => {
-            number.uccRequestId = i.toString()
+            number.uccRequestId = `${i}x`
             channel.sendToQueue(QUEUE_NAME, Buffer.from(JSON.stringify(number)))
         })
     }
