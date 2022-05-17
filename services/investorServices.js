@@ -401,13 +401,13 @@ const addSingleInvestor = async (req, res) => {
             mobileAttempts: mobileAttempts || "0",
 
         }
-        if (uccPanExempt=="false") {
+        if (uccPanExempt.toString()=="false") {
             investorObj.L1 = commonFunctions.encryptWithAES(`${uccPanNo}`);
             investorObj.L2 = commonFunctions.encryptWithAES(`${uccPanNo}-${uccMobileNo}-${uccEmailId}`);
             investorObj.L3 = commonFunctions.encryptWithAES(`${uccPanNo}-${uccMobileNo}`);
             investorObj.L4 = commonFunctions.encryptWithAES(`${uccPanNo}-${uccEmailId}`);
         } 
-        if(uccPanExempt=="true") {
+        if(uccPanExempt.toString()=="true") {
             investorObj.L5 = commonFunctions.encryptWithAES(`${uccDpId}-${uccClientId}`);
             investorObj.L6 = commonFunctions.encryptWithAES(`${uccDpId}-${uccClientId}-${uccMobileNo}-${uccEmailId}`);
             investorObj.L7 = commonFunctions.encryptWithAES(`${uccDpId}-${uccClientId}-${uccMobileNo}`);

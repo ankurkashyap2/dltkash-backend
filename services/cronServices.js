@@ -214,9 +214,9 @@ const sendRequestToFetchInvestors = async (bookmark = "") => {
         // const hoursToMatch = (new Date()).getHours();
         var options = {
             'method': 'POST',
-            // 'url': `${process.env.HYPERLEDGER_HOST}/users/getInvestorsByKey`,
+            'url': `${process.env.HYPERLEDGER_HOST}/users/getInvestorsByKey`,
             // 'url': `http://54.159.25.214/api/users/getInvestorsByKey`,
-            'url': `https://silent-paper-45295.pktriot.net/api/users/getInvestorsByKey`,
+            // 'url': `https://silent-paper-45295.pktriot.net/api/users/getInvestorsByKey`,
             'headers': {
                 'Content-Type': 'application/json'
             },
