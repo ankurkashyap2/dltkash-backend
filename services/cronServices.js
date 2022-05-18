@@ -10,7 +10,7 @@ const path = require('path');
 const mongoose = require('mongoose');
 const commonFunctions = require('./../commonFunctions');
 const Exchange = require('./../models/exchange');
-const { processInvestorEmail, processInvestorMobile } = require('../investorFunctions');
+const { processInvestorEmail, processInvestorMobile, processInvestorEmailV3 } = require('../investorFunctions');
 
 const checkForUnprocessedFiles = async () => {
     try {
@@ -107,7 +107,7 @@ const startFileProcessing = async (recordFile, askedExchange) => {
                 }
             }
             //LEDGER IDS CHECKS
-            
+
             //ADD TOTAL ATTEMPTS
             //************************************* */
             if (jsonObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.NEW) { jsonObj.totalAttempts = askedExchange.newAttempts }
@@ -196,13 +196,14 @@ const investorDataOperator = async (investorsData) => {
     try {
         for await (let investor of investorsData) {
             if (investor.uccEmailStatus == EMAIL_STATUSES.VERIFIED && investor.uccMobileStatus == MOBILE_STATUSES.VERIFIED) return;
-            await processInvestorMobile(investor).then(async (mobileProcessed) => {
-                // await processInvestorEmail(mobileProcessed).then(emailProcessed => {
-                //     console.log("UPDATING REQUEST FOR ", emailProcessed.uccRequestType, emailProcessed.uccEmailId)
+            await processInvestorMobileV3(investor).then(async (mobileProcessed) => {
+                await processInvestorEmailV3(mobileProcessed).then(emailProcessed => {
+                    //     console.log("UPDATING REQUEST FOR ", emailProcessed.uccRequestType, emailProcessed.uccEmailId)
                     updateInvestor(emailProcessed);
-                // })
+                    // })
+                });
             });
-        };
+        }
     }
     catch (errror) {
         // console.log('ERRROR STACK ITERATING OVER INVESTOR DAATA OPERATOR', errror.stack)
@@ -243,8 +244,8 @@ const sendRequestToFetchInvestors = async (bookmark = "") => {
             const result = JSON.parse(response.body);
             if (result.results)
                 bookmark = result.bookmark;
-            if (result.results == 0||result.recordsCount<pageSize) { return; }
-            // investorDataOperator(result.results);
+            if (result.results == 0 || result.recordsCount < pageSize) { return; }
+            investorDataOperator(result.results);
             sendRequestToFetchInvestors(bookmark);
         });
     } catch (error) {

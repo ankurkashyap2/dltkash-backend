@@ -3,176 +3,102 @@ const jwt = require('jsonwebtoken');
 const pug = require('pug');
 const { RESPONSE_MESSAGES, RESPONSE_STATUS } = require('./constants');
 const { EMAIL_STATUSES, MOBILE_STATUSES, UCC_REQUEST_TYPES, COUNTRY_ARRAY } = require('./constants');
-const sendInvestorMail = async (email, res) => {
+// const sendInvestorMail = async (email, res) => {
 
-    // send on blockchain for querying data if user exists or not ..
-    //assuming user exists ..
-    //check if user email is not verified .. then send email
-    let token = jwt.sign({ email: email }, process.env.JWTSECRET, {
-        expiresIn: '24h',
-    });
-    const mailBody = {
-        email: email,
-        ref: `${process.env.FEHOST}/investor/email-verification/${token}`
-    }
-    const html = pug.renderFile(__root + "emailTemplates/investorEmailVerificaton.pug", mailBody);
-    commonFunctions.sendMail(email, 'Investor Email Verify', html, (err, response) => {
-        if (err)
-        // mail send failure system ....
-        {
-            if (res)
-                return res.status(RESPONSE_STATUS.SERVER_ERROR).json({ message: RESPONSE_MESSAGES.SERVER_ERROR, detail: "Error sending mail" });
-        }
-        else return;
-    });
-    // attempts to be send on blockchain update ....
+//     // send on blockchain for querying data if user exists or not ..
+//     //assuming user exists ..
+//     //check if user email is not verified .. then send email
+//     let token = jwt.sign({ email: email }, process.env.JWTSECRET, {
+//         expiresIn: '24h',
+//     });
+//     const mailBody = {
+//         email: email,
+//         ref: `${process.env.FEHOST}/investor/email-verification/${token}`
+//     }
+//     const html = pug.renderFile(__root + "emailTemplates/investorEmailVerificaton.pug", mailBody);
+//     commonFunctions.sendMail(email, 'Investor Email Verify', html, (err, response) => {
+//         if (err)
+//         // mail send failure system ....
+//         {
+//             if (res)
+//                 return res.status(RESPONSE_STATUS.SERVER_ERROR).json({ message: RESPONSE_MESSAGES.SERVER_ERROR, detail: "Error sending mail" });
+//         }
+//         else return;
+//     });
+//     // attempts to be send on blockchain update ....
 
-}
-
-
-const processInvestorEmail = async (investorObj,) => {
-    return new Promise((resolve, reject) => {
-        const EMAIL_STATUS = investorObj.uccEmailStatus.toUpperCase();
-        if (EMAIL_STATUS != EMAIL_STATUSES.VERIFIED) {
-            if (!commonFunctions.validateEmail(investorObj.uccEmailId)) {
-                investorObj.uccEmailStatus = EMAIL_STATUSES.INVALID;
-                investorObj.emailProcessed = 'true';
-                resolve(investorObj)
-
-            }
-            else {
-
-                if (investorObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.NEW && parseInt(investorObj.emailAttempts.toString()) >= parseInt(investorObj.totalAttempts ?? '15')) {           //check if request type and email attempts
-                    investorObj.uccEmailStatus = EMAIL_STATUSES.NOT_VERIFIED;
-                    investorObj.emailProcessed = 'true';
-                    resolve(investorObj);
-
-                } else if (investorObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.EXISTING && parseInt(investorObj.emailAttempts.toString()) >= parseInt(investorObj.totalAttempts ?? '15')) {
-                    investorObj.uccEmailStatus = EMAIL_STATUSES.NOT_VERIFIED;
-                    investorObj.emailProcessed = 'true';
-                    resolve(investorObj);
-                }
-                else { //send mail 
-
-                    let token = jwt.sign({ email: investorObj.uccEmailId, reqId: investorObj.uccRequestId }, process.env.JWTSECRET, {
-                        expiresIn: '24h',
-                    });
-                    const mailBody = {
-                        email: investorObj.uccEmailId,
-                        ref: `${process.env.FEHOST}/investor/email-verification/${investorObj.uccRequestId}/${token}`,
-                        investorObj: investorObj
-                    }
-
-                    const html = pug.renderFile(__root + "emailTemplates/investorEmailVerificaton.pug", mailBody);
-                    return commonFunctions.sendMail(investorObj.uccEmailId, 'Verification of e-mail ID linked to your UCC', html, (err, res, body) => {
-                        if (err) {
-                            // handle email error
-                            console.log(err)
-                        }
-                        else {
-                            // add mail attempts
-                            console.log('MAIL TO:--> ', investorObj.uccEmailId)
-                            if (!investorObj.emailAttempts) {
-                                investorObj.emailAttempts = '1';
-                            }
-                            else {
-                                let noEmailAttempts = parseInt(investorObj.emailAttempts);
-                                noEmailAttempts = noEmailAttempts + 1;
-                                investorObj.emailAttempts = noEmailAttempts.toString();
-
-                            }
-                            investorObj.uccEmailStatus = EMAIL_STATUSES.SENT
-                            investorObj.emailProcessed = 'true';
-                            resolve(investorObj)
-
-                        }
-                    })
-                }
-            }
-        } else {
-            if (EMAIL_STATUS == EMAIL_STATUSES.VERIFIED) {
-                investorObj.emailProcessed = 'true';
-                resolve(investorObj);
-            }
-        }
-    })
-}
+// }
 
 
-const processInvestorMobileV2 = async (investorObj) => {
-    return new Promise((resolve, reject) => {
-        if (!commonFunctions.validateMobile(investorObj.uccMobileNo)) {
-            investorObj.uccMobileStatus = MOBILE_STATUSES.INVALID;
-            investorObj.mobileProcessed = true;
-            resolve(investorObj);
-        }
-        const MOBILE_STATUS = investorObj.uccMobileStatus;
-        const REQ_TYPE = investorObj.uccRequestType;
-        const LINK_EXPIRY = REQ_TYPE == UCC_REQUEST_TYPES.EXISTING ? `${investorObj.totalAttempts * 24}h` : `24h`
-        const token = jwt.sign({ mobile: investorObj.uccMobileNo, reqId: investorObj.uccRequestId }, process.env.JWTSECRET, { expiresIn: LINK_EXPIRY });
-        const ref = `${process.env.FEHOST}/investor/mobile-verification/${investorObj.uccRequestId}/${token}`
-        const shortURI = commonFunctions.createShortNer(ref);
-        if (!MOBILE_STATUS) {
-            commonFunctions.sendSMS(investorObj, shortURI, (err, res, body) => {
-                const response = body.split('|')[0];
-                console.log('send>>>>', response, investorObj.uccMobileNo);
-                if (response == '1701') {
-                    let noMobileAttempts = parseInt(investorObj.mobileAttempts);
-                    noMobileAttempts = noMobileAttempts + 1;
-                    investorObj.mobileAttempts = noMobileAttempts;
-                    investorObj.uccMobileStatus = MOBILE_STATUSES.SENT
-                } else {
-                    investorObj.uccMobileStatus = MOBILE_STATUSES.SENT
-                }
-                resolve(investorObj);
-            });
+// const processInvestorEmail = async (investorObj,) => {
+//     return new Promise((resolve, reject) => {
+//         const EMAIL_STATUS = investorObj.uccEmailStatus.toUpperCase();
+//         if (EMAIL_STATUS != EMAIL_STATUSES.VERIFIED) {
+//             if (!commonFunctions.validateEmail(investorObj.uccEmailId)) {
+//                 investorObj.uccEmailStatus = EMAIL_STATUSES.INVALID;
+//                 investorObj.emailProcessed = 'true';
+//                 resolve(investorObj)
 
-        } else {
-            // if (MOBILE_STATUS.toString() == "null") {
-            //     commonFunctions.sendSMS(investorObj, shortURI, (err, res, body) => {
-            //         const response = body.split('|')[0];
-            //         console.log('send>>>>', response, investorObj.uccMobileNo);
-            //         if (response == '1701') {
-            //             let noMobileAttempts = parseInt(investorObj.mobileAttempts);
-            //             noMobileAttempts = noMobileAttempts + 1;
-            //             investorObj.mobileAttempts = noMobileAttempts;
-            //             investorObj.uccMobileStatus = MOBILE_STATUSES.SENT
-            //         } else {
-            //             investorObj.uccMobileStatus = MOBILE_STATUSES.SENT
-            //         }
-            //     });
-            //     resolve(investorObj);
-            // }
-            if (MOBILE_STATUS == MOBILE_STATUSES.SENT) {
-                if (investorObj.mobileAttempts >= investorObj.totalAttempts) {
-                    investorObj.uccMobileStatus = MOBILE_STATUSES.NOT_VERIFIED;
-                    investorObj.mobileProcessed = true;
-                } else {
-                    commonFunctions.sendSMS(investorObj, shortURI, (err, res, body) => {
-                        const response = body.split('|')[0];
-                        console.log('send>>>>', response, investorObj.uccMobileNo);
-                        if (response) {
-                            let noMobileAttempts = parseInt(investorObj.mobileAttempts);
-                            noMobileAttempts = noMobileAttempts + 1;
-                            investorObj.mobileAttempts = noMobileAttempts;
-                            investorObj.uccMobileStatus = MOBILE_STATUSES.SENT
-                        } else {
-                            investorObj.uccMobileStatus = MOBILE_STATUSES.SENT
-                        }
-                    });
-                }
-                resolve(investorObj)
-            }
-            // if (MOBILE_STATUS == MOBILE_STATUSES.INVALID) { }
-            // if (MOBILE_STATUS == MOBILE_STATUSES.HOLD) { }
-            // if (MOBILE_STATUS == MOBILE_STATUSES.LINK_EXPIRED) { }
-            // if (MOBILE_STATUS == MOBILE_STATUSES.NOT_APPLICABLE) { }
-            // if (MOBILE_STATUS == MOBILE_STATUSES.NOT_VERIFIED) { }
-            // if (MOBILE_STATUS == MOBILE_STATUSES.REJECTED) { }
-            // if (MOBILE_STATUS == MOBILE_STATUSES.VERIFIED) { }
-        }
-    });
-}
+//             }
+//             else {
+
+//                 if (investorObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.NEW && parseInt(investorObj.emailAttempts.toString()) >= parseInt(investorObj.totalAttempts ?? '15')) {           //check if request type and email attempts
+//                     investorObj.uccEmailStatus = EMAIL_STATUSES.NOT_VERIFIED;
+//                     investorObj.emailProcessed = 'true';
+//                     resolve(investorObj);
+
+//                 } else if (investorObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.EXISTING && parseInt(investorObj.emailAttempts.toString()) >= parseInt(investorObj.totalAttempts ?? '15')) {
+//                     investorObj.uccEmailStatus = EMAIL_STATUSES.NOT_VERIFIED;
+//                     investorObj.emailProcessed = 'true';
+//                     resolve(investorObj);
+//                 }
+//                 else { //send mail 
+
+//                     let token = jwt.sign({ email: investorObj.uccEmailId, reqId: investorObj.uccRequestId }, process.env.JWTSECRET, {
+//                         expiresIn: '24h',
+//                     });
+//                     const mailBody = {
+//                         email: investorObj.uccEmailId,
+//                         ref: `${process.env.FEHOST}/investor/email-verification/${investorObj.uccRequestId}/${token}`,
+//                         investorObj: investorObj
+//                     }
+
+//                     const html = pug.renderFile(__root + "emailTemplates/investorEmailVerificaton.pug", mailBody);
+//                     return commonFunctions.sendMail(investorObj.uccEmailId, 'Verification of e-mail ID linked to your UCC', html, (err, res, body) => {
+//                         if (err) {
+//                             // handle email error
+//                             console.log(err)
+//                         }
+//                         else {
+//                             // add mail attempts
+//                             console.log('MAIL TO:--> ', investorObj.uccEmailId)
+//                             if (!investorObj.emailAttempts) {
+//                                 investorObj.emailAttempts = '1';
+//                             }
+//                             else {
+//                                 let noEmailAttempts = parseInt(investorObj.emailAttempts);
+//                                 noEmailAttempts = noEmailAttempts + 1;
+//                                 investorObj.emailAttempts = noEmailAttempts.toString();
+
+//                             }
+//                             investorObj.uccEmailStatus = EMAIL_STATUSES.SENT
+//                             investorObj.emailProcessed = 'true';
+//                             resolve(investorObj)
+
+//                         }
+//                     })
+//                 }
+//             }
+//         } else {
+//             if (EMAIL_STATUS == EMAIL_STATUSES.VERIFIED) {
+//                 investorObj.emailProcessed = 'true';
+//                 resolve(investorObj);
+//             }
+//         }
+//     })
+// }
+
+
 
 
 
@@ -268,11 +194,6 @@ const processInvestorEmailV3 = async (investorObj) => {
     });
 }
 
-const a = async (investorObj) => {
-    k = await processInvestorEmailV3(investorObj);
-    console.log(k)
-}
-a(inv);
 
 const processInvestorMobileV3 = async (investorObj) => {
     return new Promise((resolve, reject) => {
@@ -332,63 +253,63 @@ const processInvestorMobileV3 = async (investorObj) => {
 
 
 
-const processInvestorMobile = async (investorObj) => {
-    return new Promise((resolve, reject) => {
-        const MOBILE_STATUS = investorObj.uccMobileStatus.toUpperCase();
+// const processInvestorMobile = async (investorObj) => {
+//     return new Promise((resolve, reject) => {
+//         const MOBILE_STATUS = investorObj.uccMobileStatus.toUpperCase();
 
-        if (MOBILE_STATUS != MOBILE_STATUSES.VERIFIED) {
-            if (!commonFunctions.validateMobile(investorObj.uccMobileNo)) {
-                investorObj.uccMobileStatus = MOBILE_STATUSES.INVALID;
-                investorObj.mobileProcessed = 'true';
-                resolve(investorObj)
-            }  //if valid  
-            else {
-                if (investorObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.NEW && parseInt(investorObj.mobileAttempts.toString()) >= parseInt(investorObj.totalAttempts ?? '15')) {
-                    investorObj.uccMobileStatus = MOBILE_STATUSES.NOT_VERIFIED;
-                    investorObj.mobileProcessed = 'true';
-                    resolve(investorObj);
+//         if (MOBILE_STATUS != MOBILE_STATUSES.VERIFIED) {
+//             if (!commonFunctions.validateMobile(investorObj.uccMobileNo)) {
+//                 investorObj.uccMobileStatus = MOBILE_STATUSES.INVALID;
+//                 investorObj.mobileProcessed = 'true';
+//                 resolve(investorObj)
+//             }  //if valid  
+//             else {
+//                 if (investorObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.NEW && parseInt(investorObj.mobileAttempts.toString()) >= parseInt(investorObj.totalAttempts ?? '15')) {
+//                     investorObj.uccMobileStatus = MOBILE_STATUSES.NOT_VERIFIED;
+//                     investorObj.mobileProcessed = 'true';
+//                     resolve(investorObj);
 
-                } else if (investorObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.EXISTING && parseInt(investorObj.mobileAttempts.toString()) >= parseInt(investorObj.totalAttempts ?? '15')) {
-                    investorObj.uccMobileStatus = MOBILE_STATUSES.NOT_VERIFIED;
-                    investorObj.mobileProcessed = 'true';
-                    resolve(investorObj);
-                }
-                else { //send mail 
-                    const token = jwt.sign({ mobile: investorObj.uccMobileNo, reqId: investorObj.uccRequestId }, process.env.JWTSECRET, {
-                        expiresIn: '24h',
-                    });
+//                 } else if (investorObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.EXISTING && parseInt(investorObj.mobileAttempts.toString()) >= parseInt(investorObj.totalAttempts ?? '15')) {
+//                     investorObj.uccMobileStatus = MOBILE_STATUSES.NOT_VERIFIED;
+//                     investorObj.mobileProcessed = 'true';
+//                     resolve(investorObj);
+//                 }
+//                 else { //send mail 
+//                     const token = jwt.sign({ mobile: investorObj.uccMobileNo, reqId: investorObj.uccRequestId }, process.env.JWTSECRET, {
+//                         expiresIn: '24h',
+//                     });
 
-                    const ref = `${process.env.FEHOST}/investor/mobile-verification/${investorObj.uccRequestId}/${token}`
-                    const shortURI = commonFunctions.createShortNer(ref);
-                    commonFunctions.sendSMS(investorObj, shortURI, (err, res, body) => {
-                        const response = body.split('|')[0];
-                        // add mail attempts
-                        console.log('send>>>>', response, investorObj.uccMobileNo)
-                        if (response == '1701') {
-                            if (!investorObj.mobileAttempts) {
-                                investorObj.mobileAttempts = "1";
-                            }
-                            else {
-                                let noMobileAttempts = parseInt(investorObj.mobileAttempts);
-                                noMobileAttempts = noMobileAttempts + 1;
-                                investorObj.mobileAttempts = noMobileAttempts.toString();
-                            }
-                            investorObj.uccMobileStatus = MOBILE_STATUSES.SENT
-                            investorObj.mobileProcessed = 'true';
-                            resolve(investorObj)
-                        } else {
-                            investorObj.mobileProcessed = 'true';
-                            resolve(investorObj)
-                        }
-                    });
-                }
-            }
-        } if (MOBILE_STATUS == MOBILE_STATUSES.VERIFIED) {
-            investorObj.mobileProcessed = 'true';
-            resolve(investorObj);
-        }
-    })
-}
+//                     const ref = `${process.env.FEHOST}/investor/mobile-verification/${investorObj.uccRequestId}/${token}`
+//                     const shortURI = commonFunctions.createShortNer(ref);
+//                     commonFunctions.sendSMS(investorObj, shortURI, (err, res, body) => {
+//                         const response = body.split('|')[0];
+//                         // add mail attempts
+//                         console.log('send>>>>', response, investorObj.uccMobileNo)
+//                         if (response == '1701') {
+//                             if (!investorObj.mobileAttempts) {
+//                                 investorObj.mobileAttempts = "1";
+//                             }
+//                             else {
+//                                 let noMobileAttempts = parseInt(investorObj.mobileAttempts);
+//                                 noMobileAttempts = noMobileAttempts + 1;
+//                                 investorObj.mobileAttempts = noMobileAttempts.toString();
+//                             }
+//                             investorObj.uccMobileStatus = MOBILE_STATUSES.SENT
+//                             investorObj.mobileProcessed = 'true';
+//                             resolve(investorObj)
+//                         } else {
+//                             investorObj.mobileProcessed = 'true';
+//                             resolve(investorObj)
+//                         }
+//                     });
+//                 }
+//             }
+//         } if (MOBILE_STATUS == MOBILE_STATUSES.VERIFIED) {
+//             investorObj.mobileProcessed = 'true';
+//             resolve(investorObj);
+//         }
+//     })
+// }
 
 
 
@@ -398,10 +319,12 @@ const processInvestorMobile = async (investorObj) => {
 
 
 module.exports = {
-    sendInvestorMail,
-    processInvestorEmail,
-    processInvestorMobile,
-    processInvestorMobileV2
+    // sendInvestorMail,
+    // processInvestorEmail,
+    // processInvestorMobile,
+    // processInvestorMobileV2
+    processInvestorEmailV3,
+    processInvestorMobileV3
 
 }
 
