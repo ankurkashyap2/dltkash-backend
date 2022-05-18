@@ -11,9 +11,12 @@ const Exchange = new mongoose.Schema({
         pan: { type: String },
         logo: { type: String }
     },
-    existingDate: { type: String, default: '' },
-    newAttempts: { type: String, default: '15' },
-    existingAttempts: { type: String, default: '30' },
+
+    newAttempts: { type: Number, default: 3 },
+    modifiedAttempts: { type: Number, default: 7 },
+    existingAttempts: { type: Number, default: 1 },
+    existingDate: { type: Date },
+    isExisitngDateSelected: { type: Boolean, default: false },
     notificationTemplates: [
         {
             html: { type: String },

@@ -14,8 +14,8 @@ const investorMobileVerify = async (req, res) => {
         const { uccRequestId, uccMobileStatus, updatedAt } = req.body;
         var updatedAtNum = Number(updatedAt)
         if (updatedAt.length == 0) {
-     
-          const recordObj = await RecordCounter.findOne({ "date": moment(Date.now()).format('MM/DD/YYYY') });
+
+            const recordObj = await RecordCounter.findOne({ "date": moment(Date.now()).format('MM/DD/YYYY') });
             if (!recordObj) {
                 const newRecordObj = {
                     date: moment(Date.now()).format('MM/DD/YYYY'),
@@ -351,9 +351,8 @@ const addSingleInvestor = async (req, res) => {
         const askedUser = await User.findOne({
             _id: mongoose.Types.ObjectId(req.user_id)
         });
-
         const askedExchange = await Exchange.findOne({ _id: mongoose.Types.ObjectId(askedUser.exchangeId) });
-
+        if (!askedExchange) return res.status(RESPONSE_STATUS.BAD_REQUEST).json({ message: "Admin not associated with exchange!" });
         const { uccRequestId,
             uccTmId,
             uccTmName,
@@ -362,8 +361,6 @@ const addSingleInvestor = async (req, res) => {
             uccCountry,
             uccMobileNo,
             uccEmailId,
-            uccMobileNoModified,
-            uccEmailIdModified,
             uccDpId,
             uccClientId,
             uccInvestorCode,
@@ -385,8 +382,6 @@ const addSingleInvestor = async (req, res) => {
             uccCountry: uccCountry,
             uccMobileNo: uccMobileNo,
             uccEmailId: uccEmailId,
-            uccMobileNoModified: uccMobileNoModified,
-            uccEmailIdModified: uccEmailIdModified,
             uccDpId: uccDpId,
             uccClientId: uccClientId,
             uccInvestorCode: uccInvestorCode,
@@ -397,35 +392,31 @@ const addSingleInvestor = async (req, res) => {
             uccPanStatus: uccPanStatus,
             isEmailEncrypted: isEmailEncrypted || "false",
             isPhoneEncrypted: isPhoneEncrypted || "false",
-            emailAttempts: emailAttempts || "0",
-            mobileAttempts: mobileAttempts || "0",
-
+            emailAttempts: emailAttempts || 0,
+            mobileAttempts: mobileAttempts || 0,
         }
         investorObj.exchangeId = askedUser.exchangeId;
         investorObj.mobileProcessed = 'false';
         investorObj.emailProcessed = 'false';
         if (uccRequestType == UCC_REQUEST_TYPES.NEW) { investorObj.totalAttempts = askedExchange.newAttempts; }
-        else {
+        else if (uccRequestType == UCC_REQUEST_TYPES.MODIFIED) {
+            investorObj.totalAttempts = askedExchange.modifiedAttempts;
+        } else if (uccRequestType == UCC_REQUEST_TYPES.EXISTING) { investorObj.totalAttempts = askedExchange.existingAttempts; } else { investorObj.totalAttempts = 7; }
 
-            investorObj.totalAttempts = askedExchange.existingAttempts.toString();
-        }
         var country = investorObj.uccCountry.toLowerCase();
         if (COUNTRY_ARRAY[country]) {
             investorObj.UTCNotification = COUNTRY_ARRAY[country]['hours']
         } else {
             investorObj.UTCNotification = '11'
         }
-        if (uccEmailStatus.toUpperCase() == EMAIL_STATUSES.NOT_VERIFIED) {
+        if (uccEmailStatus.toUpperCase() != EMAIL_STATUSES.VERIFIED) {
             investorObj = await investorFunctions.processInvestorEmail(investorObj);
         }
 
-        if (uccMobileStatus.toUpperCase() == MOBILE_STATUSES.NOT_VERIFIED) {
+        if (uccMobileStatus.toUpperCase() != MOBILE_STATUSES.VERIFIED) {
             investorObj = await investorFunctions.processInvestorMobile(investorObj);
         }
-
-        if (askedExchange) {
-            investorObj.exchangeId = askedExchange._id
-        }
+        investorObj.exchangeId = askedExchange._id;
         const options = {
             'method': 'POST',
             'url': `${process.env.HYPERLEDGER_HOST}/users/createInvestor`,
@@ -434,19 +425,13 @@ const addSingleInvestor = async (req, res) => {
             },
             body: JSON.stringify(investorObj)
         };
-
-
         request(options, function (error, response) {
             if (error) return res.status(error.status).json({ message: RESPONSE_MESSAGES.SERVER_ERROR, detail: error.toString() });
-
-
             return res.status(response.statusCode || 500).json(JSON.parse(response.body));
         });
-
-
     } catch (error) {
         const error_body = {
-            error_message: "Error while sending verification email",
+            error_message: "Error while creating single investor.",
             error_detail: typeof error == "object" ? JSON.stringify(error) : error,
             error_data: req.body,
             api_path: req.path,

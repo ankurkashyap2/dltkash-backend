@@ -3,9 +3,6 @@ const jwt = require('jsonwebtoken');
 const pug = require('pug');
 const { RESPONSE_MESSAGES, RESPONSE_STATUS } = require('./constants');
 const { EMAIL_STATUSES, MOBILE_STATUSES, UCC_REQUEST_TYPES, COUNTRY_ARRAY } = require('./constants');
-const mongoose = require("mongoose");
-const request = require('request');
-const { decryptWithAES, encryptWithAES } = require('./commonFunctions');
 const sendInvestorMail = async (email, res) => {
 
     // send on blockchain for querying data if user exists or not ..
@@ -35,7 +32,6 @@ const sendInvestorMail = async (email, res) => {
 
 const processInvestorEmail = async (investorObj,) => {
     return new Promise((resolve, reject) => {
-
         const EMAIL_STATUS = investorObj.uccEmailStatus.toUpperCase();
         if (EMAIL_STATUS != EMAIL_STATUSES.VERIFIED) {
             if (!commonFunctions.validateEmail(investorObj.uccEmailId)) {
@@ -64,7 +60,7 @@ const processInvestorEmail = async (investorObj,) => {
                     const mailBody = {
                         email: investorObj.uccEmailId,
                         ref: `${process.env.FEHOST}/investor/email-verification/${investorObj.uccRequestId}/${token}`,
-                        investorObj:investorObj
+                        investorObj: investorObj
                     }
 
                     const html = pug.renderFile(__root + "emailTemplates/investorEmailVerificaton.pug", mailBody);
@@ -102,6 +98,240 @@ const processInvestorEmail = async (investorObj,) => {
     })
 }
 
+
+const processInvestorMobileV2 = async (investorObj) => {
+    return new Promise((resolve, reject) => {
+        if (!commonFunctions.validateMobile(investorObj.uccMobileNo)) {
+            investorObj.uccMobileStatus = MOBILE_STATUSES.INVALID;
+            investorObj.mobileProcessed = true;
+            resolve(investorObj);
+        }
+        const MOBILE_STATUS = investorObj.uccMobileStatus;
+        const REQ_TYPE = investorObj.uccRequestType;
+        const LINK_EXPIRY = REQ_TYPE == UCC_REQUEST_TYPES.EXISTING ? `${investorObj.totalAttempts * 24}h` : `24h`
+        const token = jwt.sign({ mobile: investorObj.uccMobileNo, reqId: investorObj.uccRequestId }, process.env.JWTSECRET, { expiresIn: LINK_EXPIRY });
+        const ref = `${process.env.FEHOST}/investor/mobile-verification/${investorObj.uccRequestId}/${token}`
+        const shortURI = commonFunctions.createShortNer(ref);
+        if (!MOBILE_STATUS) {
+            commonFunctions.sendSMS(investorObj, shortURI, (err, res, body) => {
+                const response = body.split('|')[0];
+                console.log('send>>>>', response, investorObj.uccMobileNo);
+                if (response == '1701') {
+                    let noMobileAttempts = parseInt(investorObj.mobileAttempts);
+                    noMobileAttempts = noMobileAttempts + 1;
+                    investorObj.mobileAttempts = noMobileAttempts;
+                    investorObj.uccMobileStatus = MOBILE_STATUSES.SENT
+                } else {
+                    investorObj.uccMobileStatus = MOBILE_STATUSES.SENT
+                }
+                resolve(investorObj);
+            });
+
+        } else {
+            // if (MOBILE_STATUS.toString() == "null") {
+            //     commonFunctions.sendSMS(investorObj, shortURI, (err, res, body) => {
+            //         const response = body.split('|')[0];
+            //         console.log('send>>>>', response, investorObj.uccMobileNo);
+            //         if (response == '1701') {
+            //             let noMobileAttempts = parseInt(investorObj.mobileAttempts);
+            //             noMobileAttempts = noMobileAttempts + 1;
+            //             investorObj.mobileAttempts = noMobileAttempts;
+            //             investorObj.uccMobileStatus = MOBILE_STATUSES.SENT
+            //         } else {
+            //             investorObj.uccMobileStatus = MOBILE_STATUSES.SENT
+            //         }
+            //     });
+            //     resolve(investorObj);
+            // }
+            if (MOBILE_STATUS == MOBILE_STATUSES.SENT) {
+                if (investorObj.mobileAttempts >= investorObj.totalAttempts) {
+                    investorObj.uccMobileStatus = MOBILE_STATUSES.NOT_VERIFIED;
+                    investorObj.mobileProcessed = true;
+                } else {
+                    commonFunctions.sendSMS(investorObj, shortURI, (err, res, body) => {
+                        const response = body.split('|')[0];
+                        console.log('send>>>>', response, investorObj.uccMobileNo);
+                        if (response) {
+                            let noMobileAttempts = parseInt(investorObj.mobileAttempts);
+                            noMobileAttempts = noMobileAttempts + 1;
+                            investorObj.mobileAttempts = noMobileAttempts;
+                            investorObj.uccMobileStatus = MOBILE_STATUSES.SENT
+                        } else {
+                            investorObj.uccMobileStatus = MOBILE_STATUSES.SENT
+                        }
+                    });
+                }
+                resolve(investorObj)
+            }
+            // if (MOBILE_STATUS == MOBILE_STATUSES.INVALID) { }
+            // if (MOBILE_STATUS == MOBILE_STATUSES.HOLD) { }
+            // if (MOBILE_STATUS == MOBILE_STATUSES.LINK_EXPIRED) { }
+            // if (MOBILE_STATUS == MOBILE_STATUSES.NOT_APPLICABLE) { }
+            // if (MOBILE_STATUS == MOBILE_STATUSES.NOT_VERIFIED) { }
+            // if (MOBILE_STATUS == MOBILE_STATUSES.REJECTED) { }
+            // if (MOBILE_STATUS == MOBILE_STATUSES.VERIFIED) { }
+        }
+    });
+}
+
+
+
+inv = {
+    "uccRequestId": "234718212902",
+    "uccTmId": "98234921",
+    "uccTmName": "Zerodha",
+    "uccPanExempt": "false",
+    "uccPanNo": "COMPA44565A",
+    "uccCountry": "India",
+    "uccMobileNo": "9877114806",
+    "uccEmailId": "agetnada.com",
+    "uccDpId": "2384092431",
+    "uccClientId": "82340918043",
+    "uccInvestorCode": "18293",
+    "uccRequestType": "EXISTING",
+    // "uccNodeStatus": "01",
+    "uccEmailStatus": "SENT",
+    // "uccMobileStatus": "VERIFIED",
+    // "uccPanStatus": "VERIFIED",
+    "emailAttempts": 7,
+    // "mobileAttempts": 2,
+    "totalAttempts": 7,
+    // "UTCNotification": "15:00"
+}
+global.__root = __dirname + '/';
+
+const processInvestorEmailV3 = async (investorObj) => {
+    return new Promise((resolve, reject) => {
+        if (!commonFunctions.validateEmail(investorObj.uccEmailId)) {
+            investorObj.uccEmailStatus = EMAIL_STATUSES.INVALID;
+            investorObj.emailProcessed = true;
+            resolve(investorObj);
+        }
+        const EMAIL_STATUS = investorObj.uccEmailStatus;
+        const REQ_TYPE = investorObj.uccRequestType;
+        const LINK_EXPIRY = REQ_TYPE == UCC_REQUEST_TYPES.EXISTING ? `${investorObj.totalAttempts * 24}h` : `24h`;
+        let token = jwt.sign({ email: investorObj.uccEmailId, reqId: investorObj.uccRequestId }, "process.env.JWTSECRET", { expiresIn: LINK_EXPIRY, });
+        const mailBody = {
+            email: investorObj.uccEmailId,
+            ref: `${process.env.FEHOST}/investor/email-verification/${investorObj.uccRequestId}/${token}`,
+            investorObj: investorObj
+        }
+        const html = pug.renderFile(__root + "emailTemplates/investorEmailVerificaton.pug", mailBody);
+        if (!EMAIL_STATUS) {
+            commonFunctions.sendMail(investorObj.uccEmailId, 'Verification of e-mail ID linked to your UCC', html, (err, res, body) => {
+
+                if (REQ_TYPE == UCC_REQUEST_TYPES.EXISTING) investorObj.emailProcessed = true;
+                if (err) {
+                    // handle email error
+                    investorObj.uccEmailStatus = EMAIL_STATUSES.SENT
+                    console.log(err)
+                }
+                else {
+                    // add mail attempts
+                    console.log('MAIL TO:--> ', investorObj.uccEmailId)
+                    let noEmailAttempts = parseInt(investorObj.emailAttempts);
+                    noEmailAttempts = noEmailAttempts + 1;
+                    investorObj.emailAttempts = noEmailAttempts;
+                    investorObj.uccEmailStatus = EMAIL_STATUSES.SENT
+                }
+                resolve(investorObj);
+            });
+        } else {
+            if (EMAIL_STATUS == EMAIL_STATUSES.SENT) {
+                if (investorObj.emailAttempts >= investorObj.totalAttempts) {
+                    investorObj.uccEmailStatus = EMAIL_STATUSES.NOT_VERIFIED;
+                    investorObj.emailProcessed = true;
+                    resolve(investorObj);
+                } else {
+                    if (!REQ_TYPE == UCC_REQUEST_TYPES.EXISTING)
+                        commonFunctions.sendSMS(investorObj.uccEmailId, 'Verification of e-mail ID linked to your UCC', html, (err, res, body) => {
+                            if (REQ_TYPE == UCC_REQUEST_TYPES.EXISTING) investorObj.mobileProcessed = true;
+                            if (err) {
+                                // handle email error
+                                investorObj.uccEmailStatus = EMAIL_STATUSES.SENT;
+                                console.log(err);
+                            }
+                            else {
+                                // add mail attempts
+                                console.log('MAIL TO:--> ', investorObj.uccEmailId)
+                                let noEmailAttempts = parseInt(investorObj.emailAttempts);
+                                noEmailAttempts = noEmailAttempts + 1;
+                                investorObj.emailAttempts = noEmailAttempts;
+                                investorObj.uccEmailStatus = EMAIL_STATUSES.SENT;
+                            }
+                            resolve(investorObj);
+                        });
+                }
+            }
+            if (EMAIL_STATUS == EMAIL_STATUSES.VERIFIED || EMAIL_STATUS == EMAIL_STATUSES.REJECTED || EMAIL_STATUS == EMAIL_STATUSES.NOT_VERIFIED || EMAIL_STATUS == EMAIL_STATUSES.NOT_APPLICABLE || EMAIL_STATUS == EMAIL_STATUSES.INVALID || EMAIL_STATUS == EMAIL_STATUSES.HOLD || EMAIL_STATUS == EMAIL_STATUSES.LINK_EXPIRED) resolve(investorObj);
+        }
+    });
+}
+
+const a = async (investorObj) => {
+    k = await processInvestorEmailV3(investorObj);
+    console.log(k)
+}
+a(inv);
+
+const processInvestorMobileV3 = async (investorObj) => {
+    return new Promise((resolve, reject) => {
+        if (!commonFunctions.validateMobile(investorObj.uccMobileNo)) {
+            investorObj.uccMobileStatus = MOBILE_STATUSES.NOT_APPLICABLE;
+            investorObj.mobileProcessed = true;
+            resolve(investorObj);
+        }
+        const MOBILE_STATUS = investorObj.uccMobileStatus;
+        const REQ_TYPE = investorObj.uccRequestType;
+        const LINK_EXPIRY = REQ_TYPE == UCC_REQUEST_TYPES.EXISTING ? `${investorObj.totalAttempts * 24}h` : `24h`
+        const token = jwt.sign({ mobile: investorObj.uccMobileNo, reqId: investorObj.uccRequestId }, process.env.JWTSECRET, { expiresIn: LINK_EXPIRY });
+        const ref = `${process.env.FEHOST}/investor/mobile-verification/${investorObj.uccRequestId}/${token}`
+        const shortURI = commonFunctions.createShortNer(ref);
+        if (!MOBILE_STATUS) {
+            commonFunctions.sendSMS(investorObj, shortURI, (err, res, body) => {
+                const response = body.split('|')[0];
+                console.log('send>>>>', response, investorObj.uccMobileNo);
+                if (REQ_TYPE == UCC_REQUEST_TYPES.EXISTING) investorObj.mobileProcessed = true;
+                if (response == '1701') {
+                    let noMobileAttempts = parseInt(investorObj.mobileAttempts);
+                    noMobileAttempts = noMobileAttempts + 1;
+                    investorObj.mobileAttempts = noMobileAttempts;
+                    investorObj.uccMobileStatus = MOBILE_STATUSES.SENT
+                } else {
+                    investorObj.uccMobileStatus = MOBILE_STATUSES.SENT
+                }
+                resolve(investorObj);
+            });
+        } else {
+            if (MOBILE_STATUS == MOBILE_STATUSES.SENT) {
+                if (investorObj.mobileAttempts >= investorObj.totalAttempts) {
+                    investorObj.uccMobileStatus = MOBILE_STATUSES.NOT_VERIFIED;
+                    investorObj.mobileProcessed = true;
+                    resolve(investorObj);
+                } else {
+                    if (!REQ_TYPE == UCC_REQUEST_TYPES.EXISTING)
+                        commonFunctions.sendSMS(investorObj, shortURI, (err, res, body) => {
+                            const response = body.split('|')[0];
+                            if (response == "1701") {
+                                let noMobileAttempts = parseInt(investorObj.mobileAttempts);
+                                noMobileAttempts = noMobileAttempts + 1;
+                                investorObj.mobileAttempts = noMobileAttempts;
+                                investorObj.uccMobileStatus = MOBILE_STATUSES.SENT
+                            } else {
+                                investorObj.uccMobileStatus = MOBILE_STATUSES.SENT
+                            }
+                            resolve(investorObj);
+                        });
+                }
+            }
+
+            if (MOBILE_STATUS == MOBILE_STATUSES.VERIFIED || MOBILE_STATUS == MOBILE_STATUSES.REJECTED || MOBILE_STATUS == MOBILE_STATUSES.NOT_VERIFIED || MOBILE_STATUS == MOBILE_STATUSES.NOT_APPLICABLE || MOBILE_STATUS == MOBILE_STATUSES.INVALID || MOBILE_STATUS == MOBILE_STATUSES.HOLD || MOBILE_STATUS == MOBILE_STATUSES.LINK_EXPIRED) resolve(investorObj);
+        }
+    });
+}
+
+
+
 const processInvestorMobile = async (investorObj) => {
     return new Promise((resolve, reject) => {
         const MOBILE_STATUS = investorObj.uccMobileStatus.toUpperCase();
@@ -111,11 +341,8 @@ const processInvestorMobile = async (investorObj) => {
                 investorObj.uccMobileStatus = MOBILE_STATUSES.INVALID;
                 investorObj.mobileProcessed = 'true';
                 resolve(investorObj)
-
             }  //if valid  
             else {
-
-
                 if (investorObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.NEW && parseInt(investorObj.mobileAttempts.toString()) >= parseInt(investorObj.totalAttempts ?? '15')) {
                     investorObj.uccMobileStatus = MOBILE_STATUSES.NOT_VERIFIED;
                     investorObj.mobileProcessed = 'true';
@@ -153,7 +380,7 @@ const processInvestorMobile = async (investorObj) => {
                             investorObj.mobileProcessed = 'true';
                             resolve(investorObj)
                         }
-                    })
+                    });
                 }
             }
         } if (MOBILE_STATUS == MOBILE_STATUSES.VERIFIED) {
@@ -163,169 +390,19 @@ const processInvestorMobile = async (investorObj) => {
     })
 }
 
-// const operateInvestorsObject = async (investorObjArr) => {
-//     let investorProcessedArr = [];
 
-//     for await (let investorObject of investorObjArr) {
-//         // console.log(investorObject.uccEmailId)
-//         var investorEmailProcessedObj = await processInvestorEmail(investorObject);
-//         var investorMobileProcessedObj = await processInvestorMobile(investorEmailProcessedObj);
-//         if (!investorMobileProcessedObj.uiD)
-//             investorMobileProcessedObj.uiD = new mongoose.Types.ObjectId();
-//         investorProcessedArr.push(investorMobileProcessedObj);
-//     }
-//     // console.log(`sent to blockchain!>>>>>>>>>>>>>>> records length ${investorProcessedArr}`)
 
-//     var options = {
-//         'method': 'POST',
-//         'url': 'http://localhost:3003/api/v1/exchange/verifyRequest',
-//         'headers': {
-//             'Authorization': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFiYzJAZ2V0bmFkYS5jb20iLCJ1c2VyX2lkIjoiNjFmYjdiZWIwOTI3YTY2Y2RiNDFjMjhkIiwiaWF0IjoxNjQ0MTU4MTE4LCJleHAiOjE2NDQyNDQ1MTh9.7q09YsORl20yQbzyMTEJgPMi2XCi6jaJSXWajrmaAeU',
-//             'Content-Type': 'application/json'
-//         },
-//         body: JSON.stringify({
-//             "investorsData": investorProcessedArr
-//         })
 
-//     };
-//     request(options, function (error, response) {
-//         if (error) throw new Error(error);
-//         console.log(response.body);
-//     });
 
-// }
-
-// const operateInvestorsObject = async (investorObj) => {
-//     return new Promise((resolve, reject) => {
-
-//         const EMAIL_STATUS = investorObj.uccEmailStatus.toUpperCase();
-//         const MOBILE_STATUS = investorObj.uccMobileStatus.toUpperCase();
-//         //check if user is verified or not
-//         // if user verified do nothing
-//         // if not verified ..
-//         if (investorObj.isEmailEncrypted == 'true') {
-//             investorObj.isEmailEncrypted = 'false'
-//             var decryptedEmailId = decryptWithAES(investorObj.uccEmailId);
-//             investorObj.uccEmailId = decryptedEmailId
-//         }
-//         if (investorObj.isPhoneEncrypted == 'true') {
-//             investorObj.isPhoneEncrypted = 'false'
-//             var decryptedPhoneNo = decryptWithAES(investorObj.uccMobileNo);
-//             investorObj.uccMobileNo = decryptedPhoneNo
-//         }
-
-//         if (EMAIL_STATUS != EMAIL_STATUSES.VERIFIED) {
-
-//             // if email not validated set email status as invalid
-//             if (!commonFunctions.validateEmail(investorObj.uccEmailId)) {
-//                 investorObj.uccEmailStatus = EMAIL_STATUSES.INVALID;
-//                 resolve(investorObj)
-
-//             }  //if valid  
-//             else {
-
-//                 if (investorObj.uccRequestType == UCC_REQUEST_TYPES.NEW && investorObj.emailAttempts == '3') {           //check if request type and email attempts
-//                     investorObj.uccEmailStatus = EMAIL_STATUSES.NOT_VERIFIED;
-//                     if (investorObj.isEmailEncrypted == 'false') {
-//                         investorObj.isEmailEncrypted = 'true';
-//                         investorObj.uccEmailId = encryptWithAES(investorObj.uccEmailId)
-//                     }
-//                     resolve(investorObj);
-
-//                 } else if (investorObj.uccRequestType == UCC_REQUEST_TYPES.EXISTING && investorObj.emailAttempts == '15') {
-//                     investorObj.uccEmailStatus = EMAIL_STATUSES.NOT_VERIFIED;
-//                     if (investorObj.isEmailEncrypted == 'false') {
-//                         investorObj.isEmailEncrypted = 'true';
-//                         investorObj.uccEmailId = encryptWithAES(investorObj.uccEmailId)
-//                     }
-//                     resolve(investorObj);
-//                 }
-//                 else { //send mail 
-
-//                     let token = jwt.sign({ email: investorObj.uccEmailId, reqId: investorObj.uccRequestId }, 'process.env.JWTSECRET', {
-//                         expiresIn: '24h',
-//                     });
-//                     const mailBody = {
-//                         email: investorObj.uccEmailId,
-//                         ref: `${process.env.FEHOST}/investor/email-verification/${investorObj.uccRequestId}/${token}`
-//                     }
-
-//                     // const html = pug.renderFile(__root + "emailTemplates/investorEmailVerificaton.pug", mailBody);
-//                     commonFunctions.sendMail(investorObj.uccEmailId, 'Investor Email Verify', 'html', (err, res, body) => {
-//                         if (err) {
-//                             // handle email error
-//                             console.log(err)
-//                         }
-//                         else {
-//                             // add mail attempts
-
-//                             if (!investorObj.emailAttempts) {
-//                                 investorObj.emailAttempts = '1';
-//                             }
-//                             else {
-//                                 let noEmailAttempts = parseInt(investorObj.emailAttempts);
-//                                 noEmailAttempts = noEmailAttempts + 1;
-//                                 investorObj.emailAttempts = noEmailAttempts.toString();
-
-//                             }
-//                             investorObj.uccEmailStatus = EMAIL_STATUSES.SENT
-//                             if (investorObj.isEmailEncrypted == 'false') {
-//                                 investorObj.isEmailEncrypted = 'true';
-//                                 investorObj.uccEmailId = encryptWithAES(investorObj.uccEmailId)
-//                             }
-//                             // return investorObj;
-//                             resolve(investorObj)
-
-//                         }
-//                     })
-//                 }
-//             }
-//         } else {
-//             if (EMAIL_STATUS == EMAIL_STATUSES.VERIFIED) {
-//                 resolve(investorObj);
-//             }
-//         }
-//     })
-// }
 
 
 
 module.exports = {
     sendInvestorMail,
     processInvestorEmail,
-    processInvestorMobile
+    processInvestorMobile,
+    processInvestorMobileV2
+
 }
 
 
-// SHORT URL +++++ SENDSMS >>>>>>>>
-
-// commonFunctions.shortURL(ref, function (err, short) {
-//     if (err) console.error(err)
-//     commonFunctions.sendSMS(investorObj, short, (err, res, body) => {
-//         const response = body.split('|')[0];
-//         // add mail attempts
-//         console.log('send>>>>', response, investorObj.uccMobileNo)
-//         if (response == '1701') {
-//             if (!investorObj.mobileAttempts) {
-//                 investorObj.mobileAttempts = "1";
-//             }
-//             else {
-//                 let noMobileAttempts = parseInt(investorObj.mobileAttempts);
-//                 noMobileAttempts = noMobileAttempts + 1;
-//                 investorObj.mobileAttempts = noMobileAttempts.toString();
-//             }
-//             investorObj.uccMobileStatus = MOBILE_STATUSES.SENT
-//             // if (investorObj.isPhoneEncrypted == 'false') {
-//             //     investorObj.isPhoneEncrypted = 'true';
-//             //     investorObj.uccMobileNo = encryptWithAES(investorObj.uccMobileNo)
-//             // }
-//             resolve(investorObj)
-//         } else {
-//             // if (investorObj.isPhoneEncrypted == 'false') {
-//             //     investorObj.isPhoneEncrypted = 'true';
-//             //     investorObj.uccMobileNo = encryptWithAES(investorObj.uccMobileNo)
-//             // }
-//             resolve(investorObj)
-//         }
-//     })
-// });

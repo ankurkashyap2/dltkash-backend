@@ -12,14 +12,13 @@ const uploadFileToServer = async (req, res) => {
         const askedUser = await User.findOne({
             _id: mongoose.Types.ObjectId(req.user_id)
         });
-
         req.pipe(req.busboy);
         req.busboy.on('file', (fieldname, file, filename) => {
             // if (filename.mimeType != 'application/json') return res.status(RESPONSE_STATUS.CONFLICT).json({ message: 'Only JSON files are accepted.' });
             console.log(`Upload of '${filename.filename}' started`);
 
             const fstream = fs.createWriteStream(path.join(__uploadPath, filename.filename));
-            
+
             file.pipe(fstream);
 
             fstream.on('close', () => {
@@ -131,24 +130,21 @@ const search = async (req, res) => {
 //MM//DD//YY
 const updateDueDate = async (req, res) => {
     try {
-        const { newAttempts, existingDate, existingAttempts, exchangeId } = req.body;
+        const { newAttempts, existingDate, existingAttempts, modifiedAttempts, exchangeId } = req.body;
         const askedExchange = await Exchange.findOne({ _id: mongoose.Types.ObjectId(exchangeId) });
-        if(newAttempts)
-        {askedExchange.newAttempts = newAttempts;
-        
-        }
-        if (existingDate) {
-            if (!commonFunctions.isDate(existingDate)) {
-                return res.status(RESPONSE_STATUS.BAD_REQUEST).json({ message: "Exisitng date not in format!" });
-            }
+        if (newAttempts) { askedExchange.newAttempts = parseInt(newAttempts); }
+        if (modifiedAttempts) { askedExchange.modifiedAttempts = parseInt(modifiedAttempts); }
+        if (existingDate) {if (!commonFunctions.isDate(existingDate)) return res.status(RESPONSE_STATUS.BAD_REQUEST).json({ message: "Exisitng date not in format!" });
             askedExchange.existingDate = existingDate;
-            askedExchange.existingAttempts = commonFunctions.getAttemptsTillDate(existingDate);
-        } else if(existingAttempts) {
+            askedExchange.isExisitngDateSelected = true;
+            askedExchange.existingAttempts = parseInt(commonFunctions.getAttemptsTillDate(existingDate));
+        } else if (existingAttempts) {
             askedExchange.existingDate = '';
-            askedExchange.existingAttempts = existingAttempts;
+            askedExchange.isExisitngDateSelected = false;
+            askedExchange.existingAttempts = parseInt(existingAttempts);
         }
         askedExchange.save();
-        return res.json({ message:"Request Success!" , data : askedExchange});
+        return res.json({ message: RESPONSE_MESSAGES.SUCCESS, data: askedExchange });
     } catch (error) {
         const error_body = {
             error_detail: (typeof error == 'object') ? JSON.stringify(error) : error,
@@ -156,7 +152,7 @@ const updateDueDate = async (req, res) => {
             api_path: req.path,
             stack: error.stack
         }
-        console.error(error.stack);
+        console.error(error_body);
         return res
             .status(RESPONSE_STATUS.SERVER_ERROR)
             .json({ message: error.stack });

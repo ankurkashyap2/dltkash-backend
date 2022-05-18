@@ -73,7 +73,7 @@ const canStartConsumer = async () => {
     };
     request(options, function (error, response) {
         if (error) console.info('ERROR ON START CONSUMER API ...');
-        
+
     });
 }
 
@@ -85,7 +85,6 @@ const startFileProcessing = async (recordFile, askedExchange) => {
             prefetch: 1, //default prefetch from queue
             replyPattern: true, //if reply pattern is enabled an exclusive queue is created
             scheduledPublish: false,
-
             prefix: '', //prefix all queues with an application name
             socketOptions: {} // socketOptions will be passed as a second param to amqp.connect and from ther to the socket library (net or tls)
         });
@@ -107,16 +106,19 @@ const startFileProcessing = async (recordFile, askedExchange) => {
                     }
                 }
             }
-            //NEW CHECKS
+            //LEDGER IDS CHECKS
+            
+            //ADD TOTAL ATTEMPTS
             //************************************* */
-            if (jsonObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.NEW) { jsonObj.totalAttempts = askedExchange.newAttempts.toString(); }
+            if (jsonObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.NEW) { jsonObj.totalAttempts = askedExchange.newAttempts }
             else if (jsonObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.EXISTING) { jsonObj.totalAttempts = askedExchange.exisitngAttempts }
+            else if (jsonObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.MODIFIED) { jsonObj.totalAttempts = askedExchange.modifiedAttempts }
             else {
-                jsonObj.totalAttempts = '15'
+                jsonObj.totalAttempts = 7
             }
             //************************************ */
-            jsonObj.mobileAttempts = '0';
-            jsonObj.emailAttempts = '0';
+            jsonObj.mobileAttempts = 0;
+            jsonObj.emailAttempts = 0;
             jsonObj.fileName = recordFile.fileName
             jsonObj.mobileProcessed = 'false';
             jsonObj.emailProcessed = 'false';
@@ -212,10 +214,10 @@ const investorDataOperator = async (investorsData) => {
         for await (let investor of investorsData) {
             if (investor.uccEmailStatus == EMAIL_STATUSES.VERIFIED && investor.uccMobileStatus == MOBILE_STATUSES.VERIFIED) return;
             await processInvestorMobile(investor).then(async (mobileProcessed) => {
-                await processInvestorEmail(mobileProcessed).then(emailProcessed => {
-                    console.log("UPDATING REQUEST FOR ", emailProcessed.uccRequestType, emailProcessed.uccEmailId)
+                // await processInvestorEmail(mobileProcessed).then(emailProcessed => {
+                //     console.log("UPDATING REQUEST FOR ", emailProcessed.uccRequestType, emailProcessed.uccEmailId)
                     updateInvestor(emailProcessed);
-                })
+                // })
             });
         };
     }
@@ -226,9 +228,9 @@ const investorDataOperator = async (investorsData) => {
 
 
 
-const sendRequestToFetchInvestors = async (bookmark= "") => {
+const sendRequestToFetchInvestors = async (bookmark = "") => {
     try {
-        
+
         // const hoursToMatch = (new Date()).getHours();
         var options = {
             'method': 'POST',
@@ -242,13 +244,13 @@ const sendRequestToFetchInvestors = async (bookmark= "") => {
                 // "notificationKey": hoursToMatch,
                 // "page": `${page}`,
                 "pageSize": "5",
-                "bookmark":`${bookmark}`
+                "bookmark": `${bookmark}`
             })
         };
         request(options, function (error, response) {
             if (response.statusCode == 500) {
                 //Error logs
-                console.error('error on fetching requests from hyperledger',response.body);
+                console.error('error on fetching requests from hyperledger', response.body);
                 return;
             };
             if (response.statusCode == 404) {
@@ -258,9 +260,9 @@ const sendRequestToFetchInvestors = async (bookmark= "") => {
             };
             const result = JSON.parse(response.body);
             if (result.results == 0) return;
-            console.log(result)            
+            console.log(result)
             if (result.results)
-            bookmark= result.bookmark ;
+                bookmark = result.bookmark;
             // investorDataOperator(result.results);
             sendRequestToFetchInvestors(bookmark);
         });
@@ -462,7 +464,6 @@ const notificationSendingLogic = async () => {
     }
 }
 
-notificationSendingLogic()
 
 module.exports = {
     checkForUnprocessedFiles,
