@@ -198,7 +198,7 @@ inv = {
     "totalAttempts": 7,
     // "UTCNotification": "15:00"
 }
-global.__root = __dirname + '/';
+
 
 const processInvestorEmailV3 = async (investorObj) => {
     return new Promise((resolve, reject) => {
