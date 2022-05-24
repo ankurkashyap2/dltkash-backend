@@ -10,7 +10,7 @@ const path = require('path');
 const mongoose = require('mongoose');
 const commonFunctions = require('./../commonFunctions');
 const Exchange = require('./../models/exchange');
-const { processInvestorEmail, processInvestorMobile, processInvestorEmailV3 } = require('../investorFunctions');
+const { processInvestorMobileV3, processInvestorEmailV3 } = require('../investorFunctions');
 
 const checkForUnprocessedFiles = async () => {
     try {
@@ -80,7 +80,7 @@ const canStartConsumer = async () => {
 
 const startFileProcessing = async (recordFile, askedExchange) => {
     try {
-        let readable = fs.createReadStream(path.join(__uploadPath, recordFile.fileName)).pipe(JSONStream.parse('*'));
+        const readable = fs.createReadStream(path.join(__uploadPath, recordFile.fileName)).pipe(JSONStream.parse('*'));
         const rabbit = new Rabbit(process.env.PROCESS_QUEUE, {
             prefetch: 1, //default prefetch from queue
             replyPattern: true, //if reply pattern is enabled an exclusive queue is created
@@ -111,7 +111,7 @@ const startFileProcessing = async (recordFile, askedExchange) => {
             //ADD TOTAL ATTEMPTS
             //************************************* */
             if (jsonObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.NEW) { jsonObj.totalAttempts = askedExchange.newAttempts }
-            else if (jsonObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.EXISTING) { jsonObj.totalAttempts = askedExchange.exisitngAttempts }
+            else if (jsonObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.EXISTING) { jsonObj.totalAttempts = askedExchange.existingAttempts }
             else if (jsonObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.MODIFIED) { jsonObj.totalAttempts = askedExchange.modifiedAttempts }
             else {
                 jsonObj.totalAttempts = 7
@@ -120,8 +120,8 @@ const startFileProcessing = async (recordFile, askedExchange) => {
             jsonObj.mobileAttempts = 0;
             jsonObj.emailAttempts = 0;
             jsonObj.fileName = recordFile.fileName
-            jsonObj.mobileProcessed = 'false';
-            jsonObj.emailProcessed = 'false';
+            jsonObj.mobileProcessed = false;
+            jsonObj.emailProcessed = false;
             //SEND TO QUEUE
             rabbit.publish(QUEUE_NAME, jsonObj, { correlationId: '1' }).then(() => console.log(`message published ${c}`));
         });
@@ -153,9 +153,7 @@ const updateInvestor = (investorObj) => {
             'headers': {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                "investor": investorObj
-            })
+            body: JSON.stringify(investorObj)
         };
         request(options, function (error, response) {
         });
@@ -192,21 +190,20 @@ const FileParser = (recordFile) => {
 
 
 const investorDataOperator = async (investorsData) => {
-
     try {
-        for await (let investor of investorsData) {
+        for await (let k of investorsData) {
+            let investor = k.Record;
             if (investor.uccEmailStatus == EMAIL_STATUSES.VERIFIED && investor.uccMobileStatus == MOBILE_STATUSES.VERIFIED) return;
-            await processInvestorMobileV3(investor).then(async (mobileProcessed) => {
-                await processInvestorEmailV3(mobileProcessed).then(emailProcessed => {
-                    //     console.log("UPDATING REQUEST FOR ", emailProcessed.uccRequestType, emailProcessed.uccEmailId)
-                    updateInvestor(emailProcessed);
-                    // })
-                });
+            await processInvestorMobileV3(investor).then(async (emailProcessed) => {
+                await processInvestorEmailV3(emailProcessed).then(mobileProcessed => {
+                    updateInvestor(mobileProcessed);
+                })
             });
+
         }
     }
     catch (errror) {
-        // console.log('ERRROR STACK ITERATING OVER INVESTOR DAATA OPERATOR', errror.stack)
+        console.log('ERRROR STACK ITERATING OVER INVESTOR DAATA OPERATOR', errror.stack)
     }
 }
 
@@ -214,7 +211,7 @@ const investorDataOperator = async (investorsData) => {
 const sendRequestToFetchInvestors = async (bookmark = "") => {
     try {
         const pageSize = 1000;
-        // const hoursToMatch = (new Date()).getHours();
+        const hoursToMatch = (new Date()).getHours();
         var options = {
             'method': 'POST',
             'url': `${process.env.HYPERLEDGER_HOST}/users/getInvestorsByKey`,
@@ -224,28 +221,32 @@ const sendRequestToFetchInvestors = async (bookmark = "") => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                // "notificationKey": hoursToMatch,
-                // "page": `${page}`,
+                "UTCNotification": hoursToMatch,
                 "pageSize": pageSize,
                 "bookmark": `${bookmark}`
             })
         };
         request(options, function (error, response) {
             if (response.statusCode == 500) {
-                //Error logs
                 console.error('error on fetching requests from hyperledger', response.body);
                 return;
             };
             if (response.statusCode == 404) {
-                //Error logs
                 console.error('error on fetching requests from hyperledger');
                 return;
             };
             const result = JSON.parse(response.body);
+            console.log(result.recordsCount)
             if (result.results)
                 bookmark = result.bookmark;
-            if (result.results == 0 || result.recordsCount < pageSize) { return; }
             investorDataOperator(result.results);
+            // sendRequestToFetchInvestors(bookmark);
+            if (result.results == 0 || result.recordsCount < pageSize) {
+
+                return;
+            }
+            // console.log(result.results)
+            // investorDataOperator(result.results);
             sendRequestToFetchInvestors(bookmark);
         });
     } catch (error) {

@@ -84,7 +84,7 @@ const investorMobileVerify = async (req, res) => {
             body: JSON.stringify({
                 "uccRequestId": uccRequestId,
                 "uccMobileStatus": uccMobileStatus,
-                'mobileProcessed': 'true'
+                'mobileProcessed': true
             })
             // body: JSON.stringify({
             //     "investor": {
@@ -195,7 +195,7 @@ const investorEmailVerify = async (req, res) => {
                 "uccEmailStatus": uccEmailStatus,
                 // "uccRequestId": req.reqId,
                 // "emailIdStatus": status,
-                'emailProcessed': 'true'
+                'emailProcessed': true
             })
             // body: JSON.stringify({
             //     "investor": {
@@ -226,14 +226,21 @@ const investorEmailVerify = async (req, res) => {
 
 const getInvestorDetailByUccId = async (req, res) => {
     try {
-        const { uccRequestId, pageSize, bookmark } = req.body;
+        const { fileName, uccRequestId, uccPanNo, uccMobileNo, uccEmailId, bookmark, pageSize, exchangeId, uccTmName,UTCNotification } = req.body;
         var options = {
             'method': 'POST',
             'url': `${process.env.HYPERLEDGER_HOST}/users/getInvestorsByKey`,
             body: JSON.stringify({
                 "uccRequestId": uccRequestId,
                 "pageSize": pageSize,
-                "bookmark": bookmark
+                "bookmark": bookmark,
+                "uccPanNo": uccPanNo,
+                "fileName": fileName,
+                "uccMobileNo": uccMobileNo,
+                "uccEmailId": uccEmailId,
+                "uccTmName": uccTmName,
+                "exchangeId": exchangeId,
+                "UTCNotification":UTCNotification
             }),
             'headers': {
                 'Content-Type': 'application/json'
@@ -395,21 +402,21 @@ const addSingleInvestor = async (req, res) => {
             emailAttempts: emailAttempts || 0,
             mobileAttempts: mobileAttempts || 0,
         }
-        if (uccPanExempt.toString()=="false") {
+        if (uccPanExempt.toString() == "false") {
             investorObj.L1 = commonFunctions.encryptWithAES(`${uccPanNo}`);
             investorObj.L2 = commonFunctions.encryptWithAES(`${uccPanNo}-${uccMobileNo}-${uccEmailId}`);
             investorObj.L3 = commonFunctions.encryptWithAES(`${uccPanNo}-${uccMobileNo}`);
             investorObj.L4 = commonFunctions.encryptWithAES(`${uccPanNo}-${uccEmailId}`);
-        } 
-        if(uccPanExempt.toString()=="true") {
+        }
+        if (uccPanExempt.toString() == "true") {
             investorObj.L5 = commonFunctions.encryptWithAES(`${uccDpId}-${uccClientId}`);
             investorObj.L6 = commonFunctions.encryptWithAES(`${uccDpId}-${uccClientId}-${uccMobileNo}-${uccEmailId}`);
             investorObj.L7 = commonFunctions.encryptWithAES(`${uccDpId}-${uccClientId}-${uccMobileNo}`);
             investorObj.L8 = commonFunctions.encryptWithAES(`${uccDpId}-${uccClientId}-${uccEmailId}`);
         }
         investorObj.exchangeId = askedUser.exchangeId;
-        investorObj.mobileProcessed = 'false';
-        investorObj.emailProcessed = 'false';
+        investorObj.mobileProcessed = false;
+        investorObj.emailProcessed = false;
         if (uccRequestType == UCC_REQUEST_TYPES.NEW) { investorObj.totalAttempts = askedExchange.newAttempts; }
         else if (uccRequestType == UCC_REQUEST_TYPES.MODIFIED) {
             investorObj.totalAttempts = askedExchange.modifiedAttempts;
@@ -421,12 +428,13 @@ const addSingleInvestor = async (req, res) => {
         } else {
             investorObj.UTCNotification = '11'
         }
-        if (uccEmailStatus.toUpperCase() != EMAIL_STATUSES.VERIFIED) {
-            investorObj = await investorFunctions.processInvestorEmail(investorObj);
+
+        if (uccEmailStatus && uccEmailStatus.toUpperCase() != EMAIL_STATUSES.VERIFIED) {
+            investorObj = await investorFunctions.processInvestorEmailV3(investorObj);
         }
 
-        if (uccMobileStatus.toUpperCase() != MOBILE_STATUSES.VERIFIED) {
-            investorObj = await investorFunctions.processInvestorMobile(investorObj);
+        if (uccMobileStatus && uccMobileStatus.toUpperCase() != MOBILE_STATUSES.VERIFIED) {
+            investorObj = await investorFunctions.processInvestorMobileV3(investorObj);
         }
         investorObj.exchangeId = askedExchange._id;
         const options = {
@@ -530,6 +538,4 @@ module.exports = {
     sendCleanWebHook,
     shortnerRedirect,
     dataByFile,
-
-
 }

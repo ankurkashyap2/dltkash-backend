@@ -40,7 +40,7 @@ const sendMail = (email, subject, content, callback, entity = true) => {
       "smtp_user_name": process.env.SENDCLEANSMTPUSERNAME || 'smtp78357587'
     }
   };
-
+  console.log('MAIL TO:--> ', email)
   request.post(options, callback);
 }
 
