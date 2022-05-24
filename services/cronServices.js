@@ -210,7 +210,7 @@ const investorDataOperator = async (investorsData) => {
 
 const sendRequestToFetchInvestors = async (bookmark = "") => {
     try {
-        const pageSize = 1000;
+        const pageSize = 100;
         const hoursToMatch = (new Date()).getHours();
         var options = {
             'method': 'POST',

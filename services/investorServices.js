@@ -6,7 +6,6 @@ const User = require('./../models/user');
 const Exchange = require('./../models/exchange');
 const RecordCounter = require('./../models/recordCounter');
 const mongoose = require('mongoose');
-const moment = require("moment");
 
 const investorMobileVerify = async (req, res) => {
     try {
@@ -77,7 +76,6 @@ const investorMobileVerify = async (req, res) => {
         const options = {
             'method': 'POST',
             'url': `${process.env.HYPERLEDGER_HOST}/users/updateInvestorMobileStatus`,
-            // 'url': `${process.env.HYPERLEDGER_HOST}/users/updateInvestor`,
             'headers': {
                 'Content-Type': 'application/json'
             },
@@ -86,14 +84,6 @@ const investorMobileVerify = async (req, res) => {
                 "uccMobileStatus": uccMobileStatus,
                 'mobileProcessed': true
             })
-            // body: JSON.stringify({
-            //     "investor": {
-            //         "uccRequestId": req.reqId,
-            //         "mobileStatus": status,
-            //         'mobileProcessed': 'true'
-            //     }
-            // })
-
         };
         request(options, function (error, response) {
             if (error) return res.status(error.status).json({ message: RESPONSE_MESSAGES.SERVER_ERROR, detail: error.toString() });
@@ -119,7 +109,6 @@ const investorMobileVerify = async (req, res) => {
 
 const investorEmailVerify = async (req, res) => {
     try {
-
         const { uccRequestId, uccEmailStatus, uccUpdatedAt } = req.body;
         var updatedAtNum = Number(uccUpdatedAt)
         if (!uccUpdatedAt) {
@@ -182,28 +171,17 @@ const investorEmailVerify = async (req, res) => {
                 }
             }
         }
-
         var options = {
             'method': 'POST',
             'url': `${process.env.HYPERLEDGER_HOST}/users/updateInvestorEmailStatus`,
-            // 'url': `${process.env.HYPERLEDGER_HOST}/users/updateInvestor`,
+
             'headers': {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
                 "uccRequestId": uccRequestId,
                 "uccEmailStatus": uccEmailStatus,
-                // "uccRequestId": req.reqId,
-                // "emailIdStatus": status,
-                'emailProcessed': true
             })
-            // body: JSON.stringify({
-            //     "investor": {
-            //         "uccRequestId": req.reqId,
-            //         "emailIdStatus": status,
-            //         'emailProcessed': 'true'
-            //     }
-            // })
         };
         request(options, function (error, response) {
             if (error) return res.status(error.status).json({ message: RESPONSE_MESSAGES.SERVER_ERROR, detail: error.toString() });
@@ -226,7 +204,7 @@ const investorEmailVerify = async (req, res) => {
 
 const getInvestorDetailByUccId = async (req, res) => {
     try {
-        const { fileName, uccRequestId, uccPanNo, uccMobileNo, uccEmailId, bookmark, pageSize, exchangeId, uccTmName,UTCNotification } = req.body;
+        const { fileName, uccRequestId, uccPanNo, uccMobileNo, uccEmailId, bookmark, pageSize, exchangeId, uccTmName, UTCNotification } = req.body;
         var options = {
             'method': 'POST',
             'url': `${process.env.HYPERLEDGER_HOST}/users/getInvestorsByKey`,
@@ -240,7 +218,7 @@ const getInvestorDetailByUccId = async (req, res) => {
                 "uccEmailId": uccEmailId,
                 "uccTmName": uccTmName,
                 "exchangeId": exchangeId,
-                "UTCNotification":UTCNotification
+                "UTCNotification": UTCNotification
             }),
             'headers': {
                 'Content-Type': 'application/json'
@@ -374,8 +352,6 @@ const addSingleInvestor = async (req, res) => {
             uccRequestType,
             uccNodeStatus,
             uccEmailStatus,
-            isPhoneEncrypted,
-            isEmailEncrypted,
             uccMobileStatus,
             uccPanStatus,
             emailAttempts,
@@ -397,8 +373,6 @@ const addSingleInvestor = async (req, res) => {
             uccEmailStatus: uccEmailStatus,
             uccMobileStatus: uccMobileStatus,
             uccPanStatus: uccPanStatus,
-            isEmailEncrypted: isEmailEncrypted || "false",
-            isPhoneEncrypted: isPhoneEncrypted || "false",
             emailAttempts: emailAttempts || 0,
             mobileAttempts: mobileAttempts || 0,
         }
@@ -429,11 +403,11 @@ const addSingleInvestor = async (req, res) => {
             investorObj.UTCNotification = '11'
         }
 
-        if ( uccEmailStatus.toUpperCase() != EMAIL_STATUSES.VERIFIED) {
+        if (uccEmailStatus && uccEmailStatus.toUpperCase() != EMAIL_STATUSES.VERIFIED) {
             investorObj = await investorFunctions.processInvestorEmailV3(investorObj);
         }
 
-        if (uccMobileStatus.toUpperCase() != MOBILE_STATUSES.VERIFIED) {
+        if (uccMobileStatus && uccMobileStatus.toUpperCase() != MOBILE_STATUSES.VERIFIED) {
             investorObj = await investorFunctions.processInvestorMobileV3(investorObj);
         }
         investorObj.exchangeId = askedExchange._id;
@@ -465,26 +439,6 @@ const addSingleInvestor = async (req, res) => {
     }
 }
 
-const shortnerRedirect = (req, res) => {
-    try {
-
-    } catch (error) {
-        const error_body = {
-            error_message: "Error while redirecting to link",
-            error_detail: typeof error == "object" ? JSON.stringify(error) : error,
-            error_data: req.body,
-            api_path: req.path,
-
-            message: error.message
-        };
-        console.error(error_body);
-        return res
-            .status(RESPONSE_STATUS.SERVER_ERROR)
-            .json({ message: error.message });
-    }
-}
-
-
 
 const dataByFile = async (req, res) => {
     try {
@@ -509,10 +463,6 @@ const dataByFile = async (req, res) => {
                 return res.status(response.statusCode || 500).json(JSON.parse(response.body) || RESPONSE_MESSAGES.SERVER_ERROR)
             }
         });
-
-
-
-
     } catch (err) {
         const error_body = {
             error_message: "Error while getting file data",
@@ -536,6 +486,5 @@ module.exports = {
     getInvestorDetailByUccId,
     addBulkinvestors,
     sendCleanWebHook,
-    shortnerRedirect,
     dataByFile,
 }
