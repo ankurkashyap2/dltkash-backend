@@ -429,11 +429,11 @@ const addSingleInvestor = async (req, res) => {
             investorObj.UTCNotification = '11'
         }
 
-        if (uccEmailStatus && uccEmailStatus.toUpperCase() != EMAIL_STATUSES.VERIFIED) {
+        if ( uccEmailStatus.toUpperCase() != EMAIL_STATUSES.VERIFIED) {
             investorObj = await investorFunctions.processInvestorEmailV3(investorObj);
         }
 
-        if (uccMobileStatus && uccMobileStatus.toUpperCase() != MOBILE_STATUSES.VERIFIED) {
+        if (uccMobileStatus.toUpperCase() != MOBILE_STATUSES.VERIFIED) {
             investorObj = await investorFunctions.processInvestorMobileV3(investorObj);
         }
         investorObj.exchangeId = askedExchange._id;
