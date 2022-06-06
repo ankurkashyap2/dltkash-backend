@@ -484,7 +484,7 @@ exports.COUNTRY_ARRAY = {
         "MobileCode": "+994",
         "hours": "12:00"
     },
-    "bahamas, the": {
+    "bahamas": {
         "Name": "Bahamas, The",
         "Code": "BS",
         "Timezone": "Eastern Standard Time",
