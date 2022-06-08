@@ -1,6 +1,6 @@
 
 const commonFunctions = require('../commonFunctions');
-const { generateToken, verifyPassword,verifyPassword2 } = require("../auth/verifyToken");
+const { generateToken, verifyPassword, verifyPassword2 } = require("../auth/verifyToken");
 const User = require('./../models/user');
 const { RESPONSE_STATUS, RESPONSE_MESSAGES } = require('../constants');
 const exchange = require('../models/exchange');
@@ -11,6 +11,7 @@ const request = require('request');
 const s3services = require('./s3Services');
 const mongoose = require('mongoose');
 const bcrypt = require("bcryptjs");
+
 
 const loginUser = async (req, res) => {
     try {
@@ -31,10 +32,10 @@ const loginUser = async (req, res) => {
     }
 }
 
-const grant_token_api= async (req, res) => {
+const grant_token_api = async (req, res) => {
     try {
         const { user_id } = await verifyPassword2(req.body);
-        var token = generateToken({ request: req.body, user_id, });
+        let token = generateToken({ request: req.body, user_id, });
         return res.status(RESPONSE_STATUS.SUCCESS).json({ message: RESPONSE_MESSAGES.SUCCESS, token: token });
     } catch (error) {
         const error_body = {
@@ -106,26 +107,26 @@ const registerExchange = async (req, res) => {
         if (mobileRegistered) return res.status(RESPONSE_STATUS.CONFLICT).json({ message: RESPONSE_MESSAGES.PHONE_ALREADY_REGISTERED });
         if (userNameRegistered) return res.status(RESPONSE_STATUS.CONFLICT).json({ message: RESPONSE_MESSAGES.USERNAME_REGISTERED });
         const exchangeObj = await exchange.create(exchangeObject);
-         const random = Math.floor((Math.random()*1000000)+1)// by this we create random 6 digit no 
-        const Exchange_adminObj ={
-            exg_mgr_uci: true , 
+        const random = Math.floor((Math.random() * 1000000) + 1)// by this we create random 6 digit no 
+        const Exchange_adminObj = {
+            exg_mgr_uci: true,
             exchangeId: exchangeObj._id,
-            userName : legalEntityName+"_Admin_"+random,
-            password: commonFunctions.encryptString(legalEntityName+"_Admin_"+random),
+            userName: legalEntityName + "_Admin_" + random,
+            password: commonFunctions.encryptString(legalEntityName + "_Admin_" + random),
         }
-       
-        const Exg_mailBody ={
+
+        const Exg_mailBody = {
             userName: userName,
-            exg_mgr_uci:Exchange_adminObj.userName,
+            exg_mgr_uci: Exchange_adminObj.userName,
         }
         const Exg_html = pug.renderFile(__root + "/emailTemplates/exg_mail.pug", Exg_mailBody);
         commonFunctions.sendMail(email, "Regarding Registration Success", Exg_html, (err, response) => {
-            
+
             if (err)
                 return res.status(RESPONSE_STATUS.SERVER_ERROR).json({ message: RESPONSE_MESSAGES.SERVER_ERROR });
 
         });
-        const Exg_AdminObject = await User.create(Exchange_adminObj) ; 
+        const Exg_AdminObject = await User.create(Exchange_adminObj);
         const adminObj = {
             userName: userName,
             email: email,
@@ -393,7 +394,7 @@ const sendPlatformVerificationEmail = async (req, res) => {
 const fetchInvestorsByTimeStamp = async (req, res) => {
     try {
 
-        
+
     } catch (error) {
         const error_body = {
             error_detail: (typeof error == 'object') ? JSON.stringify(error) : error,

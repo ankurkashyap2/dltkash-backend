@@ -12,6 +12,17 @@ const commonFunctions = require('./../commonFunctions');
 const Exchange = require('./../models/exchange');
 const { processInvestorMobileV3, processInvestorEmailV3 } = require('../investorFunctions');
 
+
+const rabbit = new Rabbit(process.env.PROCESS_QUEUE, {
+    prefetch: 1, //default prefetch from queue
+    replyPattern: true, //if reply pattern is enabled an exclusive queue is created
+    scheduledPublish: false,
+
+    prefix: '', //prefix all queues with an application name
+    socketOptions: {} // socketOptions will be passed as a second param to amqp.connect and from ther to the socket library (net or tls)
+});
+
+
 const checkForUnprocessedFiles = async () => {
     try {
         const recordFile = await RecordFile.findOne({
@@ -81,13 +92,7 @@ const canStartConsumer = async () => {
 const startFileProcessing = async (recordFile, askedExchange) => {
     try {
         const readable = fs.createReadStream(path.join(__uploadPath, recordFile.fileName)).pipe(JSONStream.parse('*'));
-        const rabbit = new Rabbit(process.env.PROCESS_QUEUE, {
-            prefetch: 1, //default prefetch from queue
-            replyPattern: true, //if reply pattern is enabled an exclusive queue is created
-            scheduledPublish: false,
-            prefix: '', //prefix all queues with an application name
-            socketOptions: {} // socketOptions will be passed as a second param to amqp.connect and from ther to the socket library (net or tls)
-        });
+
         c = 0;
         const indianTimeUtcArr = ['11', '12', '10', '9', '8', '7', '6', '5', '13', '4', '3', '12', '13'];
         readable.on('data', (jsonObj) => {
@@ -117,11 +122,11 @@ const startFileProcessing = async (recordFile, askedExchange) => {
                 jsonObj.totalAttempts = 7
             }
             //************************************ */
-            jsonObj.mobileAttempts = 0;
-            jsonObj.emailAttempts = 0;
-            jsonObj.fileName = recordFile.fileName
-            jsonObj.mobileProcessed = false;
-            jsonObj.emailProcessed = false;
+            if (!jsonObj.mobileAttempts) jsonObj.mobileAttempts = 0;
+            if (!jsonObj.emailAttempts) jsonObj.emailAttempts = 0;
+            if (!jsonObj.fileName) jsonObj.fileName = recordFile.fileName
+            if (!jsonObj.mobileProcessed) jsonObj.mobileProcessed = false;
+            if (!jsonObj.emailProcessed) jsonObj.emailProcessed = false;
             //SEND TO QUEUE
             rabbit.publish(QUEUE_NAME, jsonObj, { correlationId: '1' }).then(() => console.log(`message published ${c}`));
         });
@@ -129,7 +134,7 @@ const startFileProcessing = async (recordFile, askedExchange) => {
             console.log('processed success', c);
             recordFile.status = "PROCESSED";
             recordFile.save();
-            rabbit.publish(QUEUE_NAME, { "MSG": "EOF" }, { correlationId: '1' }).then(() => canStartConsumer());
+            canStartConsumer()
             console.log("CHANNEL CLOSED");
             return;
         });
@@ -193,10 +198,18 @@ const investorDataOperator = async (investorsData) => {
     try {
         for await (let k of investorsData) {
             let investor = k.Record;
+            const MobileStatus = investor.uccMobileStatus;
+            const EmailStatus = investor.uccEmailStatus;
+            const EmailProcessed = investor.emailProcessed;
+            const MobileProcessed = investor.mobileProcessed
             if (investor.uccEmailStatus == EMAIL_STATUSES.VERIFIED && investor.uccMobileStatus == MOBILE_STATUSES.VERIFIED) return;
-            await processInvestorMobileV3(investor).then(async (emailProcessed) => {
-                await processInvestorEmailV3(emailProcessed).then(mobileProcessed => {
-                    updateInvestor(mobileProcessed);
+            await processInvestorMobileV3(investor).then(async (investorAfterMobileProcess) => {
+                await processInvestorEmailV3(investorAfterMobileProcess).then(investorAfterEmailProcess => {
+                
+                    if (!investorAfterEmailProcess.uccEmailStatus || !investorAfterEmailProcess.uccMobileStatus || investorAfterEmailProcess.emailProcessed == false || investorAfterEmailProcess.mobileProcessed == false || (EmailProcessed != investorAfterEmailProcess.emailProcessed) || (MobileProcessed != investorAfterEmailProcess.mobileProcessed)) {
+                        updateInvestor(investorAfterEmailProcess);
+                    }
+                    // updateInvestor(investorAfterEmailProcess);
                 })
             });
 
@@ -236,7 +249,7 @@ const sendRequestToFetchInvestors = async (bookmark = "") => {
                 return;
             };
             const result = JSON.parse(response.body);
-            console.log(result.recordsCount)
+            console.log(` NO OF RESULTS ${result.recordsCount}`)
             if (result.results)
                 bookmark = result.bookmark;
             investorDataOperator(result.results);

@@ -44,7 +44,7 @@ const getInvestorByDate = async (req, res) => {
             if ((e.date != setStart) && (e.date != setEnd)) {
                 let perHourArray = e.perHourCounterArr
                 perHourArray.forEach((perHourArrayObj) => {
-                        totalRecord = totalRecord + perHourArrayObj.count;
+                    totalRecord = totalRecord + perHourArrayObj.count;
                 })
             }
         })
@@ -61,14 +61,14 @@ const getInvestorByDate = async (req, res) => {
             body: JSON.stringify({
                 "from": from,
                 "to": to,
-                "pagesize": pageSize,
+                "pageSize": pageSize,
                 "bookmark": bookmark,
                 "exchangeId": exchangeId,
             })
         };
         request(options, function (error, response) {
             if (response.statusCode == 200) {
-                return res.json({ data: JSON.parse(response.body), totalRecord: totalRecord });
+                return res.json({ totalRecords: totalRecord, data: JSON.parse(response.body) });
             } else {
                 return res.status(response.statusCode || 500).json(JSON.parse(response.body) || RESPONSE_MESSAGES.SERVER_ERROR)
             }

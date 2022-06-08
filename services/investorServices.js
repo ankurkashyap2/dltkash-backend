@@ -355,7 +355,10 @@ const addSingleInvestor = async (req, res) => {
             uccMobileStatus,
             uccPanStatus,
             emailAttempts,
-            mobileAttempts } = req.body;
+            mobileAttempts,
+            UTCNotification,
+            mobileProcessed,
+            emailProcessed } = req.body;
         let investorObj = {
             uccRequestId: uccRequestId,
             uccTmId: uccTmId,
@@ -375,6 +378,9 @@ const addSingleInvestor = async (req, res) => {
             uccPanStatus: uccPanStatus,
             emailAttempts: emailAttempts || 0,
             mobileAttempts: mobileAttempts || 0,
+            UTCNotification: UTCNotification,
+            mobileProcessed: mobileProcessed,
+            emailProcessed: emailProcessed,
         }
         if (uccPanExempt.toString() == "false") {
             investorObj.L1 = commonFunctions.encryptWithAES(`${uccPanNo}`);
@@ -389,25 +395,32 @@ const addSingleInvestor = async (req, res) => {
             investorObj.L8 = commonFunctions.encryptWithAES(`${uccDpId}-${uccClientId}-${uccEmailId}`);
         }
         investorObj.exchangeId = askedUser.exchangeId;
-        investorObj.mobileProcessed = false;
-        investorObj.emailProcessed = false;
+        // investorObj.mobileProcessed = false;
+        // investorObj.emailProcessed = false;
+        if (!investorObj.mobileProcessed) {
+            investorObj.mobileProcessed = false;
+        }
+        if (!investorObj.emailProcessed) {
+            investorObj.emailProcessed = false;
+        }
         if (uccRequestType == UCC_REQUEST_TYPES.NEW) { investorObj.totalAttempts = askedExchange.newAttempts; }
         else if (uccRequestType == UCC_REQUEST_TYPES.MODIFIED) {
             investorObj.totalAttempts = askedExchange.modifiedAttempts;
         } else if (uccRequestType == UCC_REQUEST_TYPES.EXISTING) { investorObj.totalAttempts = askedExchange.existingAttempts; } else { investorObj.totalAttempts = 7; }
 
-        var country = investorObj.uccCountry.toLowerCase();
-        if (COUNTRY_ARRAY[country]) {
-            investorObj.UTCNotification = COUNTRY_ARRAY[country]['hours']
-        } else {
-            investorObj.UTCNotification = '11'
+        if (!UTCNotification) {
+            var country = investorObj.uccCountry.toLowerCase();
+            if (COUNTRY_ARRAY[country]) {
+                investorObj.UTCNotification = COUNTRY_ARRAY[country]['hours']
+            } else {
+                investorObj.UTCNotification = '11'
+            }
         }
-
         if (!uccEmailStatus) {
             investorObj = await investorFunctions.processInvestorEmailV3(investorObj);
         }
 
-        if (!uccMobileStatus ) {
+        if (!uccMobileStatus) {
             investorObj = await investorFunctions.processInvestorMobileV3(investorObj);
         }
         investorObj.exchangeId = askedExchange._id;
