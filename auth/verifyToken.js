@@ -19,7 +19,8 @@ const apisToBeByPassed = [
     '/sendclean-webhook',
     '/verify/email',
     '/verify/mobile',
-    
+    '/grant-token'
+
 ];
 
 const headerTokenApis = [
@@ -76,10 +77,9 @@ function generateToken(params) {
     }
 }
 
-function verifyPassword2({exg_mgr_uci}) {
+function verifyPassword2({ exg_mgr_uci }) {
     return new Promise(async (resolve, reject) => {
-        let askedUser = await User.findOne({userName:exg_mgr_uci});
-
+        let askedUser = await User.findOne({ userName: exg_mgr_uci });
         if (!askedUser) {
             return reject({
                 code: RESPONSE_STATUS.NOT_FOUND,
@@ -109,6 +109,7 @@ function verifyPassword({ email, password }) {
                 message: RESPONSE_MESSAGES.EMAIL_NOT_REGISTERED,
             });
         }
+        console.log({ password })
         let password_verify = bcrypt.compareSync(password, askedUser.password);
         if (!password_verify) {
             return reject({
