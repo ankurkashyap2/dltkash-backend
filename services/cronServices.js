@@ -127,6 +127,7 @@ const startFileProcessing = async (recordFile, askedExchange) => {
             if (!jsonObj.fileName) jsonObj.fileName = recordFile.fileName
             if (!jsonObj.mobileProcessed) jsonObj.mobileProcessed = false;
             if (!jsonObj.emailProcessed) jsonObj.emailProcessed = false;
+            
             //SEND TO QUEUE
             rabbit.publish(QUEUE_NAME, jsonObj, { correlationId: '1' }).then(() => console.log(`message published ${c}`));
         });
