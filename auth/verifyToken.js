@@ -13,7 +13,6 @@ const apisToBeByPassed = [
     '/login',
     '/forget-password',
     '/email-verification',
-    '/get-data',
     '/send-verification/email',
     '/mobile-verification',
     '/sendclean-webhook',
@@ -109,7 +108,6 @@ function verifyPassword({ email, password }) {
                 message: RESPONSE_MESSAGES.EMAIL_NOT_REGISTERED,
             });
         }
-        console.log({ password })
         let password_verify = bcrypt.compareSync(password, askedUser.password);
         if (!password_verify) {
             return reject({

@@ -6,7 +6,8 @@ const User = require('./../models/user');
 const Exchange = require('./../models/exchange');
 const RecordCounter = require('./../models/recordCounter');
 const mongoose = require('mongoose');
-
+const axios = require('axios')
+var request = require('request');
 const investorMobileVerify = async (req, res) => {
     try {
         const { uccRequestId, uccMobileStatus, uccUpdatedAt } = req.body;
@@ -204,7 +205,11 @@ const investorEmailVerify = async (req, res) => {
 
 const getInvestorDetailByUccId = async (req, res) => {
     try {
-        const { fileName, uccRequestId, uccPanNo, uccMobileNo, uccEmailId, bookmark, pageSize, exchangeId, uccTmName, UTCNotification } = req.body;
+        const { fileName, uccRequestId, uccPanNo, uccMobileNo, uccEmailId, bookmark, pageSize, uccTmName, UTCNotification } = req.body;
+        const askedAdmin = await User.findOne({
+            _id: mongoose.Types.ObjectId(req.user_id)
+        });
+        exchangeId = askedAdmin.exchangeId;
         var options = {
             'method': 'POST',
             'url': `${process.env.HYPERLEDGER_HOST}/users/getInvestorsByKey`,
@@ -382,6 +387,10 @@ const addSingleInvestor = async (req, res) => {
             mobileProcessed: mobileProcessed,
             emailProcessed: emailProcessed,
         }
+        let payload = { uccRequestId: uccRequestId };
+        let response_ = await axios.post(`${process.env.HYPERLEDGER_HOST}/users/getInvestorsByKey`, payload);
+        let data = response_.data;
+        if (data.results) return res.status(409).json({ message: "Investor with  this uccRequestId already exists.", data: data.results[0].Record });
         if (uccPanExempt.toString() == "false") {
             investorObj.L1 = commonFunctions.encryptWithAES(`${uccPanNo}`);
             investorObj.L2 = commonFunctions.encryptWithAES(`${uccPanNo}-${uccMobileNo}-${uccEmailId}`);
