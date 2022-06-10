@@ -209,7 +209,7 @@ const getInvestorDetailByUccId = async (req, res) => {
         const askedAdmin = await User.findOne({
             _id: mongoose.Types.ObjectId(req.user_id)
         });
-        exchangeId = askedAdmin.exchangeId;
+        const exchangeId = askedAdmin.exchangeId;
         var options = {
             'method': 'POST',
             'url': `${process.env.HYPERLEDGER_HOST}/users/getInvestorsByKey`,

@@ -12,6 +12,7 @@ const apisToBeByPassed = [
     '/register-exchange',
     '/login',
     '/forget-password',
+    '/get-data',
     '/email-verification',
     '/send-verification/email',
     '/mobile-verification',
