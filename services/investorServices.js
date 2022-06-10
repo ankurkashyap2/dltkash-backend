@@ -6,6 +6,7 @@ const User = require('./../models/user');
 const Exchange = require('./../models/exchange');
 const RecordCounter = require('./../models/recordCounter');
 const mongoose = require('mongoose');
+const jwt = require("jsonwebtoken");
 const axios = require('axios')
 var request = require('request');
 const investorMobileVerify = async (req, res) => {
@@ -206,12 +207,28 @@ const investorEmailVerify = async (req, res) => {
 const getInvestorDetailByUccId = async (req, res) => {
     try {
         const { fileName, uccRequestId, uccPanNo, uccMobileNo, uccEmailId, bookmark, pageSize, uccTmName, UTCNotification } = req.body;
-        const askedAdmin = await User.findOne({
-            _id: mongoose.Types.ObjectId(req.user_id)
-        });
+        let token = req.headers["authorization"];
         let exchangeId;
-        if (askedAdmin)
-            exchangeId = askedAdmin.exchangeId;
+
+        if (token) {
+            token = token.split(" ");
+            token = token.length > 1 ? token[1] : token[0];
+            jwt.verify(token, process.env.JWTSECRET, (err, decoded) => {
+                if (err) {
+                    return res
+                        .status(RESPONSE_STATUS.UNAUTHORIZED)
+                        .json({ message: RESPONSE_MESSAGES.TOKEN_SESSION })
+                }
+                req.reqId = decoded.reqId
+                req.user_id = decoded.user_id
+                req.email = decoded.email
+            });
+            const askedAdmin = await User.findOne({
+                _id: mongoose.Types.ObjectId(req.user_id)
+            });
+            if (askedAdmin)
+                exchangeId = askedAdmin.exchangeId;
+        }
         var options = {
             'method': 'POST',
             'url': `${process.env.HYPERLEDGER_HOST}/users/getInvestorsByKey`,
