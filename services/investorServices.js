@@ -407,10 +407,32 @@ const addSingleInvestor = async (req, res) => {
             mobileProcessed: mobileProcessed,
             emailProcessed: emailProcessed,
         }
+
+
         let payload = { uccRequestId: uccRequestId };
         let response_ = await axios.post(`${process.env.HYPERLEDGER_HOST}/users/getInvestorsByKey`, payload);
         let data = response_.data;
         if (data.results.length != 0) return res.status(409).json({ message: "Investor with  this uccRequestId already exists.", data: data.results[0].Record });
+
+        let payload2;
+        if (uccPanExempt.toString() == "true")
+            payload2 = { uccEmailId: uccEmailId, uccMobileNo: uccMobileNo }
+        if (uccPanExempt.toString() == "false")
+            payload2 = { uccEmailId: uccEmailId, uccMobileNo: uccMobileNo, uccDpId: uccDpId, uccClientId: uccClientId }
+        
+        
+            let _response = await axios.post(`${process.env.HYPERLEDGER_HOST}/users/getInvestorsByKey`, payload2);
+        let dataForStatus = _response.data;
+        if (dataForStatus.results.length == 0) { //dont send mails
+            if (!uccEmailStatus) {
+                investorObj = await investorFunctions.processInvestorEmailV3(investorObj);
+            }
+            if (!uccMobileStatus) {
+                investorObj = await investorFunctions.processInvestorMobileV3(investorObj);
+            }
+        }
+
+
         if (uccPanExempt.toString() == "false") {
             investorObj.L1 = commonFunctions.encryptWithAES(`${uccPanNo}`);
             investorObj.L2 = commonFunctions.encryptWithAES(`${uccPanNo}-${uccMobileNo}-${uccEmailId}`);
@@ -443,13 +465,7 @@ const addSingleInvestor = async (req, res) => {
                 investorObj.UTCNotification = '11'
             }
         }
-        if (!uccEmailStatus) {
-            investorObj = await investorFunctions.processInvestorEmailV3(investorObj);
-        }
 
-        if (!uccMobileStatus) {
-            investorObj = await investorFunctions.processInvestorMobileV3(investorObj);
-        }
         investorObj.exchangeId = askedExchange._id;
         const options = {
             'method': 'POST',
