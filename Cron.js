@@ -4,7 +4,7 @@ const cronServices = require('./services/cronServices');
 
 // CRON RUN AT  EVERY 4 HOURS TO CHECK FOR UNPROCESSED FILES ON SERVER
 // 0 */4 * * *
-cron.schedule('* * * * *', () => {
+cron.schedule('*/10 * * * *', () => {
     console.info("CRON RUN EVERY 10 MINS TO CHECK FOR UNPROCESSED FILES ON SERVER =>", (new Date()).toUTCString());
     const today = new Date();
     var isWeekend = today.getDay() == 0
