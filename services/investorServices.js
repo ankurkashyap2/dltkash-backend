@@ -209,7 +209,9 @@ const getInvestorDetailByUccId = async (req, res) => {
         const askedAdmin = await User.findOne({
             _id: mongoose.Types.ObjectId(req.user_id)
         });
-        const exchangeId = askedAdmin.exchangeId;
+        let exchangeId;
+        if (askedAdmin)
+            exchangeId = askedAdmin.exchangeId;
         var options = {
             'method': 'POST',
             'url': `${process.env.HYPERLEDGER_HOST}/users/getInvestorsByKey`,
@@ -241,6 +243,7 @@ const getInvestorDetailByUccId = async (req, res) => {
             error_detail: typeof error == "object" ? JSON.stringify(error) : error,
             error_data: req.body,
             api_path: req.path,
+            path: error.stack
         };
         console.error(error_body);
         return res
