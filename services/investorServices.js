@@ -248,7 +248,7 @@ const getInvestorDetailByUccId = async (req, res) => {
             },
         };
         request(options, function (error, response) {
-            console.log(JSON.parse(response.body))
+
             // if (error) return res.status(error.status).json({ message: error.message });
             if (response.statusCode == 404) return res.status(response.statusCode || 500).json({ message: response.body });
             return res.status(response.statusCode || 500).json({ data: JSON.parse(response.body) });
