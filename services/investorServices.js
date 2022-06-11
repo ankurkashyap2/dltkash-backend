@@ -228,9 +228,6 @@ const getInvestorDetailByUccId = async (req, res) => {
             if (askedAdmin)
                 exchangeId = askedAdmin.exchangeId;
         }
-        if(tokenError)return res
-        .status(RESPONSE_STATUS.UNAUTHORIZED)
-        .json({ message: "User Not valid !" })
         var options = {
             'method': 'POST',
             'url': `${process.env.HYPERLEDGER_HOST}/users/getInvestorsByKey`,
