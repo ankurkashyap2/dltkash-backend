@@ -415,9 +415,9 @@ const addSingleInvestor = async (req, res) => {
         if (data.results.length != 0) return res.status(409).json({ message: "Investor with  this uccRequestId already exists.", data: data.results[0].Record });
 
         let payload2;
-        if (uccPanExempt.toString() == "true")
-            payload2 = { uccEmailId: uccEmailId, uccMobileNo: uccMobileNo, uccPanNo: uccPanNo }
         if (uccPanExempt.toString() == "false")
+            payload2 = { uccEmailId: uccEmailId, uccMobileNo: uccMobileNo, uccPanNo: uccPanNo }
+        if (uccPanExempt.toString() == "true")
             payload2 = { uccEmailId: uccEmailId, uccMobileNo: uccMobileNo, uccDpId: uccDpId, uccClientId: uccClientId }
 
 
