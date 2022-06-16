@@ -209,13 +209,13 @@ const getInvestorDetailByUccId = async (req, res) => {
         const { fileName, uccRequestId, uccPanNo, uccMobileNo, uccEmailId, bookmark, pageSize, uccTmName, UTCNotification } = req.body;
         let token = req.headers["authorization"];
         let exchangeId;
-        let tokenError =false;
+        let tokenError = false;
         if (token) {
             token = token.split(" ");
             token = token.length > 1 ? token[1] : token[0];
             jwt.verify(token, process.env.JWTSECRET, (err, decoded) => {
                 if (err) {
-                    tokenError=true;
+                    tokenError = true;
                     return;
                 }
                 req.reqId = decoded.reqId
@@ -465,7 +465,8 @@ const addSingleInvestor = async (req, res) => {
                 investorObj.UTCNotification = '11'
             }
         }
-
+        if (investorObj.uccEmailId) investorObj.uccEmailId = investorObj.uccEmailId.toLowerCase()
+        if (investorObj.uccPanNo) investorObj.uccPanNo = investorObj.uccPanNo.toUpperCase()
         investorObj.exchangeId = askedExchange._id;
         const options = {
             'method': 'POST',

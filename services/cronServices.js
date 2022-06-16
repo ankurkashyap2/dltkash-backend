@@ -111,6 +111,8 @@ const startFileProcessing = async (recordFile, askedExchange) => {
                     }
                 }
             }
+            if (jsonObj.uccEmailId) jsonObj.uccEmailId = jsonObj.uccEmailId.toLowerCase()
+            if (jsonObj.uccPanNo) jsonObj.uccPanNo = jsonObj.uccPanNo.toUpperCase()
             //LEDGER IDS CHECKS
             if (jsonObj.uccPanExempt.toString() == "false") {
                 jsonObj.L3 = commonFunctions.encryptWithAES(`${jsonObj.uccPanNo}-${jsonObj.uccMobileNo}`);
@@ -210,18 +212,14 @@ const investorDataOperator = async (investorsData) => {
     try {
         for await (let k of investorsData) {
             let investor = k.Record;
-            const MobileStatus = investor.uccMobileStatus;
-            const EmailStatus = investor.uccEmailStatus;
             const EmailProcessed = investor.emailProcessed;
             const MobileProcessed = investor.mobileProcessed
-            if (investor.uccEmailStatus == EMAIL_STATUSES.VERIFIED && investor.uccMobileStatus == MOBILE_STATUSES.VERIFIED) return;
+            if (investor.uccEmailStatus == EMAIL_STATUSES.VERIFIED && investor.uccMobileStatus == MOBILE_STATUSES.VERIFIED) { };
             await processInvestorMobileV3(investor).then(async (investorAfterMobileProcess) => {
                 await processInvestorEmailV3(investorAfterMobileProcess).then(investorAfterEmailProcess => {
-                
                     if (!investorAfterEmailProcess.uccEmailStatus || !investorAfterEmailProcess.uccMobileStatus || investorAfterEmailProcess.emailProcessed == false || investorAfterEmailProcess.mobileProcessed == false || (EmailProcessed != investorAfterEmailProcess.emailProcessed) || (MobileProcessed != investorAfterEmailProcess.mobileProcessed)) {
                         updateInvestor(investorAfterEmailProcess);
                     }
-                    // updateInvestor(investorAfterEmailProcess);
                 })
             });
 
@@ -265,13 +263,9 @@ const sendRequestToFetchInvestors = async (bookmark = "") => {
             if (result.results)
                 bookmark = result.bookmark;
             investorDataOperator(result.results);
-            // sendRequestToFetchInvestors(bookmark);
             if (result.results == 0 || result.recordsCount < pageSize) {
-
                 return;
             }
-            // console.log(result.results)
-            // investorDataOperator(result.results);
             sendRequestToFetchInvestors(bookmark);
         });
     } catch (error) {
