@@ -2,7 +2,7 @@ const RecordFile = require('./../models/fileSpecs');
 const ErrorLogs = require('./../models/errorLogs');
 const fs = require('fs');
 const { Rabbit } = require('rabbit-queue');
-const QUEUE_NAME = 'INVESTORS_DATA_BUFF';
+const QUEUE_NAME = 'INVESTORS_DATA_BUFF_LOCAL';
 const { COUNTRY_ARRAY, EMAIL_STATUSES, MOBILE_STATUSES, UCC_REQUEST_TYPES } = require('./../constants');
 const JSONStream = require('JSONStream');
 const request = require('request');
@@ -17,7 +17,6 @@ const rabbit = new Rabbit(process.env.PROCESS_QUEUE, {
     prefetch: 1, //default prefetch from queue
     replyPattern: true, //if reply pattern is enabled an exclusive queue is created
     scheduledPublish: false,
-
     prefix: '', //prefix all queues with an application name
     socketOptions: {} // socketOptions will be passed as a second param to amqp.connect and from ther to the socket library (net or tls)
 });

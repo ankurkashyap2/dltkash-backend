@@ -14,27 +14,27 @@ fs.exists('500Record.json', function (exists) {
             } else {
                 // obj = JSON.parse(data);
 
-                for (i = 0; i < 500; i++) {
+                for (i = 0; i < 10; i++) {
                     obj.push({
-                        "uccRequestId": `${i}234718212952123`,
-                        "uccTmId": `${i}98234921123`,
+                        "uccRequestId": `ZXX!XXX001${i}`,
+                        "uccTmId": "888",
                         "uccTmName": "Zerodha",
                         "uccPanExempt": "false",
-                        "uccPanNo": "COMPA44565A",
+                        "uccPanNo": "1",
                         "uccCountry": "India",
                         "uccMobileNo": "9877114806",
-                        "uccEmailId": `ankit${i}@getnada.com`,
+                        "uccEmailId": "mailto:abc@getnada.com",
                         "uccMobileNoModified": "false",
                         "uccEmailIdModified": "false",
-                        "uccDpId": "2384092431",
-                        "uccClientId": "82340918043",
+                        "uccDpId": "",
+                        "uccClientId": "",
                         "uccInvestorCode": "18293",
                         "uccRequestType": "NEW",
                         "uccNodeStatus": "01",
                         "uccEmailStatus": "NOT VERIFIED",
-                        "uccMobileStatus": "VERIFIED",
-                        "uccPanStatus": "VERIFIED"
-
+                        "uccMobileStatus": "NOT VERIFIED",
+                        "uccPanStatus": "VERIFIED",
+                        "exchangeId": "98w37498w3r"
                     });
                 }
 
@@ -46,28 +46,28 @@ fs.exists('500Record.json', function (exists) {
 
         console.log("file not exists");
 
-        for (i = 0; i < 500; i++) {
+        for (i = 0; i < 10; i++) {
             obj.push({
-                "uccRequestId": `${i}234718212952123`,
-                "uccTmId": `${i}98234921123`,
+                "uccRequestId": `ZXX!XXX001${i}`,
+                "uccTmId": "888",
                 "uccTmName": "Zerodha",
                 "uccPanExempt": "false",
-                "uccPanNo": "COMPA44565A",
+                "uccPanNo": "1",
                 "uccCountry": "India",
                 "uccMobileNo": "9877114806",
-                "uccEmailId": `ankit${i}@getnada.com`,
+                "uccEmailId": "mailto:abc@getnada.com",
                 "uccMobileNoModified": "false",
                 "uccEmailIdModified": "false",
-                "uccDpId": "2384092431",
-                "uccClientId": "82340918043",
+                "uccDpId": "",
+                "uccClientId": "",
                 "uccInvestorCode": "18293",
                 "uccRequestType": "NEW",
                 "uccNodeStatus": "01",
                 "uccEmailStatus": "NOT VERIFIED",
-                "uccMobileStatus": "VERIFIED",
+                "uccMobileStatus": "NOT VERIFIED",
                 "uccPanStatus": "VERIFIED",
-                "UTCNotification" : "11"
-        });
+                "exchangeId": "98w37498w3r"
+            });
         }
 
         let json = JSON.stringify(obj);

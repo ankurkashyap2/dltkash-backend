@@ -12,7 +12,7 @@ var request = require('request');
 const investorMobileVerify = async (req, res) => {
     try {
         const { uccRequestId, uccMobileStatus, uccUpdatedAt } = req.body;
-        var updatedAtNum = Number(uccUpdatedAt)
+        const updatedAtNum = Number(uccUpdatedAt);
         if (!uccUpdatedAt) {
             const setDate = commonFunctions.setRecordDate(new Date(Date.now()));
             const recordObj = await RecordCounter.findOne({ "date": setDate });
@@ -116,13 +116,13 @@ const investorEmailVerify = async (req, res) => {
         if (!uccUpdatedAt) {
             const setDate = commonFunctions.setRecordDate(new Date(Date.now()));
             const recordObj = await RecordCounter.findOne({ "date": setDate });
-            if (!recordObj) {
+            if (!recordObj) {//not record found 
                 const newRecordObj = {
                     date: setDate,
                     perHourCounterArr: [{ hour: new Date(Date.now()).getHours(), count: 1 }]
                 }
                 await RecordCounter.create(newRecordObj);
-            } else {
+            } else {  // this check for   second use comes and it have not uccupdatedat and find the date.now()
                 let updatedCounterArr = recordObj.perHourCounterArr;
                 let presentHours = [];
                 updatedCounterArr.forEach((eachObj) => {
@@ -141,7 +141,7 @@ const investorEmailVerify = async (req, res) => {
                 const savedObj = new RecordCounter(recordObj);
                 await savedObj.save();
             }
-        } else {
+        } else {//this is for for uccUpdated at is passed 
             const updatedDate = new Date(updatedAtNum);
             const setUpdatedDate = commonFunctions.setRecordDate(updatedDate);
             const recordObj = await RecordCounter.findOne({ "date": setUpdatedDate });
@@ -415,6 +415,8 @@ const addSingleInvestor = async (req, res) => {
         if (data.results.length != 0) return res.status(409).json({ message: "Investor with  this uccRequestId already exists.", data: data.results[0].Record });
 
         let payload2;
+        if (uccPanExempt.toString() == "true")
+            payload2 = { uccEmailId: uccEmailId, uccMobileNo: uccMobileNo, uccPanNo: uccPanNo }
         if (uccPanExempt.toString() == "false")
             payload2 = { uccEmailId: uccEmailId, uccMobileNo: uccMobileNo, uccPanNo: uccPanNo }
         if (uccPanExempt.toString() == "true")
@@ -423,7 +425,7 @@ const addSingleInvestor = async (req, res) => {
 
         let _response = await axios.post(`${process.env.HYPERLEDGER_HOST}/users/getInvestorsByKey`, payload2);
         let dataForStatus = _response.data;
-        if (dataForStatus.results.length == 0) { //dont send mails
+        if (dataForStatus.results.length == 0) {
             if (!uccEmailStatus) {
                 investorObj = await investorFunctions.processInvestorEmailV3(investorObj);
             }
