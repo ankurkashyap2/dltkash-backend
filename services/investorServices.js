@@ -12,7 +12,7 @@ var request = require('request');
 const investorMobileVerify = async (req, res) => {
     try {
         const { uccRequestId, uccMobileStatus, uccUpdatedAt } = req.body;
-        var updatedAtNum = Number(uccUpdatedAt)
+        const updatedAtNum = Number(uccUpdatedAt)
         if (!uccUpdatedAt) {
             const setDate = commonFunctions.setRecordDate(new Date(Date.now()));
             const recordObj = await RecordCounter.findOne({ "date": setDate });
@@ -112,7 +112,7 @@ const investorMobileVerify = async (req, res) => {
 const investorEmailVerify = async (req, res) => {
     try {
         const { uccRequestId, uccEmailStatus, uccUpdatedAt } = req.body;
-        var updatedAtNum = Number(uccUpdatedAt)
+        const updatedAtNum = Number(uccUpdatedAt)
         if (!uccUpdatedAt) {
             const setDate = commonFunctions.setRecordDate(new Date(Date.now()));
             const recordObj = await RecordCounter.findOne({ "date": setDate });

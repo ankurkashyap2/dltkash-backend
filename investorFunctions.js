@@ -134,6 +134,7 @@ const processInvestorEmailV3 = async (investorObj) => {
         if (!commonFunctions.validateEmail(investorObj.uccEmailId)) {
             investorObj.uccEmailStatus = EMAIL_STATUSES.INVALID;
             investorObj.emailProcessed = true;
+            investorObj.uccUpdatedAt = Number(new Date()).toString();
             resolve(investorObj);
         }
         const EMAIL_STATUS = investorObj.uccEmailStatus;
@@ -170,6 +171,7 @@ const processInvestorEmailV3 = async (investorObj) => {
                 if (investorObj.emailAttempts >= investorObj.totalAttempts) {
                     investorObj.uccEmailStatus = EMAIL_STATUSES.NOT_VERIFIED;
                     investorObj.emailProcessed = true;
+                    investorObj.uccUpdatedAt = Number(new Date()).toString();
                     resolve(investorObj);
                 } else {
                     commonFunctions.sendMail(investorObj.uccEmailId, 'Verification of e-mail ID linked to your UCC', html, (err, res, body) => {
@@ -207,12 +209,12 @@ const processInvestorMobileV3 = async (investorObj) => {
         if (!commonFunctions.validateMobile(investorObj.uccMobileNo)) {
             investorObj.uccMobileStatus = MOBILE_STATUSES.NOT_APPLICABLE;
             investorObj.mobileProcessed = true;
+            investorObj.uccUpdatedAt = Number(new Date()).toString();
             resolve(investorObj);
         }
         const MOBILE_STATUS = investorObj.uccMobileStatus;
         const REQ_TYPE = investorObj.uccRequestType;
         const LINK_EXPIRY = REQ_TYPE == UCC_REQUEST_TYPES.EXISTING ? `${parseInt(investorObj.totalAttempts) * 24}h` : `24h`
-        console.log( investorObj.totalAttempts, ">>>>>>",LINK_EXPIRY)
         const token = jwt.sign({ mobile: investorObj.uccMobileNo, reqId: investorObj.uccRequestId }, process.env.JWTSECRET, { expiresIn: LINK_EXPIRY });
         const ref = `${process.env.FEHOST}/investor/mobile-verification/${investorObj.uccRequestId}/${token}`
         const shortURI = commonFunctions.createShortNer(ref);
@@ -236,6 +238,7 @@ const processInvestorMobileV3 = async (investorObj) => {
                 if (investorObj.mobileAttempts >= investorObj.totalAttempts) {
                     investorObj.uccMobileStatus = MOBILE_STATUSES.NOT_VERIFIED;
                     investorObj.mobileProcessed = true;
+                    investorObj.uccUpdatedAt = Number(new Date()).toString();
                     resolve(investorObj);
                 } else {
 
