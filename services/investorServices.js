@@ -209,15 +209,14 @@ const getInvestorDetailByUccId = async (req, res) => {
         const { fileName, uccRequestId, uccPanNo, uccMobileNo, uccEmailId, bookmark, pageSize, uccTmName, UTCNotification } = req.body;
         let token = req.headers["authorization"];
         let exchangeId;
-
+        let tokenError =false;
         if (token) {
             token = token.split(" ");
             token = token.length > 1 ? token[1] : token[0];
             jwt.verify(token, process.env.JWTSECRET, (err, decoded) => {
                 if (err) {
-                    return res
-                        .status(RESPONSE_STATUS.UNAUTHORIZED)
-                        .json({ message: RESPONSE_MESSAGES.TOKEN_SESSION })
+                    tokenError=true;
+                    return;
                 }
                 req.reqId = decoded.reqId
                 req.user_id = decoded.user_id
@@ -249,7 +248,8 @@ const getInvestorDetailByUccId = async (req, res) => {
             },
         };
         request(options, function (error, response) {
-            if (error) return res.status(error.status).json({ message: error.message });
+
+            // if (error) return res.status(error.status).json({ message: error.message });
             if (response.statusCode == 404) return res.status(response.statusCode || 500).json({ message: response.body });
             return res.status(response.statusCode || 500).json({ data: JSON.parse(response.body) });
         });
@@ -415,13 +415,13 @@ const addSingleInvestor = async (req, res) => {
         if (data.results.length != 0) return res.status(409).json({ message: "Investor with  this uccRequestId already exists.", data: data.results[0].Record });
 
         let payload2;
-        if (uccPanExempt.toString() == "true")
-            payload2 = { uccEmailId: uccEmailId, uccMobileNo: uccMobileNo }
         if (uccPanExempt.toString() == "false")
+            payload2 = { uccEmailId: uccEmailId, uccMobileNo: uccMobileNo, uccPanNo: uccPanNo }
+        if (uccPanExempt.toString() == "true")
             payload2 = { uccEmailId: uccEmailId, uccMobileNo: uccMobileNo, uccDpId: uccDpId, uccClientId: uccClientId }
-        
-        
-            let _response = await axios.post(`${process.env.HYPERLEDGER_HOST}/users/getInvestorsByKey`, payload2);
+
+
+        let _response = await axios.post(`${process.env.HYPERLEDGER_HOST}/users/getInvestorsByKey`, payload2);
         let dataForStatus = _response.data;
         if (dataForStatus.results.length == 0) { //dont send mails
             if (!uccEmailStatus) {

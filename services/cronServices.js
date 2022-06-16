@@ -247,7 +247,7 @@ const sendRequestToFetchInvestors = async (bookmark = "") => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                // "UTCNotification": hoursToMatch,
+                "UTCNotification": hoursToMatch,
                 "pageSize": pageSize,
                 "bookmark": `${bookmark}`
             })
