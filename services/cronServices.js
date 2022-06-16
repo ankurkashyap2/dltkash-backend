@@ -112,6 +112,18 @@ const startFileProcessing = async (recordFile, askedExchange) => {
                 }
             }
             //LEDGER IDS CHECKS
+            if (jsonObj.uccPanExempt.toString() == "false") {
+                jsonObj.L3 = commonFunctions.encryptWithAES(`${jsonObj.uccPanNo}-${jsonObj.uccMobileNo}`);
+                jsonObj.L2 = commonFunctions.encryptWithAES(`${jsonObj.uccPanNo}-${jsonObj.uccMobileNo}-${jsonObj.uccEmailId}`);
+                jsonObj.L4 = commonFunctions.encryptWithAES(`${jsonObj.uccPanNo}-${jsonObj.uccEmailId}`);
+                jsonObj.L1 = commonFunctions.encryptWithAES(`${jsonObj.uccPanNo}`);
+            }
+            if (jsonObj.uccPanExempt.toString() == "true") {
+                jsonObj.L5 = commonFunctions.encryptWithAES(`${jsonObj.uccDpId}-${jsonObj.uccClientId}`);
+                jsonObj.L6 = commonFunctions.encryptWithAES(`${jsonObj.uccDpId}-${jsonObj.uccClientId}-${jsonObj.uccMobileNo}-${jsonObj.uccEmailId}`);
+                jsonObj.L7 = commonFunctions.encryptWithAES(`${jsonObj.uccDpId}-${jsonObj.uccClientId}-${jsonObj.uccMobileNo}`);
+                jsonObj.L8 = commonFunctions.encryptWithAES(`${jsonObj.uccDpId}-${jsonObj.uccClientId}-${jsonObj.uccEmailId}`);
+            }
 
             //ADD TOTAL ATTEMPTS
             //************************************* */
