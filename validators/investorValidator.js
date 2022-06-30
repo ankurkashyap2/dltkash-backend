@@ -6,12 +6,12 @@ const investorApiPathModels = {
         email: { type: String, required: true, source: "query" },
     },
     "/verify/email": {
-        uccRequestId : { type: String, required: true },
-        uccEmailStatus:{ type: String, required: true },
+        uccRequestId: { type: String, required: true },
+        uccEmailStatus: { type: String, required: true },
     },
     "/verify/mobile": {
-        uccRequestId : { type: String, required: true },
-        uccMobileStatus:{ type: String, required: true },
+        uccRequestId: { type: String, required: true },
+        uccMobileStatus: { type: String, required: true },
     },
     "/get-data": {
         uccRequestId: { type: String, required: false }
@@ -49,7 +49,8 @@ const investorApiPathModels = {
 
     '/sendclean-webhook': {
 
-    }
+    },
+    '/updateInvestor': {}
 };
 
 module.exports = function handler(req, res, next) {

@@ -9,6 +9,7 @@ const mongoose = require('mongoose');
 const jwt = require("jsonwebtoken");
 const axios = require('axios')
 var request = require('request');
+const { isDate } = require('../commonFunctions');
 const investorMobileVerify = async (req, res) => {
     try {
         const { uccRequestId, uccMobileStatus, uccUpdatedAt } = req.body;
@@ -22,7 +23,7 @@ const investorMobileVerify = async (req, res) => {
                     perHourCounterArr: [{ hour: new Date(Date.now()).getHours(), count: 1 }]
                 }
                 await RecordCounter.create(newRecordObj);
-            } else {
+            } else {   // in a particular hour two different investor verified 
                 let updatedCounterArr = recordObj.perHourCounterArr;
                 let presentHours = [];
                 updatedCounterArr.forEach((eachObj) => {
@@ -107,7 +108,47 @@ const investorMobileVerify = async (req, res) => {
     }
 }
 
+const incrementCounter = async (investorObj) => {
+    const uccUpdatedAt = investorObj.uccUpdatedAt
+    const updatedAtNum = Number(uccUpdatedAt);
+    const updatedDate = new Date(updatedAtNum);
+    const dateSendForSet = new Date(updatedAtNum);
+    const setUpdatedDate = commonFunctions.setRecordDate(dateSendForSet);
+    const recordObj = await RecordCounter.findOne({ "date": setUpdatedDate });
+    if (!recordObj) {
+        const newRecordObj = {
+            date: setUpdatedDate,
+            perHourCounterArr: [{ hour: updatedDate.getHours(), count: 1 }]
+        }
+        await RecordCounter.create(newRecordObj);
+    } else {
+        let updatedCounterArr = recordObj.perHourCounterArr;
+        let presentHours = [];
+        updatedCounterArr.forEach((eachObj) => {
+            presentHours.push(eachObj.hour);
+        });
 
+        if (presentHours.includes(updatedDate.getHours())) {
+            updatedCounterArr.forEach((eachObj) => {
+                if (eachObj.hour == updatedDate.getHours()) {
+                    eachObj.count += 1;
+                }
+            });
+        } else
+            updatedCounterArr.push({ hour: updatedDate.getHours(), count: 1 })
+        recordObj.perHourCounterArr = updatedCounterArr;
+        //     console.log(recordObj.perHourCounterArr)
+        // const savedObj = new RecordCounter(recordObj);
+        // const ans = 
+        const ans =await recordObj.save();
+
+        //    await RecordCounter.updateOne({perHourCounterArr:perHourCounterArr }, {perHourCounterArr : updatedCounterArr});
+        //    const ans = await recordObj.save()
+        //    const ans= await RecordCounter.save()
+        console.log(ans) ; 
+        
+    }
+}
 
 const investorEmailVerify = async (req, res) => {
     try {
@@ -183,6 +224,7 @@ const investorEmailVerify = async (req, res) => {
             body: JSON.stringify({
                 "uccRequestId": uccRequestId,
                 "uccEmailStatus": uccEmailStatus,
+                'mobileProcessed': true
             })
         };
         request(options, function (error, response) {
@@ -209,13 +251,13 @@ const getInvestorDetailByUccId = async (req, res) => {
         const { fileName, uccRequestId, uccPanNo, uccMobileNo, uccEmailId, bookmark, pageSize, uccTmName, UTCNotification } = req.body;
         let token = req.headers["authorization"];
         let exchangeId;
-        let tokenError =false;
+        let tokenError = false;
         if (token) {
             token = token.split(" ");
             token = token.length > 1 ? token[1] : token[0];
             jwt.verify(token, process.env.JWTSECRET, (err, decoded) => {
                 if (err) {
-                    tokenError=true;
+                    tokenError = true;
                     return;
                 }
                 req.reqId = decoded.reqId
@@ -383,7 +425,7 @@ const addSingleInvestor = async (req, res) => {
             mobileAttempts,
             UTCNotification,
             mobileProcessed,
-            emailProcessed } = req.body;
+            emailProcessed } = req.body;       
         let investorObj = {
             uccRequestId: uccRequestId,
             uccTmId: uccTmId,
@@ -433,8 +475,11 @@ const addSingleInvestor = async (req, res) => {
                 investorObj = await investorFunctions.processInvestorMobileV3(investorObj);
             }
         }
-
-
+        if(investorObj.uccMobileStatus==MOBILE_STATUSES.NOT_APPLICABLE){
+            investorObj.mobileProcessed=true ;
+        }
+        if (!investorObj.uccEmailId) investorObj.uccEmailId = investorObj.uccEmailId.toLowerCase()
+        if (!investorObj.uccPanNo) investorObj.uccPanNo = investorObj.uccPanNo.toUpperCase()
         if (uccPanExempt.toString() == "false") {
             investorObj.L1 = commonFunctions.encryptWithAES(`${uccPanNo}`);
             investorObj.L2 = commonFunctions.encryptWithAES(`${uccPanNo}-${uccMobileNo}-${uccEmailId}`);
@@ -536,7 +581,35 @@ const dataByFile = async (req, res) => {
             .json({ message: error.message });
     }
 }
+
+//TETS
+const updateInvestor = async (req, res) => {
+
+    try {
+        const investorObj = req.body;
+        if (investorObj.uccMobileStatus == EMAIL_STATUSES.NOT_VERIFIED || investorObj.uccEmailStatus == EMAIL_STATUSES.NOT_VERIFIED) {
+            await incrementCounter(investorObj);
+        }
+        var options = {
+            'method': 'POST',
+            'url': `${process.env.HYPERLEDGER_HOST}/users/updateInvestor`,
+            'headers': {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(investorObj)
+        };
+        request(options, function (error, response) {
+            if (response.statusCode == 200) return res.json({ message: "REQ SUCCUESS" });
+        });
+
+    } catch (err) {
+        console.log(err.stack)
+        console.error('error on updating userInfo on hyperledger')
+    }
+}
+
 module.exports = {
+    updateInvestor,
     addSingleInvestor,
     investorEmailVerify,
     sendInvestorEmailForVerification,
@@ -545,4 +618,5 @@ module.exports = {
     addBulkinvestors,
     sendCleanWebHook,
     dataByFile,
+    incrementCounter
 }

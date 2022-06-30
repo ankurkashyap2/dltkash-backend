@@ -15,7 +15,7 @@ cron.schedule('* * * * *', () => {
 
 
 // CRON RUN EVERY 30 MINUTES TO FETCH USERS FOR NOTIFICATIONS 
-cron.schedule('*/5 * * * *', () => {
+cron.schedule('*/30 * * * * *', () => {
     try {
         console.info("CRON RUN EVERY HOUR TO FETCH USERS FOR NOTIFICATIONS =>", (new Date()).toUTCString());
         cronServices.notificationSendingLogic().then(() => {

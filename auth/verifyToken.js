@@ -19,7 +19,8 @@ const apisToBeByPassed = [
     '/sendclean-webhook',
     '/verify/email',
     '/verify/mobile',
-    '/grant-token'
+    '/grant-token',
+    '/updateInvestor'
 
 ];
 

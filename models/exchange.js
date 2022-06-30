@@ -16,6 +16,7 @@ const Exchange = new mongoose.Schema({
     modifiedAttempts: { type: Number, default: 7 },
     existingAttempts: { type: Number, default: 1 },
     existingDate: { type: Date },
+    invalidRecords: { type: Array },
     isExistingDateSelected: { type: Boolean, default: false },
     notificationTemplates: [
         {
