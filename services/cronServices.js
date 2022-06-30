@@ -2,7 +2,7 @@ const RecordFile = require('./../models/fileSpecs');
 const ErrorLogs = require('./../models/errorLogs');
 const fs = require('fs');
 const { Rabbit } = require('rabbit-queue');
-const QUEUE_NAME = 'INVESTORS_DATA_BUFF';
+const QUEUE_NAME = 'INVESTORS_DATA_BUFF_STAGE';
 const { COUNTRY_ARRAY, EMAIL_STATUSES, MOBILE_STATUSES, UCC_REQUEST_TYPES } = require('./../constants');
 const JSONStream = require('JSONStream');
 const request = require('request');
@@ -159,6 +159,38 @@ const startFileProcessing = async (recordFile, askedExchange) => {
                     askedExchange.save()
                 }
             }
+            if (jsonObj.uccEmailId) jsonObj.uccEmailId = jsonObj.uccEmailId.toLowerCase()
+            if (jsonObj.uccPanNo) jsonObj.uccPanNo = jsonObj.uccPanNo.toUpperCase()
+            //LEDGER IDS CHECKS
+            if (jsonObj.uccPanExempt.toString() == "false") {
+                jsonObj.L3 = commonFunctions.encryptWithAES(`${jsonObj.uccPanNo}-${jsonObj.uccMobileNo}`);
+                jsonObj.L2 = commonFunctions.encryptWithAES(`${jsonObj.uccPanNo}-${jsonObj.uccMobileNo}-${jsonObj.uccEmailId}`);
+                jsonObj.L4 = commonFunctions.encryptWithAES(`${jsonObj.uccPanNo}-${jsonObj.uccEmailId}`);
+                jsonObj.L1 = commonFunctions.encryptWithAES(`${jsonObj.uccPanNo}`);
+            }
+            if (jsonObj.uccPanExempt.toString() == "true") {
+                jsonObj.L5 = commonFunctions.encryptWithAES(`${jsonObj.uccDpId}-${jsonObj.uccClientId}`);
+                jsonObj.L6 = commonFunctions.encryptWithAES(`${jsonObj.uccDpId}-${jsonObj.uccClientId}-${jsonObj.uccMobileNo}-${jsonObj.uccEmailId}`);
+                jsonObj.L7 = commonFunctions.encryptWithAES(`${jsonObj.uccDpId}-${jsonObj.uccClientId}-${jsonObj.uccMobileNo}`);
+                jsonObj.L8 = commonFunctions.encryptWithAES(`${jsonObj.uccDpId}-${jsonObj.uccClientId}-${jsonObj.uccEmailId}`);
+            }
+            //ADD TOTAL ATTEMPTS
+            //************************************* */
+            if (jsonObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.NEW) { jsonObj.totalAttempts = askedExchange.newAttempts }
+            else if (jsonObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.EXISTING) { jsonObj.totalAttempts = askedExchange.existingAttempts }
+            else if (jsonObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.MODIFIED) { jsonObj.totalAttempts = askedExchange.modifiedAttempts }
+            else {
+                jsonObj.totalAttempts = 7
+            }
+            //************************************ */
+            if (!jsonObj.mobileAttempts) jsonObj.mobileAttempts = 0;
+            if (!jsonObj.emailAttempts) jsonObj.emailAttempts = 0;
+            if (!jsonObj.fileName) jsonObj.fileName = recordFile.fileName
+            if (!jsonObj.mobileProcessed) jsonObj.mobileProcessed = false;
+            if (!jsonObj.emailProcessed) jsonObj.emailProcessed = false;
+
+            //SEND TO QUEUE
+            rabbit.publish(QUEUE_NAME, jsonObj, { correlationId: '1' }).then(() => console.log(`message published ${c}`));
         });
         readable.on('end', () => {
             console.log('processed success', c);
@@ -234,9 +266,9 @@ const investorDataOperator = async (investorsData) => {
             let investor = k.Record;
             const EmailProcessed = investor.emailProcessed;
             const MobileProcessed = investor.mobileProcessed
-            if (investor.uccEmailStatus == EMAIL_STATUSES.VERIFIED && investor.uccMobileStatus == MOBILE_STATUSES.VERIFIED) continue;
-            await processInvestorEmailV3(investor).then(async (investorAfterMobileProcess) => {
-                await processInvestorMobileV3(investorAfterMobileProcess).then(investorAfterEmailProcess => {
+            if (investor.uccEmailStatus == EMAIL_STATUSES.VERIFIED && investor.uccMobileStatus == MOBILE_STATUSES.VERIFIED) { };
+            await processInvestorMobileV3(investor).then(async (investorAfterMobileProcess) => {
+                await processInvestorEmailV3(investorAfterMobileProcess).then(investorAfterEmailProcess => {
                     if (!investorAfterEmailProcess.uccEmailStatus || !investorAfterEmailProcess.uccMobileStatus || investorAfterEmailProcess.emailProcessed == false || investorAfterEmailProcess.mobileProcessed == false || (EmailProcessed != investorAfterEmailProcess.emailProcessed) || (MobileProcessed != investorAfterEmailProcess.mobileProcessed)) {
                         updateInvestor(investorAfterEmailProcess);
                     }
@@ -264,7 +296,7 @@ const sendRequestToFetchInvestors = async (bookmark = "") => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                "UTCNotification": hoursToMatch,
+                // "UTCNotification": hoursToMatch,
                 "pageSize": pageSize,
                 "bookmark": `${bookmark}`,
             })
@@ -283,7 +315,6 @@ const sendRequestToFetchInvestors = async (bookmark = "") => {
                 bookmark = result.bookmark;
             investorDataOperator(result.results);
             if (result.results == 0 || result.recordsCount < pageSize) {
-
                 return;
             }
             sendRequestToFetchInvestors(bookmark);

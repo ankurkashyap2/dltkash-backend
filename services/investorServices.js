@@ -153,7 +153,7 @@ const incrementCounter = async (investorObj) => {
 const investorEmailVerify = async (req, res) => {
     try {
         const { uccRequestId, uccEmailStatus, uccUpdatedAt } = req.body;
-        var updatedAtNum = Number(uccUpdatedAt)
+        const updatedAtNum = Number(uccUpdatedAt)
         if (!uccUpdatedAt) {
             const setDate = commonFunctions.setRecordDate(new Date(Date.now()));
             const recordObj = await RecordCounter.findOne({ "date": setDate });
@@ -512,7 +512,8 @@ const addSingleInvestor = async (req, res) => {
                 investorObj.UTCNotification = '11'
             }
         }
-
+        if (investorObj.uccEmailId) investorObj.uccEmailId = investorObj.uccEmailId.toLowerCase()
+        if (investorObj.uccPanNo) investorObj.uccPanNo = investorObj.uccPanNo.toUpperCase()
         investorObj.exchangeId = askedExchange._id;
         const options = {
             'method': 'POST',
