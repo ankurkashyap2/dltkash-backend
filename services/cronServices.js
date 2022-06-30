@@ -11,13 +11,13 @@ const mongoose = require('mongoose');
 const commonFunctions = require('./../commonFunctions');
 const Exchange = require('./../models/exchange');
 const { processInvestorMobileV3, processInvestorEmailV3 } = require('../investorFunctions');
+const { incrementCounter } = require('./investorServices');
 
 
 const rabbit = new Rabbit(process.env.PROCESS_QUEUE, {
     prefetch: 1, //default prefetch from queue
     replyPattern: true, //if reply pattern is enabled an exclusive queue is created
     scheduledPublish: false,
-
     prefix: '', //prefix all queues with an application name
     socketOptions: {} // socketOptions will be passed as a second param to amqp.connect and from ther to the socket library (net or tls)
 });
@@ -94,21 +94,69 @@ const startFileProcessing = async (recordFile, askedExchange) => {
         const readable = fs.createReadStream(path.join(__uploadPath, recordFile.fileName)).pipe(JSONStream.parse('*'));
 
         c = 0;
+        const invalidRecords = [];
         const indianTimeUtcArr = ['11', '12', '10', '9', '8', '7', '6', '5', '13', '4', '3', '12', '13'];
         readable.on('data', (jsonObj) => {
             c++;
-            jsonObj.exchangeId = recordFile.exchangeId;
-            if (!jsonObj.UTCNotification) {
-                if (jsonObj.uccCountry) {
-                    if (jsonObj.uccCountry.toLowerCase() == 'india') {
-                        //"11:00" UTC  = 4:30 PM 
-                        jsonObj.UTCNotification = indianTimeUtcArr[Math.floor(Math.random() * indianTimeUtcArr.length)];
-                    } else if (jsonObj.uccCountry == 'No Specific Country') {
-                        jsonObj.UTCNotification = indianTimeUtcArr[Math.floor(Math.random() * indianTimeUtcArr.length)];
+            try {
+                jsonObj.exchangeId = recordFile.exchangeId;
+                try {
+                    if (jsonObj.uccRequestType == UCC_REQUEST_TYPES.NEW) {
+                        jsonObj.UTCNotification = "05"
                     }
-                    else {
-                        jsonObj.UTCNotification = COUNTRY_ARRAY[jsonObj.uccCountry.toLowerCase()].hours.split(':')[0];
+                    if (jsonObj.uccRequestType == UCC_REQUEST_TYPES.MODIFIED) {
+                        jsonObj.UTCNotification = "10"
                     }
+                    if (jsonObj.uccRequestType == UCC_REQUEST_TYPES.EXISTING) {
+                        jsonObj.UTCNotification = "13"
+                    }
+                }
+                catch (err) {
+                    askedExchange.invalidRecords = invalidRecords;
+                }
+                //LEDGER IDS CHECKS
+                if (jsonObj.uccPanExempt.toString() == "false") {
+                    jsonObj.L3 = commonFunctions.encryptWithAES(`${jsonObj.uccPanNo}-${jsonObj.uccMobileNo}`);
+                    jsonObj.L2 = commonFunctions.encryptWithAES(`${jsonObj.uccPanNo}-${jsonObj.uccMobileNo}-${jsonObj.uccEmailId}`);
+                    jsonObj.L4 = commonFunctions.encryptWithAES(`${jsonObj.uccPanNo}-${jsonObj.uccEmailId}`);
+                    jsonObj.L1 = commonFunctions.encryptWithAES(`${jsonObj.uccPanNo}`);
+                }
+                if (jsonObj.uccPanExempt.toString() == "true") {
+                    jsonObj.L5 = commonFunctions.encryptWithAES(`${jsonObj.uccDpId}-${jsonObj.uccClientId}`);
+                    jsonObj.L6 = commonFunctions.encryptWithAES(`${jsonObj.uccDpId}-${jsonObj.uccClientId}-${jsonObj.uccMobileNo}-${jsonObj.uccEmailId}`);
+                    jsonObj.L7 = commonFunctions.encryptWithAES(`${jsonObj.uccDpId}-${jsonObj.uccClientId}-${jsonObj.uccMobileNo}`);
+                    jsonObj.L8 = commonFunctions.encryptWithAES(`${jsonObj.uccDpId}-${jsonObj.uccClientId}-${jsonObj.uccEmailId}`);
+                }
+
+                //ADD TOTAL ATTEMPTS
+                //************************************* */
+                if (jsonObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.NEW) { jsonObj.totalAttempts = askedExchange.newAttempts }
+                else if (jsonObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.EXISTING) { jsonObj.totalAttempts = askedExchange.existingAttempts }
+                else if (jsonObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.MODIFIED) { jsonObj.totalAttempts = askedExchange.modifiedAttempts }
+                else {
+                    jsonObj.totalAttempts = 7
+                }
+                if (jsonObj.uccMobileStatus == MOBILE_STATUSES.NOT_APPLICABLE) {
+                    jsonObj.mobileProcessed = true;
+                }
+                //************************************ */
+                if (!jsonObj.mobileAttempts) jsonObj.mobileAttempts = 0;
+                if (!jsonObj.emailAttempts) jsonObj.emailAttempts = 0;
+                if (!jsonObj.fileName) jsonObj.fileName = recordFile.fileName
+                if (!jsonObj.mobileProcessed) jsonObj.mobileProcessed = false;
+                if (!jsonObj.emailProcessed) jsonObj.emailProcessed = false;
+                if (!jsonObj.uccEmailId) jsonObj.uccEmailId = jsonObj.uccEmailId.toLowerCase();
+                if (!jsonObj.uccPanNo) jsonObj.uccPanNo = jsonObj.uccPanNo.toUpperCase();
+                //SEND TO QUEUE
+                rabbit.publish(QUEUE_NAME, jsonObj, { correlationId: '1' }).then(() => console.log(`message published ${c}`));
+            } catch (error) {
+
+                invalidRecords.push(jsonObj);
+
+            } finally {
+                if (invalidRecords.length) {
+                    askedExchange.invalidRecords = invalidRecords;
+                    askedExchange.save()
                 }
             }
             if (jsonObj.uccEmailId) jsonObj.uccEmailId = jsonObj.uccEmailId.toLowerCase()
@@ -164,9 +212,13 @@ const startFileProcessing = async (recordFile, askedExchange) => {
     }
 }
 
-const updateInvestor = (investorObj) => {
+const updateInvestor = async (investorObj) => {
+
     try {
-        var options = {
+        if (investorObj.uccMobileStatus == EMAIL_STATUSES.NOT_VERIFIED || investorObj.uccEmailStatus == EMAIL_STATUSES.NOT_VERIFIED) {
+            await incrementCounter(investorObj);
+        }
+        const options = {
             'method': 'POST',
             'url': `${process.env.HYPERLEDGER_HOST}/users/updateInvestor`,
             'headers': {
@@ -226,7 +278,7 @@ const investorDataOperator = async (investorsData) => {
         }
     }
     catch (errror) {
-        console.log('ERRROR STACK ITERATING OVER INVESTOR DAATA OPERATOR', errror.stack)
+        console.log('ERRROR STACK ITERATING OVER INVESTOR DATA OPERATOR', errror.stack)
     }
 }
 
@@ -246,7 +298,7 @@ const sendRequestToFetchInvestors = async (bookmark = "") => {
             body: JSON.stringify({
                 // "UTCNotification": hoursToMatch,
                 "pageSize": pageSize,
-                "bookmark": `${bookmark}`
+                "bookmark": `${bookmark}`,
             })
         };
         request(options, function (error, response) {
@@ -259,7 +311,6 @@ const sendRequestToFetchInvestors = async (bookmark = "") => {
                 return;
             };
             const result = JSON.parse(response.body);
-            console.log(` NO OF RESULTS ${result.recordsCount}`)
             if (result.results)
                 bookmark = result.bookmark;
             investorDataOperator(result.results);
@@ -279,7 +330,6 @@ const sendRequestToFetchInvestors = async (bookmark = "") => {
     }
 
 }
-
 
 
 
