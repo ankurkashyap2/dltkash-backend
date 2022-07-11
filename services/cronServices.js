@@ -2,8 +2,8 @@ const RecordFile = require('./../models/fileSpecs');
 const ErrorLogs = require('./../models/errorLogs');
 const fs = require('fs');
 const { Rabbit } = require('rabbit-queue');
-const QUEUE_NAME = 'INVESTORS_DATA_BUFF';
-const { COUNTRY_ARRAY, EMAIL_STATUSES, MOBILE_STATUSES, UCC_REQUEST_TYPES } = require('./../constants');
+const QUEUE_NAME = 'INVESTORS_DATA_BUFF_BUFF';
+const { COUNTRY_ARRAY, EMAIL_STATUSES, MOBILE_STATUSES, UCC_REQUEST_TYPES, INVALID_ERROR_CODES } = require('./../constants');
 const JSONStream = require('JSONStream');
 const request = require('request');
 const path = require('path');
@@ -11,13 +11,13 @@ const mongoose = require('mongoose');
 const commonFunctions = require('./../commonFunctions');
 const Exchange = require('./../models/exchange');
 const { processInvestorMobileV3, processInvestorEmailV3 } = require('../investorFunctions');
+const { incrementCounter } = require('./investorServices');
 
 
 const rabbit = new Rabbit(process.env.PROCESS_QUEUE, {
     prefetch: 1, //default prefetch from queue
     replyPattern: true, //if reply pattern is enabled an exclusive queue is created
     scheduledPublish: false,
-
     prefix: '', //prefix all queues with an application name
     socketOptions: {} // socketOptions will be passed as a second param to amqp.connect and from ther to the socket library (net or tls)
 });
@@ -28,7 +28,6 @@ const checkForUnprocessedFiles = async () => {
         const recordFile = await RecordFile.findOne({
             status: "UNPROCESSED"
         });
-
         if (recordFile) {
             const askedExchange = await Exchange.findOne({ _id: mongoose.Types.ObjectId(recordFile.exchangeId) });
             startFileProcessing(recordFile, askedExchange).then(() => { });
@@ -73,8 +72,8 @@ const deleteProcessedFiles = async () => {
         // ErrorLogs.create(error);
         console.error(error_body);
     }
-
 }
+
 const canStartConsumer = async () => {
     var options = {
         'method': 'GET',
@@ -92,58 +91,74 @@ const canStartConsumer = async () => {
 const startFileProcessing = async (recordFile, askedExchange) => {
     try {
         const readable = fs.createReadStream(path.join(__uploadPath, recordFile.fileName)).pipe(JSONStream.parse('*'));
-
-        c = 0;
-        const indianTimeUtcArr = ['11', '12', '10', '9', '8', '7', '6', '5', '13', '4', '3', '12', '13'];
+        let c = 0;
+        const invalidRecords = [];
         readable.on('data', (jsonObj) => {
             c++;
-            jsonObj.exchangeId = recordFile.exchangeId;
-            if (!jsonObj.UTCNotification) {
-                if (jsonObj.uccCountry) {
-                    if (jsonObj.uccCountry.toLowerCase() == 'india') {
-                        //"11:00" UTC  = 4:30 PM 
-                        jsonObj.UTCNotification = indianTimeUtcArr[Math.floor(Math.random() * indianTimeUtcArr.length)];
-                    } else if (jsonObj.uccCountry == 'No Specific Country') {
-                        jsonObj.UTCNotification = indianTimeUtcArr[Math.floor(Math.random() * indianTimeUtcArr.length)];
+            try {
+                const sanitized = sanitizer(jsonObj);
+                //push in invalid records with sanitized.errCode
+                if (sanitized.invalid) {
+                    let Error_Obj = {
+                        uccRequestId: jsonObj.uccRequestId,
+                        error_code: INVALID_ERROR_CODES[sanitized.errCode],
+                        time: Date.now(),
                     }
+                    invalidRecords.push(Error_Obj);
+                } else {
+                    jsonObj.exchangeId = recordFile.exchangeId;
+                    //LEDGER IDS CHECKS
+                    if (jsonObj.uccPanExempt.toString() == "false") {
+                        jsonObj.L3 = commonFunctions.encryptWithAES(`${jsonObj.uccPanNo}-${jsonObj.uccMobileNo}`);
+                        jsonObj.L2 = commonFunctions.encryptWithAES(`${jsonObj.uccPanNo}-${jsonObj.uccMobileNo}-${jsonObj.uccEmailId}`);
+                        jsonObj.L4 = commonFunctions.encryptWithAES(`${jsonObj.uccPanNo}-${jsonObj.uccEmailId}`);
+                        jsonObj.L1 = commonFunctions.encryptWithAES(`${jsonObj.uccPanNo}`);
+                    }
+                    if (jsonObj.uccPanExempt.toString() == "true") {
+                        jsonObj.L5 = commonFunctions.encryptWithAES(`${jsonObj.uccDpId}-${jsonObj.uccClientId}`);
+                        jsonObj.L6 = commonFunctions.encryptWithAES(`${jsonObj.uccDpId}-${jsonObj.uccClientId}-${jsonObj.uccMobileNo}-${jsonObj.uccEmailId}`);
+                        jsonObj.L7 = commonFunctions.encryptWithAES(`${jsonObj.uccDpId}-${jsonObj.uccClientId}-${jsonObj.uccMobileNo}`);
+                        jsonObj.L8 = commonFunctions.encryptWithAES(`${jsonObj.uccDpId}-${jsonObj.uccClientId}-${jsonObj.uccEmailId}`);
+                    }
+                    //ADD TOTAL ATTEMPTS
+                    //************************************* */
+                    if (jsonObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.NEW) { jsonObj.totalAttempts = askedExchange.newAttempts }
+                    else if (jsonObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.EXISTING) { jsonObj.totalAttempts = askedExchange.existingAttempts }
+                    else if (jsonObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.MODIFIED) { jsonObj.totalAttempts = askedExchange.modifiedAttempts }
                     else {
-                        jsonObj.UTCNotification = COUNTRY_ARRAY[jsonObj.uccCountry.toLowerCase()].hours.split(':')[0];
+                        jsonObj.totalAttempts = 7
                     }
+                    //CHECK FOR NOT APPLICABLE
+                    if (jsonObj.uccMobileStatus == MOBILE_STATUSES.NOT_APPLICABLE) {
+                        jsonObj.mobileProcessed = true;
+                    }
+                    //************************************ */
+                    if (!jsonObj.mobileAttempts) jsonObj.mobileAttempts = 0;
+                    if (!jsonObj.emailAttempts) jsonObj.emailAttempts = 0;
+                    if (!jsonObj.fileName) jsonObj.fileName = recordFile.fileName
+                    if (!jsonObj.mobileProcessed) jsonObj.mobileProcessed = false;
+                    if (!jsonObj.emailProcessed) jsonObj.emailProcessed = false;
+                    if (!jsonObj.uccEmailId) jsonObj.uccEmailId = jsonObj.uccEmailId.toLowerCase();
+                    if (!jsonObj.uccPanNo) jsonObj.uccPanNo = jsonObj.uccPanNo.toUpperCase();
+                    if (!jsonObj.refined) jsonObj.refined = false;
+                    //chek for emailPocessed and MobileProcessed both are tue
+                    //SEND TO QUEUE
+                    rabbit.publish(QUEUE_NAME, jsonObj, { correlationId: '1' }).then(() => console.log(`message published ${c}`));
                 }
+            } catch (error) {
+                let Error_Obj = {
+                    uccRequestId: jsonObj.uccRequestId,
+                    error_code: INVALID_ERROR_CODES[06],
+                    time: Date.now(),
+                    systemErrorReason: error.stack
+                }
+                invalidRecords.push(Error_Obj);
             }
-            //LEDGER IDS CHECKS
-            if (jsonObj.uccPanExempt.toString() == "false") {
-                jsonObj.L3 = commonFunctions.encryptWithAES(`${jsonObj.uccPanNo}-${jsonObj.uccMobileNo}`);
-                jsonObj.L2 = commonFunctions.encryptWithAES(`${jsonObj.uccPanNo}-${jsonObj.uccMobileNo}-${jsonObj.uccEmailId}`);
-                jsonObj.L4 = commonFunctions.encryptWithAES(`${jsonObj.uccPanNo}-${jsonObj.uccEmailId}`);
-                jsonObj.L1 = commonFunctions.encryptWithAES(`${jsonObj.uccPanNo}`);
-            }
-            if (jsonObj.uccPanExempt.toString() == "true") {
-                jsonObj.L5 = commonFunctions.encryptWithAES(`${jsonObj.uccDpId}-${jsonObj.uccClientId}`);
-                jsonObj.L6 = commonFunctions.encryptWithAES(`${jsonObj.uccDpId}-${jsonObj.uccClientId}-${jsonObj.uccMobileNo}-${jsonObj.uccEmailId}`);
-                jsonObj.L7 = commonFunctions.encryptWithAES(`${jsonObj.uccDpId}-${jsonObj.uccClientId}-${jsonObj.uccMobileNo}`);
-                jsonObj.L8 = commonFunctions.encryptWithAES(`${jsonObj.uccDpId}-${jsonObj.uccClientId}-${jsonObj.uccEmailId}`);
-            }
-
-            //ADD TOTAL ATTEMPTS
-            //************************************* */
-            if (jsonObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.NEW) { jsonObj.totalAttempts = askedExchange.newAttempts }
-            else if (jsonObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.EXISTING) { jsonObj.totalAttempts = askedExchange.existingAttempts }
-            else if (jsonObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.MODIFIED) { jsonObj.totalAttempts = askedExchange.modifiedAttempts }
-            else {
-                jsonObj.totalAttempts = 7
-            }
-            //************************************ */
-            if (!jsonObj.mobileAttempts) jsonObj.mobileAttempts = 0;
-            if (!jsonObj.emailAttempts) jsonObj.emailAttempts = 0;
-            if (!jsonObj.fileName) jsonObj.fileName = recordFile.fileName
-            if (!jsonObj.mobileProcessed) jsonObj.mobileProcessed = false;
-            if (!jsonObj.emailProcessed) jsonObj.emailProcessed = false;
-
-            //SEND TO QUEUE
-            rabbit.publish(QUEUE_NAME, jsonObj, { correlationId: '1' }).then(() => console.log(`message published ${c}`));
         });
-        readable.on('end', () => {
+        readable.on('end', async () => {
+            if (invalidRecords.length) {
+                recordFile.invalidRecords.push(invalidRecords);
+            }
             console.log('processed success', c);
             recordFile.status = "PROCESSED";
             recordFile.save();
@@ -163,9 +178,47 @@ const startFileProcessing = async (recordFile, askedExchange) => {
     }
 }
 
-const updateInvestor = (investorObj) => {
+const sanitizer = (jsonObj) => {
+    if (!jsonObj.uccPanExempt) {
+        return { invalid: true, errCode: 02 }
+    }
+    if (!(jsonObj.uccPanExempt && ["true", "false"].includes(jsonObj.uccPanExempt.toString()))) {
+        return { invalid: true, errCode: 02 }
+    }
+    if (jsonObj.uccPanExempt.toString() == 'true') {
+        //if DPID adn CLIENTID missing errorCOde {}
+        if (jsonObj.uccDpId || jsonObj.uccClientId) {
+            return { invalid: true, errCode: 00 }
+        }
+    }
+    if (jsonObj.uccPanExempt.toString() == 'false') {
+        if (!jsonObj.uccPanNo) {
+            return { invalid: true, errCode: 01 }
+        }
+    }
+    if (jsonObj.uccPanExempt.toString() == 'true' && jsonObj.uccPanNo) {
+        return { invalid: true, errCode: 00 }
+    }
+    if (!jsonObj.uccEmailId) {
+        return { invalid: true, errCode: 03 }
+    }
+    if (!jsonObj.uccMobileNo) {
+        return { invalid: true, errCode: 04 }
+    }
+    if (!jsonObj.uccRequestType || (![UCC_REQUEST_TYPES.NEW, UCC_REQUEST_TYPES.EXISTING, UCC_REQUEST_TYPES.MODIFIED].includes(jsonObj.uccRequestType))) {
+        return { invalid: true, errCode: 05 }
+    }
+
+    return { invalid: false }
+
+}
+
+const updateInvestor = async (investorObj) => {
     try {
-        var options = {
+        // if (investorObj.uccMobileStatus == EMAIL_STATUSES.NOT_VERIFIED && investorObj.uccEmailStatus == EMAIL_STATUSES.NOT_VERIFIED) {
+        //     await incrementCounter(investorObj);
+        // }
+        const options = {
             'method': 'POST',
             'url': `${process.env.HYPERLEDGER_HOST}/users/updateInvestor`,
             'headers': {
@@ -181,63 +234,32 @@ const updateInvestor = (investorObj) => {
     }
 }
 
-// FILE PARSE INTO PER 10k PARTS
-const FileParser = (recordFile) => {
-    try {
-        let readable = fs.createReadStream(path.join(__uploadPath, recordFile.fileName)).pipe(JSONStream.parse('table.*'));
-
-        readable.on('data', (jsonObj) => {
-            console.log(jsonObj.uccRequestId);
-        })
-        readable.on('end', () => {
-            console.log('processed success');
-            recordFile.status = "PROCESSED";
-            recordFile.save();
-        })
-    } catch (error) {
-        const error_body = {
-            stack: error.stack,
-            error_message: `Error while processing file ${recordFile.fileName}`,
-            error_detail: typeof error == "object" ? JSON.stringify(error) : error,
-
-        };
-        // ErrorLogs.create(error);
-        console.error(error_body);
-    }
-}
-
-
 const investorDataOperator = async (investorsData) => {
     try {
         for await (let k of investorsData) {
             let investor = k.Record;
-            const MobileStatus = investor.uccMobileStatus;
-            const EmailStatus = investor.uccEmailStatus;
             const EmailProcessed = investor.emailProcessed;
             const MobileProcessed = investor.mobileProcessed
-            if (investor.uccEmailStatus == EMAIL_STATUSES.VERIFIED && investor.uccMobileStatus == MOBILE_STATUSES.VERIFIED) return;
+            if (investor.uccEmailStatus == EMAIL_STATUSES.VERIFIED && investor.uccMobileStatus == MOBILE_STATUSES.VERIFIED) { };
             await processInvestorMobileV3(investor).then(async (investorAfterMobileProcess) => {
                 await processInvestorEmailV3(investorAfterMobileProcess).then(investorAfterEmailProcess => {
-                
                     if (!investorAfterEmailProcess.uccEmailStatus || !investorAfterEmailProcess.uccMobileStatus || investorAfterEmailProcess.emailProcessed == false || investorAfterEmailProcess.mobileProcessed == false || (EmailProcessed != investorAfterEmailProcess.emailProcessed) || (MobileProcessed != investorAfterEmailProcess.mobileProcessed)) {
                         updateInvestor(investorAfterEmailProcess);
                     }
-                    // updateInvestor(investorAfterEmailProcess);
                 })
             });
 
         }
     }
     catch (errror) {
-        console.log('ERRROR STACK ITERATING OVER INVESTOR DAATA OPERATOR', errror.stack)
+        console.log('ERRROR STACK ITERATING OVER INVESTOR DATA OPERATOR', errror.stack)
     }
 }
 
 
-const sendRequestToFetchInvestors = async (bookmark = "") => {
+const sendRequestToFetchInvestors = async (bookmark = "", uccRequestType ,refined) => {
     try {
         const pageSize = 100;
-        const hoursToMatch = (new Date()).getHours();
         var options = {
             'method': 'POST',
             'url': `${process.env.HYPERLEDGER_HOST}/users/getInvestorsByKey`,
@@ -247,9 +269,10 @@ const sendRequestToFetchInvestors = async (bookmark = "") => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                "UTCNotification": hoursToMatch,
+                "uccRequestType": uccRequestType,
+                "refined": false,
                 "pageSize": pageSize,
-                "bookmark": `${bookmark}`
+                "bookmark": `${bookmark}`,
             })
         };
         request(options, function (error, response) {
@@ -262,18 +285,15 @@ const sendRequestToFetchInvestors = async (bookmark = "") => {
                 return;
             };
             const result = JSON.parse(response.body);
-            console.log(` NO OF RESULTS ${result.recordsCount}`)
             if (result.results)
                 bookmark = result.bookmark;
+            console.log(result.results)
             investorDataOperator(result.results);
-            // sendRequestToFetchInvestors(bookmark);
             if (result.results == 0 || result.recordsCount < pageSize) {
-
                 return;
             }
-            // console.log(result.results)
-            // investorDataOperator(result.results);
-            sendRequestToFetchInvestors(bookmark);
+            sendRequestToFetchInvestors(bookmark, uccRequestType ,refined);
+
         });
     } catch (error) {
         const error_body = {
@@ -287,181 +307,10 @@ const sendRequestToFetchInvestors = async (bookmark = "") => {
 
 }
 
-// sendRequestToFetchInvestors()
-var k = [{
-    "uccRequestId": "234718212902",
-    "uccTmId": "98234921",
-    "uccTmName": "Zerodha",
-    "uccPanExempt": "false",
-    "uccPanNo": "COMPA44565A",
-    "uccCountry": "India",
-    "uccMobileNo": "9877114806",
-    "uccEmailId": "a@getnada.com",
-    "uccMobileNoModified": "false",
-    "uccEmailIdModified": "false",
-    "uccDpId": "2384092431",
-    "uccClientId": "82340918043",
-    "uccInvestorCode": "18293",
-    "uccRequestType": "NEW",
-    "uccNodeStatus": "01",
-    "uccEmailStatus": "NOT VERIFIED",
-    "uccMobileStatus": "NOT VERIFIED",
-    "uccPanStatus": "VERIFIED",
-    "emailAttempts": "1",
-    "mobileAttempts": "1",
-    "ledgerId1": "org.property-registration-network.investor.requestrahul123-rahul11",
-    "ledgerid2": "org.property-registration-network.investor.requestrahul123-ayush@gmail.com-91222122-rahul11",
-    "isEmailEncrypted": "false",
-    "isPhoneEncrypted": "false",
-    "UTCNotification": "15:00"
-},
-
-];
-
-
-var k2 = [{
-    "uccRequestId": "234718212902",
-    "uccTmId": "98234921",
-    "uccTmName": "Zerodha",
-    "uccPanExempt": "false",
-    "uccPanNo": "COMPA44565A",
-    "uccCountry": "India",
-    "uccMobileNo": "9877114806",
-    "uccEmailId": "aaaaaaa@getnada.com",
-    "uccMobileNoModified": "false",
-    "uccEmailIdModified": "false",
-    "uccDpId": "2384092431",
-    "uccClientId": "82340918043",
-    "uccInvestorCode": "18293",
-    "uccRequestType": "NEW",
-    "uccNodeStatus": "01",
-    "uccEmailStatus": "NOT VERIFIED",
-    "uccMobileStatus": "NOT VERIFIED",
-    "uccPanStatus": "VERIFIED",
-    "emailAttempts": "1",
-    "mobileAttempts": "1",
-    "ledgerId1": "org.property-registration-network.investor.requestrahul123-rahul11",
-    "ledgerid2": "org.property-registration-network.investor.requestrahul123-ayush@gmail.com-91222122-rahul11",
-    "isEmailEncrypted": "false",
-    "isPhoneEncrypted": "false",
-    "UTCNotification": "15:00"
-},
-{
-    "uccRequestId": "11",
-    "uccTmId": "98234921",
-    "uccTmName": "Zerodha",
-    "uccPanExempt": "false",
-    "uccPanNo": "COMPA44565A",
-    "uccCountry": "India",
-    "uccMobileNo": "7696167115",
-    "uccEmailId": "bcb@getnada.com",
-    "uccMobileNoModified": "false",
-    "uccEmailIdModified": "false",
-    "uccDpId": "2384092431",
-    "uccClientId": "82340918043",
-    "uccInvestorCode": "18293",
-    "uccRequestType": "NEW",
-    "uccNodeStatus": "01",
-    "uccEmailStatus": "NOT VERIFIED",
-    "uccMobileStatus": "NOT VERIFIED",
-    "uccPanStatus": "VERIFIED",
-    "emailAttempts": "1",
-    "mobileAttempts": "1",
-    "ledgerId1": "org.property-registration-network.investor.requestrahul123-rahul11",
-    "ledgerid2": "org.property-registration-network.investor.requestrahul123-ayush@gmail.com-91222122-rahul11",
-    "isEmailEncrypted": "false",
-    "isPhoneEncrypted": "false",
-    "UTCNotification": "15:00"
-},
-{
-    "uccRequestId": "11",
-    "uccTmId": "98234921",
-    "uccTmName": "Zerodha",
-    "uccPanExempt": "false",
-    "uccPanNo": "COMPA44565A",
-    "uccCountry": "India",
-    "uccMobileNo": "7696167115",
-    "uccEmailId": "bcb@getnada.com",
-    "uccMobileNoModified": "false",
-    "uccEmailIdModified": "false",
-    "uccDpId": "2384092431",
-    "uccClientId": "82340918043",
-    "uccInvestorCode": "18293",
-    "uccRequestType": "NEW",
-    "uccNodeStatus": "01",
-    "uccEmailStatus": "NOT VERIFIED",
-    "uccMobileStatus": "NOT VERIFIED",
-    "uccPanStatus": "VERIFIED",
-    "emailAttempts": "1",
-    "mobileAttempts": "1",
-    "ledgerId1": "org.property-registration-network.investor.requestrahul123-rahul11",
-    "ledgerid2": "org.property-registration-network.investor.requestrahul123-ayush@gmail.com-91222122-rahul11",
-    "isEmailEncrypted": "false",
-    "isPhoneEncrypted": "false",
-    "UTCNotification": "15:00"
-},
-{
-    "uccRequestId": "11",
-    "uccTmId": "98234921",
-    "uccTmName": "Zerodha",
-    "uccPanExempt": "false",
-    "uccPanNo": "COMPA44565A",
-    "uccCountry": "India",
-    "uccMobileNo": "7696167115",
-    "uccEmailId": "bcb@getnada.com",
-    "uccMobileNoModified": "false",
-    "uccEmailIdModified": "false",
-    "uccDpId": "2384092431",
-    "uccClientId": "82340918043",
-    "uccInvestorCode": "18293",
-    "uccRequestType": "NEW",
-    "uccNodeStatus": "01",
-    "uccEmailStatus": "NOT VERIFIED",
-    "uccMobileStatus": "NOT VERIFIED",
-    "uccPanStatus": "VERIFIED",
-    "emailAttempts": "1",
-    "mobileAttempts": "1",
-    "ledgerId1": "org.property-registration-network.investor.requestrahul123-rahul11",
-    "ledgerid2": "org.property-registration-network.investor.requestrahul123-ayush@gmail.com-91222122-rahul11",
-    "isEmailEncrypted": "false",
-    "isPhoneEncrypted": "false",
-    "UTCNotification": "15:00"
-},
-{
-    "uccRequestId": "11",
-    "uccTmId": "98234921",
-    "uccTmName": "Zerodha",
-    "uccPanExempt": "false",
-    "uccPanNo": "COMPA44565A",
-    "uccCountry": "India",
-    "uccMobileNo": "7696167115",
-    "uccEmailId": "bcb@getnada.com",
-    "uccMobileNoModified": "false",
-    "uccEmailIdModified": "false",
-    "uccDpId": "2384092431",
-    "uccClientId": "82340918043",
-    "uccInvestorCode": "18293",
-    "uccRequestType": "NEW",
-    "uccNodeStatus": "01",
-    "uccEmailStatus": "NOT VERIFIED",
-    "uccMobileStatus": "NOT VERIFIED",
-    "uccPanStatus": "VERIFIED",
-    "emailAttempts": "1",
-    "mobileAttempts": "1",
-    "ledgerId1": "org.property-registration-network.investor.requestrahul123-rahul11",
-    "ledgerid2": "org.property-registration-network.investor.requestrahul123-ayush@gmail.com-91222122-rahul11",
-    "isEmailEncrypted": "false",
-    "isPhoneEncrypted": "false",
-    "UTCNotification": "15:00"
-}
-];
-
-
-
-
-const notificationSendingLogic = async () => {
+const notificationSendingLogic = async (uccRequestType) => {
     try {
-        sendRequestToFetchInvestors();
+        // sendRequestToFetchInvestors({bookmark :"", uccRequestType:uccRequestType});
+        sendRequestToFetchInvestors("", uccRequestType);
     } catch (error) {
         const error_body = {
             stack: error.stack,
@@ -478,7 +327,6 @@ const notificationSendingLogic = async () => {
 module.exports = {
     checkForUnprocessedFiles,
     startFileProcessing,
-    FileParser,
     deleteProcessedFiles,
     notificationSendingLogic
 }

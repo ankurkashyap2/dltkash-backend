@@ -6,6 +6,7 @@ const request = require('request')
 const User = require('./../models/user');
 const Exchange = require('./../models/exchange');
 const mongoose = require('mongoose');
+const cronServices = require('./cronServices');
 const commonFunctions = require('../commonFunctions');
 const uploadFileToServer = async (req, res) => {
     try {
@@ -14,23 +15,19 @@ const uploadFileToServer = async (req, res) => {
         });
         req.pipe(req.busboy);
         req.busboy.on('file', (fieldname, file, filename) => {
-            // if (filename.mimeType != 'application/json') return res.status(RESPONSE_STATUS.CONFLICT).json({ message: 'Only JSON files are accepted.' });
-            console.log(`Upload of '${filename.filename}' started`);
-
+            if (filename.mimeType != 'application/json') return res.status(RESPONSE_STATUS.CONFLICT).json({ message: 'Only JSON files are accepted.!' });
             const fstream = fs.createWriteStream(path.join(__uploadPath, filename.filename));
-
             file.pipe(fstream);
-
             fstream.on('close', () => {
                 console.log(`Upload of '${filename.filename}' finished`);
-
                 const recordFileObj = {
                     fileName: filename.filename,
                     status: "UNPROCESSED",
                     exchangeId: askedUser.exchangeId
                 }
                 RecordFile.create(recordFileObj);
-                return res.status(RESPONSE_STATUS.SUCCESS).json({ message: "File upload success." });
+                cronServices.checkForUnprocessedFiles().then(() => { });
+                return res.status(RESPONSE_STATUS.SUCCESS).json({ message: "File upload success.And Processing started.!" });
             });
             fstream.on('error', (error) => {
                 console.log(error);
@@ -134,7 +131,8 @@ const updateDueDate = async (req, res) => {
         const askedExchange = await Exchange.findOne({ _id: mongoose.Types.ObjectId(exchangeId) });
         if (newAttempts) { askedExchange.newAttempts = parseInt(newAttempts); }
         if (modifiedAttempts) { askedExchange.modifiedAttempts = parseInt(modifiedAttempts); }
-        if (existingDate) {if (!commonFunctions.isDate(existingDate)) return res.status(RESPONSE_STATUS.BAD_REQUEST).json({ message: "Exisitng date not in format!" });
+        if (existingDate) {
+            if (!commonFunctions.isDate(existingDate)) return res.status(RESPONSE_STATUS.BAD_REQUEST).json({ message: "Exisitng date not in format!" });
             askedExchange.existingDate = existingDate;
             askedExchange.isExisitngDateSelected = true;
             askedExchange.existingAttempts = parseInt(commonFunctions.getAttemptsTillDate(existingDate));
