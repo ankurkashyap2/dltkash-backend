@@ -145,7 +145,7 @@ const incrementCounter = async (investorObj) => {
         //    await RecordCounter.updateOne({perHourCounterArr:perHourCounterArr }, {perHourCounterArr : updatedCounterArr});
         //    const ans = await recordObj.save()
         //    const ans= await RecordCounter.save()
-        console.log(ans) ; 
+        // console.log(ans) ; 
         
     }
 }

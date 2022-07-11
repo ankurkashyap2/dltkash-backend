@@ -133,13 +133,28 @@ const isDate = function (date) {
   return (new Date(date) !== "Invalid Date") && !isNaN(new Date(date));
 }
 
+const maskedPan = (pan) => {
+  orgArr = pan.split('');
+  orgArr = orgArr.reverse();
+  for (i = 1; i <= 4; i++) {
+    orgArr[i] = 'X'
+  }
+  return (orgArr.reverse().toString().replaceAll(",", ""));
+}
+
 const sendSMS = (investorObj, url, callback) => {
+
   //http://103.16.101.52:8080/bulksms/bulksms?username=DL08-dltkash&password=dltkash@&type=0&dlr=1&destination=${investorObj.uccMobileNo}&source=DLTKTP&message=Please%20confirm%20your%20mobile%20no.%20mapped%20with%20%7B%23vAR%23%7D%7B%23Var%23%7D%20by%20clicking%20on%20the%20%7B%23vAR%23%7D%7B%23Var%23%7D%20-%20DLTKASH&entityid=1601156164334945695&tempid=1607100000000188213
   //PREVIOUS TEST ____---
   // const dltSMS = `http://103.16.101.52:8080/bulksms/bulksms?username=${process.env.RM_USERNAME || 'DL08-dltkash'}&password=${process.env.RM_PASS || 'dltkash@'}&type=0&dlr=1&destination=${investorObj.uccMobileNo}&source=DLTKTP&message=Please%20confirm%20your%20mobile%20no.%20mapped%20with%20${investorObj.uccTmName}%20by%20clicking%20on%20the%20${url}%20-%20DLTKASH&entityid=1601156164334945695&tempid=1607100000000188213`;
-  
+
   //NEW
-  const dltSMS = `http://103.16.101.52:8080/bulksms/bulksms?username=${process.env.RM_USERNAME || 'DL08-dltkash'}&password=${process.env.RM_PASS || 'dltkash@'}&type=0&dlr=1&destination=${investorObj.uccMobileNo}&source=NSEVER&message=Please%20confirm%20your%20mobile%20no.%20mapped%20with%20${investorObj.uccTmName}%20by%20clicking%20on%20the%20${url}%20-%20NSE&entityid=110100001503&tempid=1107164440900649128`;
+  // const dltSMS = `http://103.16.101.52:8080/bulksms/bulksms?username=${process.env.RM_USERNAME || 'DL08-dltkash'}&password=${process.env.RM_PASS || 'dltkash@'}&type=0&dlr=1&destination=${investorObj.uccMobileNo}&source=NSEVER&message=Please%20confirm%20your%20mobile%20no.%20mapped%20with%20${investorObj.uccTmName}%20by%20clicking%20on%20the%20${url}%20-%20NSE&entityid=110100001503&tempid=1107164440900649128`;
+  // latest
+  const panSms = maskedPan(investorObj.uccPanNo)
+  console.log(panSms)
+  // const dltSMS = `http://103.16.101.52:8080/bulksms/bulksms?username=${process.env.RM_USERNAME || 'KR99-kryptonse'}&password=${process.env.RM_PASS || 'KrypNSE1'}&dlr=1&destination=8360335944&source=NSEVER&message=You%20are%20requested%20to%20confirm%20your%20mobile%20no.%20for%20the%20trading%20account%20with%20%7B%23${investorObj.uccTmName}%23%7D%7B%23var%23%7D%20under%20PAN%7B%23${panSms}%23%7D%20by%20clicking%20on%20the%20%7B%23${url}%23%7D%20%7B%23var%23%7D.%20Also%20confirm%20the%20Email%20address%20by%20clicking%20on%20the%20link%20sent%20on%20your%20registered%20Email%20ID%20-%20NSE&entityid=110100001503&tempid=1107165570218341239`
+  const dltSMS = `http://103.16.101.52:8080/bulksms/bulksms?username=KR99-kryptonse&password=KrypNSE1&type=0&dlr=1&destination=${investorObj.uccMobileNo}&source=NSEVER&message=You%20are%20requested%20to%20confirm%20your%20mobile%20no.%20for%20the%20trading%20account%20with%20%7B%23${investorObj.uccTmName}%23%7D%7B%23var%23%7D%20under%20PAN%7B%23var%23%7D%20by%20clicking%20on%20the%20%7B%23var%23%7D%20%7B%23var%23%7D.%20Also%20confirm%20the%20Email%20address%20by%20clicking%20on%20the%20link%20sent%20on%20your%20registered%20Email%20ID%20-%20NSE&entityid=110100001503&tempid=1107165570218341239`;
   const options = {
     'method': 'GET',
     'url': dltSMS,
@@ -148,8 +163,24 @@ const sendSMS = (investorObj, url, callback) => {
     },
   };
   request(options, callback);
+
 }
 
+sendSMS({
+  "uccCountry": "India",
+  "uccEmailId": "rajuchd11@getnada.com",
+  "uccInvestorCode": "12342",
+  "uccMobileNo": "8360335944",
+  "uccPanExempt": "false",
+  "uccPanNo": "COMPA77578",
+  "uccRequestId": "INV101",
+  "uccRequestType": "NEW",
+  "uccTmId": "2",
+  "uccTmName": "ZERODHA"
+}, "https://www.youtube.com/", (err, res, body) => {
+  const response = body.split('|')[0];
+  console.log(response)
+});
 
 //UTC+12:00
 function returnHours(UTC) {

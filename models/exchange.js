@@ -39,7 +39,6 @@ const Exchange = new mongoose.Schema({
             status: { type: String, enum: STATUS, },
         }
     ]
-
 }, {
     minimize: false,
     timestamps: true,

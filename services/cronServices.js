@@ -2,8 +2,8 @@ const RecordFile = require('./../models/fileSpecs');
 const ErrorLogs = require('./../models/errorLogs');
 const fs = require('fs');
 const { Rabbit } = require('rabbit-queue');
-const QUEUE_NAME = 'INVESTORS_DATA_BUFF_STAGE';
-const { COUNTRY_ARRAY, EMAIL_STATUSES, MOBILE_STATUSES, UCC_REQUEST_TYPES } = require('./../constants');
+const QUEUE_NAME = process.env.QUEUE_NAME;
+const { COUNTRY_ARRAY, EMAIL_STATUSES, MOBILE_STATUSES, UCC_REQUEST_TYPES, INVALID_ERROR_CODES } = require('./../constants');
 const JSONStream = require('JSONStream');
 const request = require('request');
 const path = require('path');
@@ -28,7 +28,6 @@ const checkForUnprocessedFiles = async () => {
         const recordFile = await RecordFile.findOne({
             status: "UNPROCESSED"
         });
-
         if (recordFile) {
             const askedExchange = await Exchange.findOne({ _id: mongoose.Types.ObjectId(recordFile.exchangeId) });
             startFileProcessing(recordFile, askedExchange).then(() => { });
@@ -73,8 +72,8 @@ const deleteProcessedFiles = async () => {
         // ErrorLogs.create(error);
         console.error(error_body);
     }
-
 }
+
 const canStartConsumer = async () => {
     var options = {
         'method': 'GET',
@@ -92,107 +91,74 @@ const canStartConsumer = async () => {
 const startFileProcessing = async (recordFile, askedExchange) => {
     try {
         const readable = fs.createReadStream(path.join(__uploadPath, recordFile.fileName)).pipe(JSONStream.parse('*'));
-
-        c = 0;
+        let c = 0;
         const invalidRecords = [];
-        const indianTimeUtcArr = ['11', '12', '10', '9', '8', '7', '6', '5', '13', '4', '3', '12', '13'];
         readable.on('data', (jsonObj) => {
             c++;
             try {
-                jsonObj.exchangeId = recordFile.exchangeId;
-                try {
-                    if (jsonObj.uccRequestType == UCC_REQUEST_TYPES.NEW) {
-                        jsonObj.UTCNotification = "05"
+                const sanitized = sanitizer(jsonObj);
+                //push in invalid records with sanitized.errCode
+                if (sanitized.invalid) {
+                    let Error_Obj = {
+                        uccRequestId: jsonObj.uccRequestId,
+                        error_code: INVALID_ERROR_CODES[sanitized.errCode],
+                        time: Date.now(),
                     }
-                    if (jsonObj.uccRequestType == UCC_REQUEST_TYPES.MODIFIED) {
-                        jsonObj.UTCNotification = "10"
+                    invalidRecords.push(Error_Obj);
+                } else {
+                    jsonObj.exchangeId = recordFile.exchangeId;
+                    //LEDGER IDS CHECKS
+                    if (jsonObj.uccPanExempt.toString() == "false") {
+                        jsonObj.L3 = commonFunctions.encryptWithAES(`${jsonObj.uccPanNo}-${jsonObj.uccMobileNo}`);
+                        jsonObj.L2 = commonFunctions.encryptWithAES(`${jsonObj.uccPanNo}-${jsonObj.uccMobileNo}-${jsonObj.uccEmailId}`);
+                        jsonObj.L4 = commonFunctions.encryptWithAES(`${jsonObj.uccPanNo}-${jsonObj.uccEmailId}`);
+                        jsonObj.L1 = commonFunctions.encryptWithAES(`${jsonObj.uccPanNo}`);
                     }
-                    if (jsonObj.uccRequestType == UCC_REQUEST_TYPES.EXISTING) {
-                        jsonObj.UTCNotification = "13"
+                    if (jsonObj.uccPanExempt.toString() == "true") {
+                        jsonObj.L5 = commonFunctions.encryptWithAES(`${jsonObj.uccDpId}-${jsonObj.uccClientId}`);
+                        jsonObj.L6 = commonFunctions.encryptWithAES(`${jsonObj.uccDpId}-${jsonObj.uccClientId}-${jsonObj.uccMobileNo}-${jsonObj.uccEmailId}`);
+                        jsonObj.L7 = commonFunctions.encryptWithAES(`${jsonObj.uccDpId}-${jsonObj.uccClientId}-${jsonObj.uccMobileNo}`);
+                        jsonObj.L8 = commonFunctions.encryptWithAES(`${jsonObj.uccDpId}-${jsonObj.uccClientId}-${jsonObj.uccEmailId}`);
                     }
+                    //ADD TOTAL ATTEMPTS
+                    //************************************* */
+                    if (jsonObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.NEW) { jsonObj.totalAttempts = askedExchange.newAttempts }
+                    else if (jsonObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.EXISTING) { jsonObj.totalAttempts = askedExchange.existingAttempts }
+                    else if (jsonObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.MODIFIED) { jsonObj.totalAttempts = askedExchange.modifiedAttempts }
+                    else {
+                        jsonObj.totalAttempts = 7
+                    }
+                    //CHECK FOR NOT APPLICABLE
+                    if (jsonObj.uccMobileStatus == MOBILE_STATUSES.NOT_APPLICABLE) {
+                        jsonObj.mobileProcessed = true;
+                    }
+                    //************************************ */
+                    if (!jsonObj.mobileAttempts) jsonObj.mobileAttempts = 0;
+                    if (!jsonObj.emailAttempts) jsonObj.emailAttempts = 0;
+                    if (!jsonObj.fileName) jsonObj.fileName = recordFile.fileName
+                    if (!jsonObj.mobileProcessed) jsonObj.mobileProcessed = false;
+                    if (!jsonObj.emailProcessed) jsonObj.emailProcessed = false;
+                    if (!jsonObj.uccEmailId) jsonObj.uccEmailId = jsonObj.uccEmailId.toLowerCase();
+                    if (!jsonObj.uccPanNo) jsonObj.uccPanNo = jsonObj.uccPanNo.toUpperCase();
+                    if (!jsonObj.refined) jsonObj.refined = false;
+                    //chek for emailPocessed and MobileProcessed both are tue
+                    //SEND TO QUEUE
+                    rabbit.publish(QUEUE_NAME, jsonObj, { correlationId: '1' }).then(() => console.log(`message published ${c}`));
                 }
-                catch (err) {
-                    askedExchange.invalidRecords = invalidRecords;
-                }
-                //LEDGER IDS CHECKS
-                if (jsonObj.uccPanExempt.toString() == "false") {
-                    jsonObj.L3 = commonFunctions.encryptWithAES(`${jsonObj.uccPanNo}-${jsonObj.uccMobileNo}`);
-                    jsonObj.L2 = commonFunctions.encryptWithAES(`${jsonObj.uccPanNo}-${jsonObj.uccMobileNo}-${jsonObj.uccEmailId}`);
-                    jsonObj.L4 = commonFunctions.encryptWithAES(`${jsonObj.uccPanNo}-${jsonObj.uccEmailId}`);
-                    jsonObj.L1 = commonFunctions.encryptWithAES(`${jsonObj.uccPanNo}`);
-                }
-                if (jsonObj.uccPanExempt.toString() == "true") {
-                    jsonObj.L5 = commonFunctions.encryptWithAES(`${jsonObj.uccDpId}-${jsonObj.uccClientId}`);
-                    jsonObj.L6 = commonFunctions.encryptWithAES(`${jsonObj.uccDpId}-${jsonObj.uccClientId}-${jsonObj.uccMobileNo}-${jsonObj.uccEmailId}`);
-                    jsonObj.L7 = commonFunctions.encryptWithAES(`${jsonObj.uccDpId}-${jsonObj.uccClientId}-${jsonObj.uccMobileNo}`);
-                    jsonObj.L8 = commonFunctions.encryptWithAES(`${jsonObj.uccDpId}-${jsonObj.uccClientId}-${jsonObj.uccEmailId}`);
-                }
-
-                //ADD TOTAL ATTEMPTS
-                //************************************* */
-                if (jsonObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.NEW) { jsonObj.totalAttempts = askedExchange.newAttempts }
-                else if (jsonObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.EXISTING) { jsonObj.totalAttempts = askedExchange.existingAttempts }
-                else if (jsonObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.MODIFIED) { jsonObj.totalAttempts = askedExchange.modifiedAttempts }
-                else {
-                    jsonObj.totalAttempts = 7
-                }
-                if (jsonObj.uccMobileStatus == MOBILE_STATUSES.NOT_APPLICABLE) {
-                    jsonObj.mobileProcessed = true;
-                }
-                //************************************ */
-                if (!jsonObj.mobileAttempts) jsonObj.mobileAttempts = 0;
-                if (!jsonObj.emailAttempts) jsonObj.emailAttempts = 0;
-                if (!jsonObj.fileName) jsonObj.fileName = recordFile.fileName
-                if (!jsonObj.mobileProcessed) jsonObj.mobileProcessed = false;
-                if (!jsonObj.emailProcessed) jsonObj.emailProcessed = false;
-                if (!jsonObj.uccEmailId) jsonObj.uccEmailId = jsonObj.uccEmailId.toLowerCase();
-                if (!jsonObj.uccPanNo) jsonObj.uccPanNo = jsonObj.uccPanNo.toUpperCase();
-                //SEND TO QUEUE
-                rabbit.publish(QUEUE_NAME, jsonObj, { correlationId: '1' }).then(() => console.log(`message published ${c}`));
             } catch (error) {
-
-                invalidRecords.push(jsonObj);
-
-            } finally {
-                if (invalidRecords.length) {
-                    askedExchange.invalidRecords = invalidRecords;
-                    askedExchange.save()
+                let Error_Obj = {
+                    uccRequestId: jsonObj.uccRequestId,
+                    error_code: INVALID_ERROR_CODES[06],
+                    time: Date.now(),
+                    systemErrorReason: error.stack
                 }
+                invalidRecords.push(Error_Obj);
             }
-            if (jsonObj.uccEmailId) jsonObj.uccEmailId = jsonObj.uccEmailId.toLowerCase()
-            if (jsonObj.uccPanNo) jsonObj.uccPanNo = jsonObj.uccPanNo.toUpperCase()
-            //LEDGER IDS CHECKS
-            if (jsonObj.uccPanExempt.toString() == "false") {
-                jsonObj.L3 = commonFunctions.encryptWithAES(`${jsonObj.uccPanNo}-${jsonObj.uccMobileNo}`);
-                jsonObj.L2 = commonFunctions.encryptWithAES(`${jsonObj.uccPanNo}-${jsonObj.uccMobileNo}-${jsonObj.uccEmailId}`);
-                jsonObj.L4 = commonFunctions.encryptWithAES(`${jsonObj.uccPanNo}-${jsonObj.uccEmailId}`);
-                jsonObj.L1 = commonFunctions.encryptWithAES(`${jsonObj.uccPanNo}`);
-            }
-            if (jsonObj.uccPanExempt.toString() == "true") {
-                jsonObj.L5 = commonFunctions.encryptWithAES(`${jsonObj.uccDpId}-${jsonObj.uccClientId}`);
-                jsonObj.L6 = commonFunctions.encryptWithAES(`${jsonObj.uccDpId}-${jsonObj.uccClientId}-${jsonObj.uccMobileNo}-${jsonObj.uccEmailId}`);
-                jsonObj.L7 = commonFunctions.encryptWithAES(`${jsonObj.uccDpId}-${jsonObj.uccClientId}-${jsonObj.uccMobileNo}`);
-                jsonObj.L8 = commonFunctions.encryptWithAES(`${jsonObj.uccDpId}-${jsonObj.uccClientId}-${jsonObj.uccEmailId}`);
-            }
-            //ADD TOTAL ATTEMPTS
-            //************************************* */
-            if (jsonObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.NEW) { jsonObj.totalAttempts = askedExchange.newAttempts }
-            else if (jsonObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.EXISTING) { jsonObj.totalAttempts = askedExchange.existingAttempts }
-            else if (jsonObj.uccRequestType.toUpperCase() == UCC_REQUEST_TYPES.MODIFIED) { jsonObj.totalAttempts = askedExchange.modifiedAttempts }
-            else {
-                jsonObj.totalAttempts = 7
-            }
-            //************************************ */
-            if (!jsonObj.mobileAttempts) jsonObj.mobileAttempts = 0;
-            if (!jsonObj.emailAttempts) jsonObj.emailAttempts = 0;
-            if (!jsonObj.fileName) jsonObj.fileName = recordFile.fileName
-            if (!jsonObj.mobileProcessed) jsonObj.mobileProcessed = false;
-            if (!jsonObj.emailProcessed) jsonObj.emailProcessed = false;
-
-            //SEND TO QUEUE
-            rabbit.publish(QUEUE_NAME, jsonObj, { correlationId: '1' }).then(() => console.log(`message published ${c}`));
         });
-        readable.on('end', () => {
+        readable.on('end', async () => {
+            if (invalidRecords.length) {
+                recordFile.invalidRecords.push(invalidRecords);
+            }
             console.log('processed success', c);
             recordFile.status = "PROCESSED";
             recordFile.save();
@@ -212,12 +178,46 @@ const startFileProcessing = async (recordFile, askedExchange) => {
     }
 }
 
-const updateInvestor = async (investorObj) => {
-
-    try {
-        if (investorObj.uccMobileStatus == EMAIL_STATUSES.NOT_VERIFIED || investorObj.uccEmailStatus == EMAIL_STATUSES.NOT_VERIFIED) {
-            await incrementCounter(investorObj);
+const sanitizer = (jsonObj) => {
+    if (!jsonObj.uccPanExempt) {
+        return { invalid: true, errCode: 02 }
+    }
+    if (!(jsonObj.uccPanExempt && ["true", "false"].includes(jsonObj.uccPanExempt.toString()))) {
+        return { invalid: true, errCode: 02 }
+    }
+    if (jsonObj.uccPanExempt.toString() == 'true') {
+        //if DPID adn CLIENTID missing errorCOde {}
+        if (jsonObj.uccDpId || jsonObj.uccClientId) {
+            return { invalid: true, errCode: 00 }
         }
+    }
+    if (jsonObj.uccPanExempt.toString() == 'false') {
+        if (!jsonObj.uccPanNo) {
+            return { invalid: true, errCode: 01 }
+        }
+    }
+    if (jsonObj.uccPanExempt.toString() == 'true' && jsonObj.uccPanNo) {
+        return { invalid: true, errCode: 00 }
+    }
+    if (!jsonObj.uccEmailId) {
+        return { invalid: true, errCode: 03 }
+    }
+    if (!jsonObj.uccMobileNo) {
+        return { invalid: true, errCode: 04 }
+    }
+    if (!jsonObj.uccRequestType || (![UCC_REQUEST_TYPES.NEW, UCC_REQUEST_TYPES.EXISTING, UCC_REQUEST_TYPES.MODIFIED].includes(jsonObj.uccRequestType))) {
+        return { invalid: true, errCode: 05 }
+    }
+
+    return { invalid: false }
+
+}
+
+const updateInvestor = async (investorObj) => {
+    try {
+        // if (investorObj.uccMobileStatus == EMAIL_STATUSES.NOT_VERIFIED && investorObj.uccEmailStatus == EMAIL_STATUSES.NOT_VERIFIED) {
+        //     await incrementCounter(investorObj);
+        // }
         const options = {
             'method': 'POST',
             'url': `${process.env.HYPERLEDGER_HOST}/users/updateInvestor`,
@@ -233,32 +233,6 @@ const updateInvestor = async (investorObj) => {
         console.error('error on updating userInfo on hyperledger')
     }
 }
-
-// FILE PARSE INTO PER 10k PARTS
-const FileParser = (recordFile) => {
-    try {
-        let readable = fs.createReadStream(path.join(__uploadPath, recordFile.fileName)).pipe(JSONStream.parse('table.*'));
-
-        readable.on('data', (jsonObj) => {
-            console.log(jsonObj.uccRequestId);
-        })
-        readable.on('end', () => {
-            console.log('processed success');
-            recordFile.status = "PROCESSED";
-            recordFile.save();
-        })
-    } catch (error) {
-        const error_body = {
-            stack: error.stack,
-            error_message: `Error while processing file ${recordFile.fileName}`,
-            error_detail: typeof error == "object" ? JSON.stringify(error) : error,
-
-        };
-        // ErrorLogs.create(error);
-        console.error(error_body);
-    }
-}
-
 
 const investorDataOperator = async (investorsData) => {
     try {
@@ -283,10 +257,9 @@ const investorDataOperator = async (investorsData) => {
 }
 
 
-const sendRequestToFetchInvestors = async (bookmark = "") => {
+const sendRequestToFetchInvestors = async (bookmark = "", uccRequestType ,refined) => {
     try {
         const pageSize = 100;
-        const hoursToMatch = (new Date()).getHours();
         var options = {
             'method': 'POST',
             'url': `${process.env.HYPERLEDGER_HOST}/users/getInvestorsByKey`,
@@ -296,7 +269,8 @@ const sendRequestToFetchInvestors = async (bookmark = "") => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                // "UTCNotification": hoursToMatch,
+                "uccRequestType": uccRequestType,
+                "refined": false,
                 "pageSize": pageSize,
                 "bookmark": `${bookmark}`,
             })
@@ -313,11 +287,13 @@ const sendRequestToFetchInvestors = async (bookmark = "") => {
             const result = JSON.parse(response.body);
             if (result.results)
                 bookmark = result.bookmark;
+            console.log(result.results)
             investorDataOperator(result.results);
             if (result.results == 0 || result.recordsCount < pageSize) {
                 return;
             }
-            sendRequestToFetchInvestors(bookmark);
+            sendRequestToFetchInvestors(bookmark, uccRequestType ,refined);
+
         });
     } catch (error) {
         const error_body = {
@@ -331,11 +307,10 @@ const sendRequestToFetchInvestors = async (bookmark = "") => {
 
 }
 
-
-
-const notificationSendingLogic = async () => {
+const notificationSendingLogic = async (uccRequestType) => {
     try {
-        sendRequestToFetchInvestors();
+        // sendRequestToFetchInvestors({bookmark :"", uccRequestType:uccRequestType});
+        sendRequestToFetchInvestors("", uccRequestType);
     } catch (error) {
         const error_body = {
             stack: error.stack,
@@ -352,7 +327,6 @@ const notificationSendingLogic = async () => {
 module.exports = {
     checkForUnprocessedFiles,
     startFileProcessing,
-    FileParser,
     deleteProcessedFiles,
     notificationSendingLogic
 }
