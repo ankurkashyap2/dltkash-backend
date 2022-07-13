@@ -287,7 +287,6 @@ const sendRequestToFetchInvestors = async (bookmark = "", uccRequestType ,refine
             const result = JSON.parse(response.body);
             if (result.results)
                 bookmark = result.bookmark;
-            console.log(result.results)
             investorDataOperator(result.results);
             if (result.results == 0 || result.recordsCount < pageSize) {
                 return;
@@ -301,7 +300,6 @@ const sendRequestToFetchInvestors = async (bookmark = "", uccRequestType ,refine
             error_message: "Error while requesting user data",
             error_detail: typeof error == "object" ? JSON.stringify(error) : error,
         };
-        // ErrorLogs.create(error);
         console.error(error_body);
     }
 
