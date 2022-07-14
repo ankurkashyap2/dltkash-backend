@@ -15,19 +15,19 @@ const getInvestorByDate = async (req, res) => {
             _id: mongoose.Types.ObjectId(req.user_id)
         });
         const askedExchange = await Exchange.findOne({ _id: mongoose.Types.ObjectId(askedUser.exchangeId) });
-        const { from, to, pageSize, bookmark } = req.body;
+        let { from, to, pageSize, bookmark } = req.body;
         let totalRecord = 0;
-        const epocFrom = commonFunctions.returnEpoch(from);
-        const epocTo = commonFunctions.returnEpoch(to);
-        const start = new Date(epocFrom);
-        const end = new Date(epocTo);
-        const setStart = commonFunctions.setRecordDate(start);
-        const setEnd = commonFunctions.setRecordDate(end);
-        const toHour = new Date(epocFrom).getHours();
-        const fromHour = new Date(epocTo).getHours();
+
+        const GMTfrom = new Date(from).toISOString();
+        const GMTto = new Date(to).toISOString();
+        const fromHour = new Date(GMTfrom).getUTCHours();
+        const toHour = new Date(GMTto).getUTCHours();
+      
+        const setStart = commonFunctions.setRecordDate(GMTfrom);
+        const setEnd = commonFunctions.setRecordDate(GMTto);
+
         const askedDates = await RecordCounter.find({ 'date': { $gte: setStart, $lte: setEnd } });
         askedDates.forEach((e) => {
-            // let totalRecord = 0;
             if ((e.date == setStart) && (e.date == setEnd)) {
                 let perHourArray = e.perHourCounterArr
                 perHourArray.forEach((perHourArrayObj) => {
@@ -56,7 +56,6 @@ const getInvestorByDate = async (req, res) => {
                 })
             }
         })
-
         const exchangeId = askedExchange._id;
         var options = {
             'method': 'POST',

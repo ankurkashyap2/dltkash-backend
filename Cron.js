@@ -4,7 +4,7 @@ const cronServices = require('./services/cronServices');
 
 
 // CRON RUN EVERYDAY AT 4:30PM FOR REQUEST_TYPE>>>>>>>>MODIFIED
-cron.schedule('*/30 * * * * *', () => {
+cron.schedule('*/30 * * * *', () => {
     try {
         console.info("CRON RUN EVERYDAY AT 4:30PM FOR REQUEST_TYPE>>>>>>>>MODIFIED =>", (new Date()).toUTCString());
         cronServices.notificationSendingLogic(UCC_REQUEST_TYPES.MODIFIED).then(() => {
@@ -28,7 +28,7 @@ cron.schedule('*/30 * * * *', () => {
 });
 
 // CRON RUN EVERYDAY AT 7PM FOR REQUEST_TYPE>>>>>>>>EXISTING
-cron.schedule('*/30 * * * * *', () => {
+cron.schedule('*/30 * * * *', () => {
     try {
         console.info("CRON RUN EVERYDAY AT 4:30PM FOR REQUEST_TYPE>>>>>>>>EXISTING =>", (new Date()).toUTCString());
         cronServices.notificationSendingLogic(UCC_REQUEST_TYPES.EXISTING).then(() => {
