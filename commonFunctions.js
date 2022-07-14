@@ -123,9 +123,17 @@ const returnEpoch = (dateString) => {
   return epoch;
 }
 const setRecordDate = (date) => {
- return new Date(`${date.toString().split("T")[0]}T00:00:00Z`);
+  date.setHours(00)
+  date.setSeconds(00)
+  date.setMinutes(00)
+  date.setMilliseconds(00)
+  return date
 }
 
+const setRecordDateISO = (date) => {
+  return new Date(`${date.toString().split("T")[0]}T00:00:00Z`);
+ }
+ 
 const isDate = function (date) {
   return (new Date(date) !== "Invalid Date") && !isNaN(new Date(date));
 }
@@ -206,6 +214,7 @@ module.exports = {
   setRecordDate,
   isDate,
   sendMail: sendMail,
+  setRecordDateISO,
   decryptWithAES: decryptWithAES,
   createShortNer: createShortNer,
   validateMobile: validateMobile,

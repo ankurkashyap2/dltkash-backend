@@ -22,9 +22,9 @@ const getInvestorByDate = async (req, res) => {
         const GMTto = new Date(to).toISOString();
         const fromHour = new Date(GMTfrom).getUTCHours();
         const toHour = new Date(GMTto).getUTCHours();
-      
-        const setStart = commonFunctions.setRecordDate(GMTfrom);
-        const setEnd = commonFunctions.setRecordDate(GMTto);
+
+        const setStart = commonFunctions.setRecordDateISO(GMTfrom);
+        const setEnd = commonFunctions.setRecordDateISO(GMTto);
 
         const askedDates = await RecordCounter.find({ 'date': { $gte: setStart, $lte: setEnd } });
         askedDates.forEach((e) => {

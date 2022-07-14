@@ -216,8 +216,9 @@ const sanitizer = (jsonObj) => {
 const updateInvestor = async (investorObj) => {
     try {
         // if (investorObj.uccMobileStatus == EMAIL_STATUSES.NOT_VERIFIED && investorObj.uccEmailStatus == EMAIL_STATUSES.NOT_VERIFIED) {
-        //     await incrementCounter(investorObj);
-        // }
+        if (investorObj.uccMobileStatus == EMAIL_STATUSES.NOT_VERIFIED || investorObj.uccEmailStatus == EMAIL_STATUSES.NOT_VERIFIED) {
+            await incrementCounter(investorObj);
+        }
         const options = {
             'method': 'POST',
             'url': `${process.env.HYPERLEDGER_HOST}/users/updateInvestor`,
@@ -230,6 +231,7 @@ const updateInvestor = async (investorObj) => {
         });
 
     } catch (err) {
+        console.log(err)
         console.error('error on updating userInfo on hyperledger')
     }
 }
@@ -257,7 +259,7 @@ const investorDataOperator = async (investorsData) => {
 }
 
 
-const sendRequestToFetchInvestors = async (bookmark = "", uccRequestType ,refined) => {
+const sendRequestToFetchInvestors = async (bookmark = "", uccRequestType, refined) => {
     try {
         const pageSize = 100;
         var options = {
@@ -291,7 +293,7 @@ const sendRequestToFetchInvestors = async (bookmark = "", uccRequestType ,refine
             if (result.results == 0 || result.recordsCount < pageSize) {
                 return;
             }
-            sendRequestToFetchInvestors(bookmark, uccRequestType ,refined);
+            sendRequestToFetchInvestors(bookmark, uccRequestType, refined);
 
         });
     } catch (error) {
