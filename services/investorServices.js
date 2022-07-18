@@ -101,21 +101,21 @@ const incrementCounter = async (investorObj) => {
     }
 }
 
-incrementCounter({
-    "uccRequestId": "INV0",
-    "mobileProcessed": true,
-    "uccEmailStatus": "VERIFIED",
-    "uccTmId": "TEAM2",
-    "uccTmName": "GROW",
-    "uccPanExempt": "false",
-    "uccPanNo": "PAN123000",
-    "uccCountry": "India",
-    "uccMobileNo": "8360335944",
-    "uccEmailId": "raju0@getnada.com",
-    "uccInvestorCode": "INV24",
-    "uccRequestType": "NEW",
-    "uccNodeStatus": "01"
-});
+// incrementCounter({
+//     "uccRequestId": "INV0",
+//     "mobileProcessed": true,
+//     "uccEmailStatus": "VERIFIED",
+//     "uccTmId": "TEAM2",
+//     "uccTmName": "GROW",
+//     "uccPanExempt": "false",
+//     "uccPanNo": "PAN123000",
+//     "uccCountry": "India",
+//     "uccMobileNo": "8360335944",
+//     "uccEmailId": "raju0@getnada.com",
+//     "uccInvestorCode": "INV24",
+//     "uccRequestType": "NEW",
+//     "uccNodeStatus": "01"
+// });
 
 
 const investorEmailVerify = async (req, res) => {
