@@ -123,14 +123,16 @@ const returnEpoch = (dateString) => {
   return epoch;
 }
 const setRecordDate = (date) => {
-  date.setSeconds(00)
-  date.setMinutes(00)
-  date.setMilliseconds(00)
+  // date.setHours(00)
+  // date.setSeconds(00)
+  // date.setMinutes(00)
+  // date.setMilliseconds(00)
+  date.setUTCHours(0,0,0)
   return date
 }
 
 const setRecordDateISO = (date) => {
-  return new Date(date).toDateString();
+  return new Date(date);
   // return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()+1).setUTCHours(0,0,0,0);
   // return new Date(`${date.toString().split("T")[0]}T00:00:00Z`);
 }

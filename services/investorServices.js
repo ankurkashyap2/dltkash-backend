@@ -78,8 +78,8 @@ const investorMobileVerify = async (req, res) => {
 
 const incrementCounter = async (investorObj) => {
     const uccRequestId = investorObj.uccRequestId;
-    const hourJustNow = new Date().getHours();
-    const setDate = new Date().toDateString();
+    const hourJustNow = new Date().getUTCHours();
+    const setDate = new Date().setUTCHours(0, 0, 0, 0);
     const recordObj = await RecordCounter.findOne({ "date": setDate });
     if (!recordObj) {
         let newRecordObj = {
@@ -101,32 +101,26 @@ const incrementCounter = async (investorObj) => {
     }
 }
 
+incrementCounter({
+    "uccRequestId": "INV0",
+    "mobileProcessed": true,
+    "uccEmailStatus": "VERIFIED",
+    "uccTmId": "TEAM2",
+    "uccTmName": "GROW",
+    "uccPanExempt": "false",
+    "uccPanNo": "PAN123000",
+    "uccCountry": "India",
+    "uccMobileNo": "8360335944",
+    "uccEmailId": "raju0@getnada.com",
+    "uccInvestorCode": "INV24",
+    "uccRequestType": "NEW",
+    "uccNodeStatus": "01"
+});
+
+
 const investorEmailVerify = async (req, res) => {
     try {
         const { uccRequestId, uccEmailStatus } = req.body;
-        // const hourJustNow = new Date(Date.now()).getHours();
-        // const setDate = commonFunctions.setRecordDateISO(new Date(Date.now()).toISOString());
-        // const recordObj = await RecordCounter.findOne({ "date": setDate });
-        // if (!recordObj) {
-        //     let newRecordObj = {
-        //         date: setDate,
-        //         perHourCounterArr: [{}]
-        //     }
-        //     newRecordObj.perHourCounterArr[0][hourJustNow] = [uccRequestId];
-        //     console.log("CREATING OBJ IN EMAIL VERIFY")
-        //     await RecordCounter.create(newRecordObj);
-        // } else {
-        //     if (Array.isArray(recordObj.perHourCounterArr)) {
-        //         let arrObj = recordObj.perHourCounterArr[0];
-        //         if (arrObj[hourJustNow]) {
-        //             arrObj[hourJustNow].push(uccRequestId);
-        //             arrObj[hourJustNow] = [...new Set(arrObj[hourJustNow])];
-        //         } else
-        //             arrObj[hourJustNow] = [uccRequestId];
-        //         console.log("UPDATIG OBJ IN EMAIL VERIFY")
-        //         await RecordCounter.updateOne({ "date": setDate }, { $set: { perHourCounterArr: [arrObj] } });
-        //     }
-        // }
         var options = {
             'method': 'POST',
             'url': `${process.env.HYPERLEDGER_HOST}/users/updateInvestorEmailStatus`,

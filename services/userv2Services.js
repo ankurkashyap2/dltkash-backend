@@ -22,25 +22,23 @@ const getInvestorByDate = async (req, res) => {
         const UTCto = new Date(to).toISOString();
         const fromHour = new Date(UTCfrom).getUTCHours();
         const toHour = new Date(UTCto).getUTCHours();
-        const setStart = commonFunctions.setRecordDateISO(UTCfrom);
-        const setEnd = commonFunctions.setRecordDateISO(UTCto);
-        const recordCounterDateObjs = await RecordCounter.find({ 'date': { $gte: setStart, $lte: setEnd } });
-      
+        const toUTC = new Date(to).setUTCHours(0, 0, 0, 0);
+        const fromUTC = new Date(from).setUTCHours(0, 0, 0, 0)
+        const recordCounterDateObjs = await RecordCounter.find({ 'date': { $gte: fromUTC, $lte: toUTC } });
         recordCounterDateObjs.forEach((recordCounterObj) => {
             //ITS THE START DATE AND ITS THE END DATE
-           
-            if (commonFunctions.isDatesEqual(recordCounterObj.date,setStart) && commonFunctions.isDatesEqual(recordCounterObj.date,setEnd)) {
+            if (commonFunctions.isDatesEqual(recordCounterObj.date, toUTC) && commonFunctions.isDatesEqual(recordCounterObj.date, fromUTC)) {
                 let perHourCounterArr = recordCounterObj.perHourCounterArr[0];
                 const arr = [];
                 for (const entry of Object.entries(perHourCounterArr)) {
-                    if (parseInt(entry[0]) >= fromHour && parseInt(entry[0]) <= toHour )
-                            arr.push(...entry[1])}
+                    if (parseInt(entry[0]) >= fromHour && parseInt(entry[0]) <= toHour)
+                        arr.push(...entry[1])
+                }
                 let arrSet = [...new Set(arr)];
                 totalRecord += arrSet.length;
             }
             //ITS THE END DATE NOT THE START DATE ==>
-            else if (commonFunctions.isDatesEqual(recordCounterObj.date,setEnd)) {
-                
+            else if (commonFunctions.isDatesEqual(recordCounterObj.date, fromUTC)) {
                 let perHourCounterArr = recordCounterObj.perHourCounterArr[0];
                 const arr = [];
                 for (const entry of Object.entries(perHourCounterArr)) {
@@ -51,7 +49,7 @@ const getInvestorByDate = async (req, res) => {
                 totalRecord += arrSet.length;
             }
             //ITS THE START DATE NOT THE END DATE ==> hours will be counted from start UTCfrom to end 
-            else if ( commonFunctions.isDatesEqual(recordCounterObj.date,setStart) ) {
+            else if (commonFunctions.isDatesEqual(recordCounterObj.date, toUTC)) {
                 let perHourCounterArr = recordCounterObj.perHourCounterArr[0];
                 const arr = [];
                 for (const entry of Object.entries(perHourCounterArr)) {
@@ -62,7 +60,7 @@ const getInvestorByDate = async (req, res) => {
                 totalRecord += arrSet.length;
             }
             //IN BETWEEN DAYS
-            else if (!commonFunctions.isDatesEqual(recordCounterObj.date,setStart) && !commonFunctions.isDatesEqual(recordCounterObj.date,setEnd)) {
+            else if (!commonFunctions.isDatesEqual(recordCounterObj.date, toUTC) && !commonFunctions.isDatesEqual(recordCounterObj.date, fromUTC)) {
                 let perHourCounterArr = recordCounterObj.perHourCounterArr[0];
                 const arr = [];
                 for (const key of Object.values(perHourCounterArr)) {

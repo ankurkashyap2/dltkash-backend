@@ -26,7 +26,7 @@ app.use(busboy({
   highWaterMark: 2 * 1024 * 1024, // Set 2MiB buffer
 }));
 
-
+require("./services/investorServices");
 
 app.use('/api/mobile', async (req, res) => {
   try {
