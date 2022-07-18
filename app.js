@@ -60,10 +60,9 @@ const InvestorController = require('./controllers/investorController');
 app.use('/api/v1/investors', InvestorController);
 
 const Userv2Controller = require('./controllers/userv2Controller');
-app.use('/api/v1/users',Userv2Controller );
+app.use('/api/v1/users', Userv2Controller);
 
 const ExchangeController = require('./controllers/exchangeController');
-
 app.use('/api/v1/exchange', ExchangeController);
 
 module.exports = app;

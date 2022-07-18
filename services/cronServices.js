@@ -215,7 +215,6 @@ const sanitizer = (jsonObj) => {
 
 const updateInvestor = async (investorObj) => {
     try {
-        // if (investorObj.uccMobileStatus == EMAIL_STATUSES.NOT_VERIFIED && investorObj.uccEmailStatus == EMAIL_STATUSES.NOT_VERIFIED) {
         if (investorObj.uccMobileStatus == EMAIL_STATUSES.NOT_VERIFIED || investorObj.uccEmailStatus == EMAIL_STATUSES.NOT_VERIFIED) {
             await incrementCounter(investorObj);
         }

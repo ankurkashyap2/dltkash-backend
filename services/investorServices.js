@@ -12,69 +12,31 @@ var request = require('request');
 const { isDate } = require('../commonFunctions');
 const investorMobileVerify = async (req, res) => {
     try {
-        const { uccRequestId, uccMobileStatus, uccUpdatedAt } = req.body;
-        const updatedAtNum = Number(uccUpdatedAt);
-        if (!uccUpdatedAt) {
-            const setDate = commonFunctions.setRecordDate(new Date(Date.now()));
-            const recordObj = await RecordCounter.findOne({ "date": setDate });
-            if (!recordObj) {
-                const newRecordObj = {
-                    date: setDate,
-                    perHourCounterArr: [{ hour: new Date(Date.now()).getHours(), count: 1 }]
-                }
-                await RecordCounter.create(newRecordObj);
-            } else {   // in a particular hour two different investor verified 
-                let updatedCounterArr = recordObj.perHourCounterArr;
-                let presentHours = [];
-                updatedCounterArr.forEach((eachObj) => {
-                    presentHours.push(eachObj.hour);
-                });
-
-                if (presentHours.includes(new Date(Date.now()).getHours())) {
-                    updatedCounterArr.forEach((eachObj) => {
-                        if (eachObj.hour == new Date(Date.now()).getHours()) {
-                            eachObj.count += 1;
-                        }
-                    });
-                } else
-                    updatedCounterArr.push({ hour: new Date(Date.now()).getHours(), count: 1 })
-                recordObj.perHourCounterArr = updatedCounterArr;
-                const savedObj = new RecordCounter(recordObj);
-                await savedObj.save();
-            }
-        } else {
-            const updatedDate = new Date(updatedAtNum);
-            const setUpdatedDate = commonFunctions.setRecordDate(updatedDate);
-            const recordObj = await RecordCounter.findOne({ "date": setUpdatedDate });
-
-            if (setUpdatedDate.toString() != commonFunctions.setRecordDate(new Date(Date.now())).toString()) {
-                if (!recordObj) {
-                    const newRecordObj = {
-                        date: setUpdatedDate,
-                        perHourCounterArr: [{ hour: updatedDate.getHours(), count: 1 }]
-                    }
-                    await RecordCounter.create(newRecordObj);
-                } else {
-                    let updatedCounterArr = recordObj.perHourCounterArr;
-                    let presentHours = [];
-                    updatedCounterArr.forEach((eachObj) => {
-                        presentHours.push(eachObj.hour);
-                    });
-
-                    if (presentHours.includes(updatedDate.getHours())) {
-                        updatedCounterArr.forEach((eachObj) => {
-                            if (eachObj.hour == updatedDate.getHours()) {
-                                eachObj.count += 1;
-                            }
-                        });
-                    } else
-                        updatedCounterArr.push({ hour: updatedDate.getHours(), count: 1 })
-                    recordObj.perHourCounterArr = updatedCounterArr;
-                    const savedObj = new RecordCounter(recordObj);
-                    await savedObj.save();
-                }
-            }
-        }
+        const { uccRequestId, uccMobileStatus } = req.body;
+        // const hourJustNow = new Date(Date.now()).getHours();
+        // const setDate = commonFunctions.setRecordDateISO(new Date(Date.now()).toISOString());
+        // const recordObj = await RecordCounter.findOne({ "date": setDate });
+        // console.log(setDate)
+        // if (!recordObj) {
+        //     let newRecordObj = {
+        //         date: setDate,
+        //         perHourCounterArr: [{}]
+        //     }
+        //     newRecordObj.perHourCounterArr[0][hourJustNow] = [uccRequestId];
+        //     console.log("CREATING OBJ IN MOBILE VERIFY")
+        //     await RecordCounter.create(newRecordObj);
+        // } else {
+        //     if (Array.isArray(recordObj.perHourCounterArr)) {
+        //         let arrObj = recordObj.perHourCounterArr[0];
+        //         if (arrObj[hourJustNow]) {
+        //             arrObj[hourJustNow].push(uccRequestId);
+        //             arrObj[hourJustNow] = [...new Set(arrObj[hourJustNow])];
+        //         } else
+        //             arrObj[hourJustNow] = [uccRequestId];
+        //             console.log("UPDATIG OBJ IN MOBILE VERIFY")
+        //         await RecordCounter.updateOne({ "date": setDate }, { $set: { perHourCounterArr: [arrObj] } });
+        //     }
+        // }
 
         const options = {
             'method': 'POST',
@@ -90,7 +52,13 @@ const investorMobileVerify = async (req, res) => {
         };
         request(options, function (error, response) {
             if (error) return res.status(error.status).json({ message: RESPONSE_MESSAGES.SERVER_ERROR, detail: error.toString() });
-
+            if (response.statusCode == 200) {
+                const investorObj = {
+                    uccRequestId: uccRequestId,
+                    uccMobileStatus: uccMobileStatus
+                }
+                incrementCounter(investorObj)
+            }
             return res.status(response.statusCode || 500).json({ data: JSON.parse(response.body) });
         });
     } catch (error) {
@@ -109,102 +77,56 @@ const investorMobileVerify = async (req, res) => {
 }
 
 const incrementCounter = async (investorObj) => {
-    const uccUpdatedAt = investorObj.uccUpdatedAt
-    const updatedAtNum = Number(uccUpdatedAt);
-    const updatedDate = new Date(updatedAtNum);
-    const dateSendForSet = new Date(updatedAtNum);
-    const setUpdatedDate = commonFunctions.setRecordDate(dateSendForSet);
-    const recordObj = await RecordCounter.findOne({ "date": setUpdatedDate });
+    const uccRequestId = investorObj.uccRequestId;
+    const hourJustNow = new Date().getHours();
+    const setDate = new Date().toDateString();
+    const recordObj = await RecordCounter.findOne({ "date": setDate });
     if (!recordObj) {
-        const newRecordObj = {
-            date: setUpdatedDate,
-            perHourCounterArr: [{ hour: updatedDate.getHours(), count: 1 }]
+        let newRecordObj = {
+            date: setDate,
+            perHourCounterArr: [{}]
         }
+        newRecordObj.perHourCounterArr[0][hourJustNow] = [uccRequestId];
         await RecordCounter.create(newRecordObj);
     } else {
-        let updatedCounterArr = recordObj.perHourCounterArr;
-        let presentHours = [];
-        updatedCounterArr.forEach((eachObj) => {
-            presentHours.push(eachObj.hour);
-        });
-
-        if (presentHours.includes(updatedDate.getHours())) {
-            updatedCounterArr.forEach((eachObj) => {
-                if (eachObj.hour == updatedDate.getHours()) {
-                    eachObj.count += 1;
-                }
-            });
-        } else
-            updatedCounterArr.push({ hour: updatedDate.getHours(), count: 1 })
-        recordObj.perHourCounterArr = updatedCounterArr;
-        await recordObj.save();
+        if (Array.isArray(recordObj.perHourCounterArr)) {
+            let arrObj = recordObj.perHourCounterArr[0];
+            if (arrObj[hourJustNow]) {
+                arrObj[hourJustNow].push(uccRequestId);
+                arrObj[hourJustNow] = [...new Set(arrObj[hourJustNow])];
+            } else
+                arrObj[hourJustNow] = [uccRequestId];
+            await RecordCounter.updateOne({ "date": setDate }, { $set: { perHourCounterArr: [arrObj] } });
+        }
     }
 }
 
 const investorEmailVerify = async (req, res) => {
     try {
-        const { uccRequestId, uccEmailStatus, uccUpdatedAt } = req.body;
-        const updatedAtNum = Number(uccUpdatedAt)
-        if (!uccUpdatedAt) {
-            const setDate = commonFunctions.setRecordDate(new Date(Date.now()));
-            const recordObj = await RecordCounter.findOne({ "date": setDate });
-            if (!recordObj) {//not record found 
-                const newRecordObj = {
-                    date: setDate,
-                    perHourCounterArr: [{ hour: new Date(Date.now()).getHours(), count: 1 }]
-                }
-                await RecordCounter.create(newRecordObj);
-            } else {  // this check for   second use comes and it have not uccupdatedat and find the date.now()
-                let updatedCounterArr = recordObj.perHourCounterArr;
-                let presentHours = [];
-                updatedCounterArr.forEach((eachObj) => {
-                    presentHours.push(eachObj.hour);
-                });
-
-                if (presentHours.includes(new Date(Date.now()).getHours())) {
-                    updatedCounterArr.forEach((eachObj) => {
-                        if (eachObj.hour == new Date(Date.now()).getHours()) {
-                            eachObj.count += 1;
-                        }
-                    });
-                } else
-                    updatedCounterArr.push({ hour: new Date(Date.now()).getHours(), count: 1 })
-                recordObj.perHourCounterArr = updatedCounterArr;
-                const savedObj = new RecordCounter(recordObj);
-                await savedObj.save();
-            }
-        } else {//this is for for uccUpdated at is passed 
-            const updatedDate = new Date(updatedAtNum);
-            const setUpdatedDate = commonFunctions.setRecordDate(updatedDate);
-            const recordObj = await RecordCounter.findOne({ "date": setUpdatedDate });
-            if (setUpdatedDate.toString() != commonFunctions.setRecordDate(new Date(Date.now())).toString()) {
-                if (!recordObj) {
-                    const newRecordObj = {
-                        date: setUpdatedDate,
-                        perHourCounterArr: [{ hour: updatedDate.getHours(), count: 1 }]
-                    }
-                    await RecordCounter.create(newRecordObj);
-                } else {
-                    let updatedCounterArr = recordObj.perHourCounterArr;
-                    let presentHours = [];
-                    updatedCounterArr.forEach((eachObj) => {
-                        presentHours.push(eachObj.hour);
-                    });
-
-                    if (presentHours.includes(updatedDate.getHours())) {
-                        updatedCounterArr.forEach((eachObj) => {
-                            if (eachObj.hour == updatedDate.getHours()) {
-                                eachObj.count += 1;
-                            }
-                        });
-                    } else
-                        updatedCounterArr.push({ hour: updatedDate.getHours(), count: 1 })
-                    recordObj.perHourCounterArr = updatedCounterArr;
-                    const savedObj = new RecordCounter(recordObj);
-                    await savedObj.save();
-                }
-            }
-        }
+        const { uccRequestId, uccEmailStatus } = req.body;
+        // const hourJustNow = new Date(Date.now()).getHours();
+        // const setDate = commonFunctions.setRecordDateISO(new Date(Date.now()).toISOString());
+        // const recordObj = await RecordCounter.findOne({ "date": setDate });
+        // if (!recordObj) {
+        //     let newRecordObj = {
+        //         date: setDate,
+        //         perHourCounterArr: [{}]
+        //     }
+        //     newRecordObj.perHourCounterArr[0][hourJustNow] = [uccRequestId];
+        //     console.log("CREATING OBJ IN EMAIL VERIFY")
+        //     await RecordCounter.create(newRecordObj);
+        // } else {
+        //     if (Array.isArray(recordObj.perHourCounterArr)) {
+        //         let arrObj = recordObj.perHourCounterArr[0];
+        //         if (arrObj[hourJustNow]) {
+        //             arrObj[hourJustNow].push(uccRequestId);
+        //             arrObj[hourJustNow] = [...new Set(arrObj[hourJustNow])];
+        //         } else
+        //             arrObj[hourJustNow] = [uccRequestId];
+        //         console.log("UPDATIG OBJ IN EMAIL VERIFY")
+        //         await RecordCounter.updateOne({ "date": setDate }, { $set: { perHourCounterArr: [arrObj] } });
+        //     }
+        // }
         var options = {
             'method': 'POST',
             'url': `${process.env.HYPERLEDGER_HOST}/users/updateInvestorEmailStatus`,
@@ -220,7 +142,13 @@ const investorEmailVerify = async (req, res) => {
         };
         request(options, function (error, response) {
             if (error) return res.status(error.status).json({ message: RESPONSE_MESSAGES.SERVER_ERROR, detail: error.toString() });
-
+            if (response.statusCode == 200) {
+                const investorObj = {
+                    uccRequestId: uccRequestId,
+                    uccMobileStatus: uccEmailStatus
+                }
+                incrementCounter(investorObj)
+            }
             return res.status(response.statusCode || 500).json({ data: JSON.parse(response.body) });
         });
     } catch (error) {
@@ -231,6 +159,7 @@ const investorEmailVerify = async (req, res) => {
             api_path: req.path,
         };
         console.error(error_body);
+        console.log(error.stack)
         return res
             .status(RESPONSE_STATUS.SERVER_ERROR)
             .json({ message: error.message });
@@ -416,7 +345,7 @@ const addSingleInvestor = async (req, res) => {
             mobileAttempts,
             UTCNotification,
             mobileProcessed,
-            emailProcessed } = req.body;       
+            emailProcessed } = req.body;
         let investorObj = {
             uccRequestId: uccRequestId,
             uccTmId: uccTmId,
@@ -466,8 +395,8 @@ const addSingleInvestor = async (req, res) => {
                 investorObj = await investorFunctions.processInvestorMobileV3(investorObj);
             }
         }
-        if(investorObj.uccMobileStatus==MOBILE_STATUSES.NOT_APPLICABLE){
-            investorObj.mobileProcessed=true ;
+        if (investorObj.uccMobileStatus == MOBILE_STATUSES.NOT_APPLICABLE) {
+            investorObj.mobileProcessed = true;
         }
         if (!investorObj.uccEmailId) investorObj.uccEmailId = investorObj.uccEmailId.toLowerCase()
         if (!investorObj.uccPanNo) investorObj.uccPanNo = investorObj.uccPanNo.toUpperCase()

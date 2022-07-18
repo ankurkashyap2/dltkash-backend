@@ -123,7 +123,6 @@ const returnEpoch = (dateString) => {
   return epoch;
 }
 const setRecordDate = (date) => {
-  date.setHours(00)
   date.setSeconds(00)
   date.setMinutes(00)
   date.setMilliseconds(00)
@@ -131,9 +130,11 @@ const setRecordDate = (date) => {
 }
 
 const setRecordDateISO = (date) => {
-  return new Date(`${date.toString().split("T")[0]}T00:00:00Z`);
- }
- 
+  return new Date(date).toDateString();
+  // return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()+1).setUTCHours(0,0,0,0);
+  // return new Date(`${date.toString().split("T")[0]}T00:00:00Z`);
+}
+
 const isDate = function (date) {
   return (new Date(date) !== "Invalid Date") && !isNaN(new Date(date));
 }
@@ -198,7 +199,17 @@ const getAttemptsTillDate = (date) => {
   return Final_Result
 }
 
+const isDatesEqual = (date1,date2) => {
+  return date1.valueOf() == date2.valueOf()
+}
+
+const getISTTime = (d) => {
+  return d.getTime() + ( 5.5 * 60 * 60 * 1000 )
+}
+
 module.exports = {
+  isDatesEqual,
+  getISTTime,
   shortURL,
   totitleCase: totitleCase,
   encryptFormattedUser,

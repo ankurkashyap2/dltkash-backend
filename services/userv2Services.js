@@ -17,47 +17,63 @@ const getInvestorByDate = async (req, res) => {
         const askedExchange = await Exchange.findOne({ _id: mongoose.Types.ObjectId(askedUser.exchangeId) });
         let { from, to, pageSize, bookmark } = req.body;
         let totalRecord = 0;
-
-        const GMTfrom = new Date(from).toISOString();
-        const GMTto = new Date(to).toISOString();
-        const fromHour = new Date(GMTfrom).getUTCHours();
-        const toHour = new Date(GMTto).getUTCHours();
-
-        const setStart = commonFunctions.setRecordDateISO(GMTfrom);
-        const setEnd = commonFunctions.setRecordDateISO(GMTto);
-
-        const askedDates = await RecordCounter.find({ 'date': { $gte: setStart, $lte: setEnd } });
-        askedDates.forEach((e) => {
-            if ((e.date == setStart) && (e.date == setEnd)) {
-                let perHourArray = e.perHourCounterArr
-                perHourArray.forEach((perHourArrayObj) => {
-                    if (perHourArrayObj >= fromHour && perHourArrayObj < toHour)
-                        totalRecord = totalRecord + perHourArrayObj.count;
-                })
+        // get indian time dates from API convert them to UTC
+        const UTCfrom = new Date(from).toISOString();
+        const UTCto = new Date(to).toISOString();
+        const fromHour = new Date(UTCfrom).getUTCHours();
+        const toHour = new Date(UTCto).getUTCHours();
+        const setStart = commonFunctions.setRecordDateISO(UTCfrom);
+        const setEnd = commonFunctions.setRecordDateISO(UTCto);
+        const recordCounterDateObjs = await RecordCounter.find({ 'date': { $gte: setStart, $lte: setEnd } });
+      
+        recordCounterDateObjs.forEach((recordCounterObj) => {
+            //ITS THE START DATE AND ITS THE END DATE
+           
+            if (commonFunctions.isDatesEqual(recordCounterObj.date,setStart) && commonFunctions.isDatesEqual(recordCounterObj.date,setEnd)) {
+                let perHourCounterArr = recordCounterObj.perHourCounterArr[0];
+                const arr = [];
+                for (const entry of Object.entries(perHourCounterArr)) {
+                    if (parseInt(entry[0]) >= fromHour && parseInt(entry[0]) <= toHour )
+                            arr.push(...entry[1])}
+                let arrSet = [...new Set(arr)];
+                totalRecord += arrSet.length;
             }
-            if (e.date == setStart && setStart != setEnd) {
-                let perHourArray = e.perHourCounterArr
-                perHourArray.forEach((perHourArrayObj) => {
-                    if (perHourArrayObj >= fromHour)
-                        totalRecord = totalRecord + perHourArrayObj.count;
-                })
+            //ITS THE END DATE NOT THE START DATE ==>
+            else if (commonFunctions.isDatesEqual(recordCounterObj.date,setEnd)) {
+                
+                let perHourCounterArr = recordCounterObj.perHourCounterArr[0];
+                const arr = [];
+                for (const entry of Object.entries(perHourCounterArr)) {
+                    if (parseInt(entry[0]) <= toHour)
+                        arr.push(...entry[1])
+                }
+                let arrSet = [...new Set(arr)];
+                totalRecord += arrSet.length;
             }
-            if (e.date == setEnd && setStart != setEnd) {
-                let perHourArray = e.perHourCounterArr
-                perHourArray.forEach((perHourArrayObj) => {
-                    if (perHourArrayObj <= toHour)
-                        totalRecord = totalRecord + perHourArrayObj.count;
-                })
+            //ITS THE START DATE NOT THE END DATE ==> hours will be counted from start UTCfrom to end 
+            else if ( commonFunctions.isDatesEqual(recordCounterObj.date,setStart) ) {
+                let perHourCounterArr = recordCounterObj.perHourCounterArr[0];
+                const arr = [];
+                for (const entry of Object.entries(perHourCounterArr)) {
+                    if (parseInt(entry[0]) >= fromHour)
+                        arr.push(...entry[1])
+                }
+                let arrSet = [...new Set(arr)];
+                totalRecord += arrSet.length;
             }
-            if ((e.date != setStart) && (e.date != setEnd)) {
-                let perHourArray = e.perHourCounterArr
-                perHourArray.forEach((perHourArrayObj) => {
-                    totalRecord = totalRecord + perHourArrayObj.count;
-                })
+            //IN BETWEEN DAYS
+            else if (!commonFunctions.isDatesEqual(recordCounterObj.date,setStart) && !commonFunctions.isDatesEqual(recordCounterObj.date,setEnd)) {
+                let perHourCounterArr = recordCounterObj.perHourCounterArr[0];
+                const arr = [];
+                for (const key of Object.values(perHourCounterArr)) {
+                    arr.push(...key)
+                }
+                let arrSet = [...new Set(arr)];
+                totalRecord += arrSet.length;
             }
         })
         const exchangeId = askedExchange._id;
-        var options = {
+        const options = {
             'method': 'POST',
             'url': `${process.env.HYPERLEDGER_HOST}/users/fetchInvestors`,
             'headers': {
@@ -84,7 +100,7 @@ const getInvestorByDate = async (req, res) => {
             error_detail: typeof error == "object" ? JSON.stringify(error) : error,
             error_data: req.body,
             api_path: req.path,
-
+            stack: error.stack,
             message: error.message
         };
         console.error(error_body);

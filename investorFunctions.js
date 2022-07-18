@@ -134,7 +134,7 @@ const processInvestorEmailV3 = async (investorObj) => {
         if (!commonFunctions.validateEmail(investorObj.uccEmailId)) {
             investorObj.uccEmailStatus = EMAIL_STATUSES.INVALID;
             investorObj.emailProcessed = true;
-            investorObj.uccUpdatedAt = Number(new Date()).toString();
+            investorObj.uccUpdatedAt = Number(new Date());
             resolve(investorObj);
         }
         const EMAIL_STATUS = investorObj.uccEmailStatus;
@@ -171,7 +171,7 @@ const processInvestorEmailV3 = async (investorObj) => {
                 if (investorObj.emailAttempts >= investorObj.totalAttempts) {
                     investorObj.uccEmailStatus = EMAIL_STATUSES.NOT_VERIFIED;
                     investorObj.emailProcessed = true;
-                    investorObj.uccUpdatedAt = Number(new Date()).toString();
+                    investorObj.uccUpdatedAt = Number(new Date());
                     resolve(investorObj);
                 } else {
                     commonFunctions.sendMail(investorObj.uccEmailId, 'Verification of e-mail ID linked to your UCC', html, (err, res, body) => {
@@ -209,7 +209,7 @@ const processInvestorMobileV3 = async (investorObj) => {
         if (!commonFunctions.validateMobile(investorObj.uccMobileNo)) {
             investorObj.uccMobileStatus = MOBILE_STATUSES.NOT_APPLICABLE;
             investorObj.mobileProcessed = true;
-            investorObj.uccUpdatedAt = Number(new Date()).toString();
+            investorObj.uccUpdatedAt = Number(new Date());
             resolve(investorObj);
         }
         const MOBILE_STATUS = investorObj.uccMobileStatus;
@@ -238,7 +238,7 @@ const processInvestorMobileV3 = async (investorObj) => {
                 if (investorObj.mobileAttempts >= investorObj.totalAttempts) {
                     investorObj.uccMobileStatus = MOBILE_STATUSES.NOT_VERIFIED;
                     investorObj.mobileProcessed = true;
-                    investorObj.uccUpdatedAt = Number(new Date()).toString();
+                    investorObj.uccUpdatedAt = Number(new Date());
                     resolve(investorObj);
                 } else {
 
