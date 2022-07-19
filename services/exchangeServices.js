@@ -18,15 +18,16 @@ const uploadFileToServer = async (req, res) => {
             if (filename.mimeType != 'application/json') return res.status(RESPONSE_STATUS.CONFLICT).json({ message: 'Only JSON files are accepted.!' });
             const fstream = fs.createWriteStream(path.join(__uploadPath, filename.filename));
             file.pipe(fstream);
-            fstream.on('close', () => {
+            fstream.on('close', async () => {
                 console.log(`Upload of '${filename.filename}' finished`);
                 const recordFileObj = {
                     fileName: filename.filename,
                     status: "UNPROCESSED",
                     exchangeId: askedUser.exchangeId
                 }
-                RecordFile.create(recordFileObj);
-                cronServices.checkForUnprocessedFiles().then(() => { });
+                const FileForSearch = await RecordFile.create(recordFileObj);
+                const FileForSearch_id = FileForSearch._id;
+                cronServices.checkForUnprocessedFiles(FileForSearch_id).then(() => { });
                 return res.status(RESPONSE_STATUS.SUCCESS).json({ message: "File upload success.And Processing started.!" });
             });
             fstream.on('error', (error) => {
