@@ -78,7 +78,8 @@ const investorMobileVerify = async (req, res) => {
 
 const incrementCounter = async (investorObj) => {
     const uccRequestId = investorObj.uccRequestId;
-    const hourJustNow = new Date().getUTCHours();
+    const ISTdate=new Date().toLocaleString('en-US', {timeZone: 'Asia/Kolkata'})
+    const hourJustNow = new Date(ISTdate).getHours();
     const setDate = new Date().setUTCHours(0, 0, 0, 0);
     const recordObj = await RecordCounter.findOne({ "date": setDate });
     if (!recordObj) {
