@@ -5,6 +5,7 @@ var request = require('request');
 const User = require('./../models/user');
 const Exchange = require('./../models/exchange');
 const RecordCounter = require('./../models/recordCounter');
+const RecordFiles = require("./../models/fileSpecs");
 const mongoose = require('mongoose');
 const moment = require("moment");
 // Investor featch data in range of two dates
@@ -17,14 +18,23 @@ const getInvestorByDate = async (req, res) => {
         const askedExchange = await Exchange.findOne({ _id: mongoose.Types.ObjectId(askedUser.exchangeId) });
         let { from, to, pageSize, bookmark } = req.body;
         let totalRecord = 0;
+        let invalidRecords = [];
         // get indian time dates from API convert them to UTC
         const UTCfrom = new Date(from).toISOString();
         const UTCto = new Date(to).toISOString();
         const fromHour = new Date(UTCfrom).getUTCHours();
         const toHour = new Date(UTCto).getUTCHours();
         const toUTC = new Date(to).setUTCHours(0, 0, 0, 0);
-        const fromUTC = new Date(from).setUTCHours(0, 0, 0, 0)
+        const fromUTC = new Date(from).setUTCHours(0, 0, 0, 0);
+        console.log(fromUTC, toUTC)
         const recordCounterDateObjs = await RecordCounter.find({ 'date': { $gte: fromUTC, $lte: toUTC } });
+        const recordFiles = await RecordFiles.find({ 'createdAt': { $gte: fromUTC, $lte: toUTC } });
+        recordFiles.forEach(rec => {
+            rec.invalidRecords.forEach((record) => {
+                invalidRecords.push(...record);
+            });
+
+        });
         recordCounterDateObjs.forEach((recordCounterObj) => {
             //ITS THE START DATE AND ITS THE END DATE
             if (commonFunctions.isDatesEqual(recordCounterObj.date, toUTC) && commonFunctions.isDatesEqual(recordCounterObj.date, fromUTC)) {
@@ -87,7 +97,7 @@ const getInvestorByDate = async (req, res) => {
         };
         request(options, function (error, response) {
             if (response.statusCode == 200) {
-                return res.json({ totalRecords: totalRecord, data: JSON.parse(response.body) });
+                return res.json({ invalidRecords: invalidRecords, data: JSON.parse(response.body) });
             } else {
                 return res.status(response.statusCode || 500).json(JSON.parse(response.body) || RESPONSE_MESSAGES.SERVER_ERROR)
             }
