@@ -78,7 +78,7 @@ const investorMobileVerify = async (req, res) => {
 
 const incrementCounter = async (investorObj) => {
     const uccRequestId = investorObj.uccRequestId;
-    const ISTdate=new Date().toLocaleString('en-US', {timeZone: 'Asia/Kolkata'})
+    const ISTdate = new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
     const hourJustNow = new Date(ISTdate).getHours();
     const setDate = new Date().setUTCHours(0, 0, 0, 0);
     const recordObj = await RecordCounter.findOne({ "date": setDate });
@@ -100,6 +100,7 @@ const incrementCounter = async (investorObj) => {
             await RecordCounter.updateOne({ "date": setDate }, { $set: { perHourCounterArr: [arrObj] } });
         }
     }
+    return;
 }
 
 // incrementCounter({
@@ -122,7 +123,7 @@ const incrementCounter = async (investorObj) => {
 const investorEmailVerify = async (req, res) => {
     try {
         const { uccRequestId, uccEmailStatus } = req.body;
-        var options = {
+        const options = {
             'method': 'POST',
             'url': `${process.env.HYPERLEDGER_HOST}/users/updateInvestorEmailStatus`,
 
@@ -394,7 +395,7 @@ const addSingleInvestor = async (req, res) => {
             investorObj.mobileProcessed = true;
         }
         if (!investorObj.uccEmailId) investorObj.uccEmailId = investorObj.uccEmailId.toLowerCase()
-        if (!investorObj.uccPanNo) investorObj.uccPanNo = investorObj.uccPanNo.toUpperCase()
+        if (investorObj.uccPanNo) investorObj.uccPanNo = investorObj.uccPanNo.toUpperCase()
         if (uccPanExempt.toString() == "false") {
             investorObj.L1 = commonFunctions.encryptWithAES(`${uccPanNo}`);
             investorObj.L2 = commonFunctions.encryptWithAES(`${uccPanNo}-${uccMobileNo}-${uccEmailId}`);
