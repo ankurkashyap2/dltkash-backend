@@ -137,11 +137,11 @@ const startFileProcessing = async (recordFile, askedExchange) => {
                     //************************************ */
                     if (!jsonObj.mobileAttempts) jsonObj.mobileAttempts = 0;
                     if (!jsonObj.emailAttempts) jsonObj.emailAttempts = 0;
-                    if (!jsonObj.fileName) jsonObj.fileName = recordFile.fileName
+                    if (jsonObj.fileName) jsonObj.fileName = recordFile.fileName
                     if (!jsonObj.mobileProcessed) jsonObj.mobileProcessed = false;
                     if (!jsonObj.emailProcessed) jsonObj.emailProcessed = false;
-                    if (!jsonObj.uccEmailId) jsonObj.uccEmailId = jsonObj.uccEmailId.toLowerCase();
-                    if (!jsonObj.uccPanNo) jsonObj.uccPanNo = jsonObj.uccPanNo.toUpperCase();
+                    if (jsonObj.uccEmailId) jsonObj.uccEmailId = jsonObj.uccEmailId.toLowerCase();
+                    if (jsonObj.uccPanNo) jsonObj.uccPanNo = jsonObj.uccPanNo.toUpperCase();
                     if (!jsonObj.refined) jsonObj.refined = false;
                     //chek for emailPocessed and MobileProcessed both are tue
                     //SEND TO QUEUE
@@ -189,7 +189,7 @@ const sanitizer = (jsonObj) => {
     }
     if (jsonObj.uccPanExempt.toString() == 'true') {
         //if DPID adn CLIENTID missing errorCOde {}
-        if (jsonObj.uccDpId || jsonObj.uccClientId) {
+        if (!(jsonObj.uccDpId && jsonObj.uccClientId)) {
             return { invalid: true, errCode: 00 }
         }
     }
