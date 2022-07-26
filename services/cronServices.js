@@ -105,10 +105,13 @@ const startFileProcessing = async (recordFile, askedExchange) => {
                         uccRequestId: jsonObj.uccRequestId,
                         uccEmailId: jsonObj.uccEmailId,
                         uccMobileNo: jsonObj.uccMobileNo,
-                        err_reason:INVALID_ERROR_CODES[sanitized.errCode],
+                        uccTmName: jsonObj.uccTmName,
+                        uccTmId: jsonObj.uccTmId,
+                        err_reason: INVALID_ERROR_CODES[sanitized.errCode],
                         error_code: sanitized.errCode,
                         time: Date.now(),
                     }
+                    if (jsonObj.uccSegmentId) Error_Obj.uccSegmentId = jsonObj.uccSegmentId;
                     if (jsonObj.uccPanNo) Error_Obj.uccPanNo = jsonObj.uccPanNo;
                     invalidRecords.push(Error_Obj);
                 } else {
@@ -155,11 +158,14 @@ const startFileProcessing = async (recordFile, askedExchange) => {
                 let Error_Obj = {
                     uccRequestId: jsonObj.uccRequestId,
                     uccEmailId: jsonObj.uccEmailId,
+                    uccTmName: jsonObj.uccTmName,
+                    uccTmId: jsonObj.uccTmId,
                     uccMobileNo: jsonObj.uccMobileNo,
                     error_code: INVALID_ERROR_CODES[06],
                     time: Date.now(),
                     systemErrorReason: error.stack
                 }
+                if (jsonObj.uccSegmentId) Error_Obj.uccSegmentId = jsonObj.uccSegmentId;
                 if (jsonObj.uccPanNo) Error_Obj.uccPanNo = jsonObj.uccPanNo;
                 invalidRecords.push(Error_Obj);
             }
