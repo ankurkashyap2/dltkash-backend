@@ -107,6 +107,7 @@ const startFileProcessing = async (recordFile, askedExchange) => {
                         uccMobileNo: jsonObj.uccMobileNo,
                         uccTmName: jsonObj.uccTmName,
                         uccTmId: jsonObj.uccTmId,
+                        uccClientId: jsonObj.uccClientId,
                         err_reason: INVALID_ERROR_CODES[sanitized.errCode],
                         error_code: sanitized.errCode,
                         time: Date.now(),
@@ -161,7 +162,9 @@ const startFileProcessing = async (recordFile, askedExchange) => {
                     uccTmName: jsonObj.uccTmName,
                     uccTmId: jsonObj.uccTmId,
                     uccMobileNo: jsonObj.uccMobileNo,
-                    error_code: INVALID_ERROR_CODES[06],
+                    uccClientId: jsonObj.uccClientId,
+                    err_reason: INVALID_ERROR_CODES[sanitized.errCode],
+                    error_code: sanitized.errCode,
                     time: Date.now(),
                     systemErrorReason: error.stack
                 }
