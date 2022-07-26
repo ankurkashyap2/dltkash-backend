@@ -97,7 +97,11 @@ const getInvestorByDate = async (req, res) => {
         };
         request(options, function (error, response) {
             if (response.statusCode == 200) {
-                return res.json({ invalidRecords: invalidRecords, data: JSON.parse(response.body) });
+                const resp = {}
+                if (!bookmark)
+                    resp.invalidRecords = invalidRecords;
+                resp.data = JSON.parse(response.body)
+                return res.json(resp);
             } else {
                 return res.status(response.statusCode || 500).json(JSON.parse(response.body) || RESPONSE_MESSAGES.SERVER_ERROR)
             }

@@ -32,7 +32,8 @@ const sendMail = (email, subject, content, callback, entity = true) => {
         ],
         "html": content,
         "subject": subject,
-        "from_email": entity ? "no-reply@nse.co.in" : "no-reply@dltkash.com",
+        // "from_email": entity ? "no-reply@nse.co.in" : "no-reply@dltkash.com",
+        "from_email": entity ? "no-reply@kryptomach.com" : "no-reply@kryptomach.com",
         "from_name": "no-reply"
       },
       "owner_id": process.env.SENDCLEANOWNERID || '80940214',

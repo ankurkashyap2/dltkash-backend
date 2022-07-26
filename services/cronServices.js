@@ -103,9 +103,13 @@ const startFileProcessing = async (recordFile, askedExchange) => {
                 if (sanitized.invalid) {
                     let Error_Obj = {
                         uccRequestId: jsonObj.uccRequestId,
-                        error_code: INVALID_ERROR_CODES[sanitized.errCode],
+                        uccEmailId: jsonObj.uccEmailId,
+                        uccMobileNo: jsonObj.uccMobileNo,
+                        err_reason:INVALID_ERROR_CODES[sanitized.errCode],
+                        error_code: sanitized.errCode,
                         time: Date.now(),
                     }
+                    if (jsonObj.uccPanNo) Error_Obj.uccPanNo = jsonObj.uccPanNo;
                     invalidRecords.push(Error_Obj);
                 } else {
                     jsonObj.exchangeId = recordFile.exchangeId;
@@ -150,10 +154,13 @@ const startFileProcessing = async (recordFile, askedExchange) => {
             } catch (error) {
                 let Error_Obj = {
                     uccRequestId: jsonObj.uccRequestId,
+                    uccEmailId: jsonObj.uccEmailId,
+                    uccMobileNo: jsonObj.uccMobileNo,
                     error_code: INVALID_ERROR_CODES[06],
                     time: Date.now(),
                     systemErrorReason: error.stack
                 }
+                if (jsonObj.uccPanNo) Error_Obj.uccPanNo = jsonObj.uccPanNo;
                 invalidRecords.push(Error_Obj);
             }
         });
