@@ -108,6 +108,7 @@ const startFileProcessing = async (recordFile, askedExchange) => {
                         uccTmName: jsonObj.uccTmName,
                         uccTmId: jsonObj.uccTmId,
                         uccClientId: jsonObj.uccClientId,
+                        uccInvestorCode:jsonObj.uccInvestorCode,
                         err_reason: INVALID_ERROR_CODES[sanitized.errCode],
                         error_code: sanitized.errCode,
                         time: Date.now(),
@@ -149,6 +150,7 @@ const startFileProcessing = async (recordFile, askedExchange) => {
                     if (!jsonObj.mobileProcessed) jsonObj.mobileProcessed = false;
                     if (!jsonObj.emailProcessed) jsonObj.emailProcessed = false;
                     if (jsonObj.uccEmailId) jsonObj.uccEmailId = jsonObj.uccEmailId.toLowerCase();
+                    if(jsonObj.uccTmName) jsonObj.uccTmName=jsonObj.uccTmName.toLowerCase(); 
                     if (jsonObj.uccPanNo) jsonObj.uccPanNo = jsonObj.uccPanNo.toUpperCase();
                     if (!jsonObj.refined) jsonObj.refined = false;
                     //chek for emailPocessed and MobileProcessed both are tue
@@ -163,6 +165,7 @@ const startFileProcessing = async (recordFile, askedExchange) => {
                     uccTmId: jsonObj.uccTmId,
                     uccMobileNo: jsonObj.uccMobileNo,
                     uccClientId: jsonObj.uccClientId,
+                    uccInvestorCode:jsonObj.uccInvestorCode,
                     err_reason: INVALID_ERROR_CODES[sanitized.errCode],
                     error_code: sanitized.errCode,
                     time: Date.now(),
