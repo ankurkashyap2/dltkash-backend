@@ -142,7 +142,6 @@ const startFileProcessing = async (recordFile, askedExchange) => {
                     if (!jsonObj.mobileProcessed) jsonObj.mobileProcessed = false;
                     if (!jsonObj.emailProcessed) jsonObj.emailProcessed = false;
                     if (jsonObj.uccEmailId) jsonObj.uccEmailId = jsonObj.uccEmailId.toLowerCase();
-                    if(jsonObj.uccTmName) jsonObj.uccTmName=jsonObj.uccTmName.toLowerCase(); 
                     if (jsonObj.uccPanNo) jsonObj.uccPanNo = jsonObj.uccPanNo.toUpperCase();
                     if (!jsonObj.refined) jsonObj.refined = false;
                     //chek for emailPocessed and MobileProcessed both are tue
