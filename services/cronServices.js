@@ -102,19 +102,11 @@ const startFileProcessing = async (recordFile, askedExchange) => {
                 //push in invalid records with sanitized.errCode
                 if (sanitized.invalid) {
                     let Error_Obj = {
-                        uccRequestId: jsonObj.uccRequestId,
-                        uccEmailId: jsonObj.uccEmailId,
-                        uccMobileNo: jsonObj.uccMobileNo,
-                        uccTmName: jsonObj.uccTmName,
-                        uccTmId: jsonObj.uccTmId,
-                        uccClientId: jsonObj.uccClientId,
-                        uccInvestorCode:jsonObj.uccInvestorCode,
+                        ...jsonObj,
                         err_reason: INVALID_ERROR_CODES[sanitized.errCode],
                         error_code: sanitized.errCode,
                         time: Date.now(),
                     }
-                    if (jsonObj.uccSegmentId) Error_Obj.uccSegmentId = jsonObj.uccSegmentId;
-                    if (jsonObj.uccPanNo) Error_Obj.uccPanNo = jsonObj.uccPanNo;
                     invalidRecords.push(Error_Obj);
                 } else {
                     jsonObj.exchangeId = recordFile.exchangeId;
@@ -159,20 +151,12 @@ const startFileProcessing = async (recordFile, askedExchange) => {
                 }
             } catch (error) {
                 let Error_Obj = {
-                    uccRequestId: jsonObj.uccRequestId,
-                    uccEmailId: jsonObj.uccEmailId,
-                    uccTmName: jsonObj.uccTmName,
-                    uccTmId: jsonObj.uccTmId,
-                    uccMobileNo: jsonObj.uccMobileNo,
-                    uccClientId: jsonObj.uccClientId,
-                    uccInvestorCode:jsonObj.uccInvestorCode,
-                    err_reason: INVALID_ERROR_CODES[sanitized.errCode],
-                    error_code: sanitized.errCode,
+                    ...jsonObj,
+                    err_reason: INVALID_ERROR_CODES[06],
+                    error_code: 06,
                     time: Date.now(),
                     systemErrorReason: error.stack
                 }
-                if (jsonObj.uccSegmentId) Error_Obj.uccSegmentId = jsonObj.uccSegmentId;
-                if (jsonObj.uccPanNo) Error_Obj.uccPanNo = jsonObj.uccPanNo;
                 invalidRecords.push(Error_Obj);
             }
         });

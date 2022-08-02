@@ -26,7 +26,6 @@ const getInvestorByDate = async (req, res) => {
         const toHour = new Date(UTCto).getUTCHours();
         const toUTC = new Date(to).setUTCHours(0, 0, 0, 0);
         const fromUTC = new Date(from).setUTCHours(0, 0, 0, 0);
-        console.log(fromUTC, toUTC)
         const recordCounterDateObjs = await RecordCounter.find({ 'date': { $gte: fromUTC, $lte: toUTC } });
         const recordFiles = await RecordFiles.find({ 'createdAt': { $gte: fromUTC, $lte: toUTC } });
         recordFiles.forEach(rec => {
