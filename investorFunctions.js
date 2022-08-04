@@ -140,7 +140,7 @@ const processInvestorEmailV3 = async (investorObj) => {
         const EMAIL_STATUS = investorObj.uccEmailStatus;
         const REQ_TYPE = investorObj.uccRequestType;
         const LINK_EXPIRY = REQ_TYPE == UCC_REQUEST_TYPES.EXISTING ? `${investorObj.totalAttempts * 24}h` : `24h`;
-        let token = jwt.sign({ email: investorObj.uccEmailId, reqId: investorObj.uccRequestId }, process.env.JWTSECRET, { expiresIn: LINK_EXPIRY, });
+        let token = jwt.sign({ email: investorObj.uccEmailId, reqId: investorObj.uccRequestId }, process.env.JWTSECRET, { expiresIn: LINK_EXPIRY});
         const mailBody = {
             email: investorObj.uccEmailId,
             ref: `${process.env.FEHOST}/investor/email-verification/${investorObj.uccRequestId}/${token}`,

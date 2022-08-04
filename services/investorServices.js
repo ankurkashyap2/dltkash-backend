@@ -383,6 +383,11 @@ const addSingleInvestor = async (req, res) => {
 
         let _response = await axios.post(`${process.env.HYPERLEDGER_HOST}/users/getInvestorsByKey`, payload2);
         let dataForStatus = _response.data;
+        if (uccRequestType == UCC_REQUEST_TYPES.NEW) { investorObj.totalAttempts = askedExchange.newAttempts; }
+        else if (uccRequestType == UCC_REQUEST_TYPES.MODIFIED) {
+            investorObj.totalAttempts = askedExchange.modifiedAttempts;
+        } else if (uccRequestType == UCC_REQUEST_TYPES.EXISTING) { investorObj.totalAttempts = askedExchange.existingAttempts; } else { investorObj.totalAttempts = 7; }
+
         if (dataForStatus.results.length == 0) {
             if (!uccEmailStatus) {
                 investorObj = await investorFunctions.processInvestorEmailV3(investorObj);
@@ -414,12 +419,7 @@ const addSingleInvestor = async (req, res) => {
         }
         if (!investorObj.emailProcessed) {
             investorObj.emailProcessed = false;
-        }
-        if (uccRequestType == UCC_REQUEST_TYPES.NEW) { investorObj.totalAttempts = askedExchange.newAttempts; }
-        else if (uccRequestType == UCC_REQUEST_TYPES.MODIFIED) {
-            investorObj.totalAttempts = askedExchange.modifiedAttempts;
-        } else if (uccRequestType == UCC_REQUEST_TYPES.EXISTING) { investorObj.totalAttempts = askedExchange.existingAttempts; } else { investorObj.totalAttempts = 7; }
-
+        }        
         if (!UTCNotification) {
             var country = investorObj.uccCountry.toLowerCase();
             if (COUNTRY_ARRAY[country]) {
@@ -430,7 +430,7 @@ const addSingleInvestor = async (req, res) => {
         }
         if (investorObj.uccEmailId) investorObj.uccEmailId = investorObj.uccEmailId.toLowerCase()
         if (investorObj.uccPanNo) investorObj.uccPanNo = investorObj.uccPanNo.toUpperCase()
-        investorObj.exchangeId = askedExchange._id;
+        investorObj.exchangeId = askedExchange._id;    
         const options = {
             'method': 'POST',
             'url': `${process.env.HYPERLEDGER_HOST}/users/createInvestor`,
