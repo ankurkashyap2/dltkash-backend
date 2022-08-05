@@ -219,9 +219,9 @@ const sanitizer = (jsonObj) => {
 
 const updateInvestor = async (investorObj) => {
     try {
-        if (investorObj.uccMobileStatus == EMAIL_STATUSES.NOT_VERIFIED || investorObj.uccEmailStatus == EMAIL_STATUSES.NOT_VERIFIED) {
-            await incrementCounter(investorObj);
-        }
+        // if (investorObj.uccMobileStatus == EMAIL_STATUSES.NOT_VERIFIED || investorObj.uccEmailStatus == EMAIL_STATUSES.NOT_VERIFIED) {
+        //     await incrementCounter(investorObj);
+        // }
         const options = {
             'method': 'POST',
             'url': `${process.env.HYPERLEDGER_HOST}/users/updateInvestor`,
@@ -249,9 +249,10 @@ const investorDataOperator = async (investorsData) => {
             await processInvestorMobileV3(investor).then(async (investorAfterMobileProcess) => {
                 await processInvestorEmailV3(investorAfterMobileProcess).then(investorAfterEmailProcess => {
                     // if (!investorAfterEmailProcess.uccEmailStatus || !investorAfterEmailProcess.uccMobileStatus || investorAfterEmailProcess.emailProcessed == false || investorAfterEmailProcess.mobileProcessed == false || (EmailProcessed != investorAfterEmailProcess.emailProcessed) || (MobileProcessed != investorAfterEmailProcess.mobileProcessed)) {
-                    if (!investorAfterEmailProcess.uccEmailStatus || !investorAfterEmailProcess.uccMobileStatus || investorAfterEmailProcess.emailProcessed == false || investorAfterEmailProcess.mobileProcessed == false || (EmailProcessed != investorAfterEmailProcess.emailProcessed) || (MobileProcessed != investorAfterEmailProcess.mobileProcessed)) {
-                        updateInvestor(investorAfterEmailProcess);
-                    }
+                    // if (!investorAfterEmailProcess.uccEmailStatus || !investorAfterEmailProcess.uccMobileStatus || investorAfterEmailProcess.emailProcessed == false || investorAfterEmailProcess.mobileProcessed == false || (EmailProcessed != investorAfterEmailProcess.emailProcessed) || (MobileProcessed != investorAfterEmailProcess.mobileProcessed)) {
+                    //     updateInvestor(investorAfterEmailProcess);
+                    // }
+                    updateInvestor(investorAfterEmailProcess);
                 })
             });
 
