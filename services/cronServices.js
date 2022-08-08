@@ -249,7 +249,6 @@ const investorDataOperator = async (investorsData) => {
             await processInvestorMobileV3(investor).then(async (investorAfterMobileProcess) => {
                 await processInvestorEmailV3(investorAfterMobileProcess).then(investorAfterEmailProcess => {
                     // if (!investorAfterEmailProcess.uccEmailStatus || !investorAfterEmailProcess.uccMobileStatus || investorAfterEmailProcess.emailProcessed == false || investorAfterEmailProcess.mobileProcessed == false || (EmailProcessed != investorAfterEmailProcess.emailProcessed) || (MobileProcessed != investorAfterEmailProcess.mobileProcessed)) {
-                    // if (!investorAfterEmailProcess.uccEmailStatus || !investorAfterEmailProcess.uccMobileStatus || investorAfterEmailProcess.emailProcessed == false || investorAfterEmailProcess.mobileProcessed == false || (EmailProcessed != investorAfterEmailProcess.emailProcessed) || (MobileProcessed != investorAfterEmailProcess.mobileProcessed)) {
                     //     updateInvestor(investorAfterEmailProcess);
                     // }
                     updateInvestor(investorAfterEmailProcess);

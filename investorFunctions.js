@@ -251,7 +251,7 @@ const processInvestorMobileV3 = async (investorObj) => {
                             investorObj.mobileAttempts = noMobileAttempts;
                             investorObj.uccMobileStatus = MOBILE_STATUSES.SENT
                         } else {
-                            investorObj.uccMobileStatus = MOBILE_STATUSES.SENT
+                            investorObj.uccMobileStatus = MOBILE_STATUSES.SENT 
                         }
                         resolve(investorObj);
                     });
