@@ -18,7 +18,7 @@ const processInvestorEmailV3 = async (investorObj) => {
         const EMAIL_STATUS = investorObj.uccEmailStatus;
         const REQ_TYPE = investorObj.uccRequestType;
         const LINK_EXPIRY = REQ_TYPE == UCC_REQUEST_TYPES.EXISTING ? `${investorObj.totalAttempts * 24}h` : `24h`;
-        let token = jwt.sign({ email: investorObj.uccEmailId, reqId: investorObj.uccRequestId }, process.env.JWTSECRET, { expiresIn: LINK_EXPIRY});
+        let token = jwt.sign({ email: investorObj.uccEmailId, reqId: investorObj.uccRequestId }, process.env.JWTSECRET, { expiresIn: LINK_EXPIRY });
         const mailBody = {
             email: investorObj.uccEmailId,
             ref: `${process.env.FEHOST}/investor/email-verification/${investorObj.uccRequestId}/${token}`,
@@ -52,25 +52,30 @@ const processInvestorEmailV3 = async (investorObj) => {
                     investorObj.uccUpdatedAt = Number(new Date());
                     resolve(investorObj);
                 } else {
-                    commonFunctions.sendMail(investorObj.uccEmailId, 'Verification of e-mail ID linked to your UCC', html, (err, res, body) => {
-
-                        // if (REQ_TYPE == UCC_REQUEST_TYPES.EXISTING) investorObj.emailProcessed = true;
-                       
-                        if (err) {
-                            // handle email error
-                            investorObj.uccEmailStatus = EMAIL_STATUSES.SENT;
-                            console.log(err);
-                        }
-                        else {
-                            // add mail attempts
-
-                            let noEmailAttempts = parseInt(investorObj.emailAttempts);
-                            noEmailAttempts = noEmailAttempts + 1;
-                            investorObj.emailAttempts = noEmailAttempts;
-                            investorObj.uccEmailStatus = EMAIL_STATUSES.SENT;
-                        }
+                    if (REQ_TYPE == UCC_REQUEST_TYPES.EXISTING) {
+                        investorObj.emailAttempts++;
                         resolve(investorObj);
-                    });
+                    } else {
+                        commonFunctions.sendMail(investorObj.uccEmailId, 'Verification of e-mail ID linked to your UCC', html, (err, res, body) => {
+
+                            // if (REQ_TYPE == UCC_REQUEST_TYPES.EXISTING) investorObj.emailProcessed = true;
+
+                            if (err) {
+                                // handle email error
+                                investorObj.uccEmailStatus = EMAIL_STATUSES.SENT;
+                                console.log(err);
+                            }
+                            else {
+                                // add mail attempts
+
+                                let noEmailAttempts = parseInt(investorObj.emailAttempts);
+                                noEmailAttempts = noEmailAttempts + 1;
+                                investorObj.emailAttempts = noEmailAttempts;
+                                investorObj.uccEmailStatus = EMAIL_STATUSES.SENT;
+                            }
+                            resolve(investorObj);
+                        });
+                    }
                 }
             }
             if (EMAIL_STATUS == EMAIL_STATUSES.VERIFIED || EMAIL_STATUS == EMAIL_STATUSES.REJECTED || EMAIL_STATUS == EMAIL_STATUSES.NOT_VERIFIED || EMAIL_STATUS == EMAIL_STATUSES.INVALID || EMAIL_STATUS == EMAIL_STATUSES.HOLD || EMAIL_STATUS == EMAIL_STATUSES.LINK_EXPIRED) resolve(investorObj);
@@ -119,21 +124,26 @@ const processInvestorMobileV3 = async (investorObj) => {
                     investorObj.uccUpdatedAt = Number(new Date());
                     resolve(investorObj);
                 } else {
-
-                    commonFunctions.sendSMS(investorObj, shortURI, (err, res, body) => {
-                        if (REQ_TYPE == UCC_REQUEST_TYPES.EXISTING) investorObj.mobileProcessed = true;
-                        const response = body.split('|')[0];
-                        console.log(response, ">>>>>>>>>", investorObj.uccMobileNo);
-                        if (response == "1701") {
-                            let noMobileAttempts = parseInt(investorObj.mobileAttempts);
-                            noMobileAttempts = noMobileAttempts + 1;
-                            investorObj.mobileAttempts = noMobileAttempts;
-                            investorObj.uccMobileStatus = MOBILE_STATUSES.SENT
-                        } else {
-                            investorObj.uccMobileStatus = MOBILE_STATUSES.SENT 
-                        }
+                    if (REQ_TYPE == UCC_REQUEST_TYPES.EXISTING) {
+                        investorObj.mobileAttempts++;
                         resolve(investorObj);
-                    });
+                    }
+                    else {
+                        commonFunctions.sendSMS(investorObj, shortURI, (err, res, body) => {
+                            if (REQ_TYPE == UCC_REQUEST_TYPES.EXISTING) investorObj.mobileProcessed = true;
+                            const response = body.split('|')[0];
+                            console.log(response, ">>>>>>>>>", investorObj.uccMobileNo);
+                            if (response == "1701") {
+                                let noMobileAttempts = parseInt(investorObj.mobileAttempts);
+                                noMobileAttempts = noMobileAttempts + 1;
+                                investorObj.mobileAttempts = noMobileAttempts;
+                                investorObj.uccMobileStatus = MOBILE_STATUSES.SENT
+                            } else {
+                                investorObj.uccMobileStatus = MOBILE_STATUSES.SENT
+                            }
+                            resolve(investorObj);
+                        });
+                    }
                 }
             }
 

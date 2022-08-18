@@ -14,7 +14,7 @@ const Exchange = new mongoose.Schema({
 
     newAttempts: { type: Number, default: 3 },
     modifiedAttempts: { type: Number, default: 7 },
-    existingAttempts: { type: Number, default: 1 },
+    existingAttempts: { type: Number, default: 30},
     existingDate: { type: Date },
     invalidRecords: { type: Array },
     isExistingDateSelected: { type: Boolean, default: false },
