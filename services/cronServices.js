@@ -238,34 +238,12 @@ const updateInvestor = async (investorObj) => {
         console.error('error on updating userInfo on hyperledger')
     }
 }
-const HandleExistingRecord = (investor) => {
-    if (investor.totalAttempts == 30) {
-        console.log("hereee ")
-        // when email is not already verified 
-        if (!investor.emailProcessed){
-            investor.uccEmailStatus = EMAIL_STATUSES.NOT_VERIFIED;
-            investor.emailProcessed = true;
-        }
-        if(!investor.mobileProcessed){
-            investor.uccMobileStatus = MOBILE_STATUSES.NOT_VERIFIED;
-            investor.mobileProcessed = true;
-        }
-        investor.refined= true ; 
-        updateInvestor(investor);
-    } else {
-        investor.totalAttempts++;
-        updateInvestor(investor)
-    }
-}
 const investorDataOperator = async (investorsData) => {
     try {
         for await (let k of investorsData) {
             let investor = k.Record;
             const EmailProcessed = investor.emailProcessed;
             const MobileProcessed = investor.mobileProcessed
-            if (investor.uccRequestType == UCC_REQUEST_TYPES.EXISTING) {
-                HandleExistingRecord(investor)
-            } else {
                 if (investor.uccEmailStatus == EMAIL_STATUSES.VERIFIED && investor.uccMobileStatus == MOBILE_STATUSES.VERIFIED) { };
                 await processInvestorMobileV3(investor).then(async (investorAfterMobileProcess) => {
                     await processInvestorEmailV3(investorAfterMobileProcess).then(investorAfterEmailProcess => {
@@ -275,7 +253,6 @@ const investorDataOperator = async (investorsData) => {
                         updateInvestor(investorAfterEmailProcess);
                     })
                 });
-            }
         }
     }
     catch (errror) {
