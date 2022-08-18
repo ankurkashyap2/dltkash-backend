@@ -123,6 +123,7 @@ const processInvestorMobileV3 = async (investorObj) => {
                     commonFunctions.sendSMS(investorObj, shortURI, (err, res, body) => {
                         if (REQ_TYPE == UCC_REQUEST_TYPES.EXISTING) investorObj.mobileProcessed = true;
                         const response = body.split('|')[0];
+                        console.log(response, ">>>>>>>>>", investorObj.uccMobileNo);
                         if (response == "1701") {
                             let noMobileAttempts = parseInt(investorObj.mobileAttempts);
                             noMobileAttempts = noMobileAttempts + 1;
