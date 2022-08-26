@@ -54,7 +54,8 @@ exports.INVALID_ERROR_CODES ={
      03:"No email Provided",
      04:"No phone provided",
      05:"RequestType is absent or has invalid value",
-     06:"Unknown",
+     06:"uccPanExampt value should be 'true' or 'false' ",
+     07:"Unknown"
 
 } 
 exports.EMAIL_STATUSES = {

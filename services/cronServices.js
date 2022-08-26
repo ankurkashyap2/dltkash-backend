@@ -131,7 +131,7 @@ const startFileProcessing = async (recordFile, askedExchange) => {
                     else {
                         jsonObj.totalAttempts = 7
                     }
-                    //CHECK FOR NOT APPLICABLE
+                    commonFunctions.validateEmail(jsonObj.uccEmailId)
                     if (jsonObj.uccMobileStatus == MOBILE_STATUSES.NOT_APPLICABLE) {
                         jsonObj.mobileProcessed = true;
                     }
@@ -212,6 +212,9 @@ const sanitizer = (jsonObj) => {
     if (!jsonObj.uccRequestType || (![UCC_REQUEST_TYPES.NEW, UCC_REQUEST_TYPES.EXISTING, UCC_REQUEST_TYPES.MODIFIED].includes(jsonObj.uccRequestType))) {
         return { invalid: true, errCode: 05 }
     }
+    if(!['true','false'].includes(jsonObj.uccPanExempt.toString())){
+        return {invalid:true , errCode:06}
+    }
 
     return { invalid: false }
 
@@ -244,15 +247,15 @@ const investorDataOperator = async (investorsData) => {
             let investor = k.Record;
             const EmailProcessed = investor.emailProcessed;
             const MobileProcessed = investor.mobileProcessed
-                if (investor.uccEmailStatus == EMAIL_STATUSES.VERIFIED && investor.uccMobileStatus == MOBILE_STATUSES.VERIFIED) { };
-                await processInvestorMobileV3(investor).then(async (investorAfterMobileProcess) => {
-                    await processInvestorEmailV3(investorAfterMobileProcess).then(investorAfterEmailProcess => {
-                        // if (!investorAfterEmailProcess.uccEmailStatus || !investorAfterEmailProcess.uccMobileStatus || investorAfterEmailProcess.emailProcessed == false || investorAfterEmailProcess.mobileProcessed == false || (EmailProcessed != investorAfterEmailProcess.emailProcessed) || (MobileProcessed != investorAfterEmailProcess.mobileProcessed)) {
-                        //     updateInvestor(investorAfterEmailProcess);
-                        // }
-                        updateInvestor(investorAfterEmailProcess);
-                    })
-                });
+            if (investor.uccEmailStatus == EMAIL_STATUSES.VERIFIED && investor.uccMobileStatus == MOBILE_STATUSES.VERIFIED) { };
+            await processInvestorMobileV3(investor).then(async (investorAfterMobileProcess) => {
+                await processInvestorEmailV3(investorAfterMobileProcess).then(investorAfterEmailProcess => {
+                    // if (!investorAfterEmailProcess.uccEmailStatus || !investorAfterEmailProcess.uccMobileStatus || investorAfterEmailProcess.emailProcessed == false || investorAfterEmailProcess.mobileProcessed == false || (EmailProcessed != investorAfterEmailProcess.emailProcessed) || (MobileProcessed != investorAfterEmailProcess.mobileProcessed)) {
+                    //     updateInvestor(investorAfterEmailProcess);
+                    // }
+                    updateInvestor(investorAfterEmailProcess);
+                })
+            });
         }
     }
     catch (errror) {
@@ -280,22 +283,26 @@ const sendRequestToFetchInvestors = async (bookmark = "", uccRequestType, refine
             })
         };
         request(options, function (error, response) {
-            if (response.statusCode == 500) {
-                console.error('error on fetching requests from hyperledger', response.body);
-                return;
-            };
-            if (response.statusCode == 404) {
-                console.error('error on fetching requests from hyperledger');
-                return;
-            };
-            const result = JSON.parse(response.body);
-            if (result.results)
-                bookmark = result.bookmark;
-            investorDataOperator(result.results);
-            if (result.results == 0 || result.recordsCount < pageSize) {
-                return;
+            try {
+                if (response.statusCode == 500) {
+                    console.error('error on fetching requests from hyperledger', response.body);
+                    return;
+                };
+                if (response.statusCode == 404) {
+                    console.error('error on fetching requests from hyperledger');
+                    return;
+                };
+                const result = JSON.parse(response.body);
+                if (result.results)
+                    bookmark = result.bookmark;
+                investorDataOperator(result.results);
+                if (result.results == 0 || result.recordsCount < pageSize) {
+                    return;
+                }
+                sendRequestToFetchInvestors(bookmark, uccRequestType, refined);
+            } catch (err) {
+                console.log(err)
             }
-            sendRequestToFetchInvestors(bookmark, uccRequestType, refined);
 
         });
     } catch (error) {
