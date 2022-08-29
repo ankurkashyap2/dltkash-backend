@@ -12,6 +12,7 @@ const commonFunctions = require('./../commonFunctions');
 const Exchange = require('./../models/exchange');
 const { processInvestorMobileV3, processInvestorEmailV3 } = require('../investorFunctions');
 const { incrementCounter } = require('./investorServices');
+const filesLogs = require('../models/filesLogs');
 
 
 const rabbit = new Rabbit(process.env.PROCESS_QUEUE, {
@@ -131,14 +132,14 @@ const startFileProcessing = async (recordFile, askedExchange) => {
                     else {
                         jsonObj.totalAttempts = 7
                     }
-                    commonFunctions.validateEmail(jsonObj.uccEmailId)
+                    // commonFunctions.validateEmail(jsonObj.uccEmailId)
                     if (jsonObj.uccMobileStatus == MOBILE_STATUSES.NOT_APPLICABLE) {
                         jsonObj.mobileProcessed = true;
                     }
                     //************************************ */
                     if (!jsonObj.mobileAttempts) jsonObj.mobileAttempts = 0;
                     if (!jsonObj.emailAttempts) jsonObj.emailAttempts = 0;
-                    if (jsonObj.fileName) jsonObj.fileName = recordFile.fileName
+                    if (!jsonObj.fileName) jsonObj.fileName = recordFile.fileName
                     if (!jsonObj.mobileProcessed) jsonObj.mobileProcessed = false;
                     if (!jsonObj.emailProcessed) jsonObj.emailProcessed = false;
                     if (jsonObj.uccEmailId) jsonObj.uccEmailId = jsonObj.uccEmailId.toLowerCase();
@@ -212,8 +213,8 @@ const sanitizer = (jsonObj) => {
     if (!jsonObj.uccRequestType || (![UCC_REQUEST_TYPES.NEW, UCC_REQUEST_TYPES.EXISTING, UCC_REQUEST_TYPES.MODIFIED].includes(jsonObj.uccRequestType))) {
         return { invalid: true, errCode: 05 }
     }
-    if(!['true','false'].includes(jsonObj.uccPanExempt.toString())){
-        return {invalid:true , errCode:06}
+    if (!['true', 'false'].includes(jsonObj.uccPanExempt.toString())) {
+        return { invalid: true, errCode: 06 }
     }
 
     return { invalid: false }
@@ -241,21 +242,20 @@ const updateInvestor = async (investorObj) => {
         console.error('error on updating userInfo on hyperledger')
     }
 }
-const investorDataOperator = async (investorsData) => {
+const investorDataOperator = async (investorsData, FILES_PROCESSED_TODAY) => {
     try {
         for await (let k of investorsData) {
             let investor = k.Record;
-            const EmailProcessed = investor.emailProcessed;
-            const MobileProcessed = investor.mobileProcessed
-            if (investor.uccEmailStatus == EMAIL_STATUSES.VERIFIED && investor.uccMobileStatus == MOBILE_STATUSES.VERIFIED) { };
-            await processInvestorMobileV3(investor).then(async (investorAfterMobileProcess) => {
-                await processInvestorEmailV3(investorAfterMobileProcess).then(investorAfterEmailProcess => {
-                    // if (!investorAfterEmailProcess.uccEmailStatus || !investorAfterEmailProcess.uccMobileStatus || investorAfterEmailProcess.emailProcessed == false || investorAfterEmailProcess.mobileProcessed == false || (EmailProcessed != investorAfterEmailProcess.emailProcessed) || (MobileProcessed != investorAfterEmailProcess.mobileProcessed)) {
-                    //     updateInvestor(investorAfterEmailProcess);
-                    // }
-                    updateInvestor(investorAfterEmailProcess);
-                })
-            });
+            if (!FILES_PROCESSED_TODAY.includes(investor.fileName)) {
+                await processInvestorMobileV3(investor).then(async (investorAfterMobileProcess) => {
+                    await processInvestorEmailV3(investorAfterMobileProcess).then(investorAfterEmailProcess => {
+                        // if (!investorAfterEmailProcess.uccEmailStatus || !investorAfterEmailProcess.uccMobileStatus || investorAfterEmailProcess.emailProcessed == false || investorAfterEmailProcess.mobileProcessed == false || (EmailProcessed != investorAfterEmailProcess.emailProcessed) || (MobileProcessed != investorAfterEmailProcess.mobileProcessed)) {
+                        //     updateInvestor(investorAfterEmailProcess);
+                        // }
+                        updateInvestor(investorAfterEmailProcess);
+                    })
+                });
+            }
         }
     }
     catch (errror) {
@@ -282,7 +282,7 @@ const sendRequestToFetchInvestors = async (bookmark = "", uccRequestType, refine
                 "bookmark": `${bookmark}`,
             })
         };
-        request(options, function (error, response) {
+        request(options, async function (error, response) {
             try {
                 if (response.statusCode == 500) {
                     console.error('error on fetching requests from hyperledger', response.body);
@@ -295,7 +295,10 @@ const sendRequestToFetchInvestors = async (bookmark = "", uccRequestType, refine
                 const result = JSON.parse(response.body);
                 if (result.results)
                     bookmark = result.bookmark;
-                investorDataOperator(result.results);
+
+                const filesProcessToday = await filesLogs.find();
+                //we sending here fileProcessToday array 
+                investorDataOperator(result.results, filesProcessToday[0].filesProcessToday);
                 if (result.results == 0 || result.recordsCount < pageSize) {
                     return;
                 }

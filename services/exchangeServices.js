@@ -6,6 +6,7 @@ const request = require('request')
 const User = require('./../models/user');
 const Exchange = require('./../models/exchange');
 const mongoose = require('mongoose');
+const FilesLogs = require('./../models/filesLogs');
 const cronServices = require('./cronServices');
 const commonFunctions = require('../commonFunctions');
 const uploadFileToServer = async (req, res) => {
@@ -20,6 +21,8 @@ const uploadFileToServer = async (req, res) => {
             file.pipe(fstream);
             fstream.on('close', async () => {
                 console.log(`Upload of '${filename.filename}' finished`);
+                const alreadyExsits = await RecordFile.find({ fileName: filename.filename });
+                // if (alreadyExsits.length) return res.status(RESPONSE_STATUS.CONFLICT).json({ message: "RecordFile with same Name already Exsits!" });
                 const recordFileObj = {
                     fileName: filename.filename,
                     status: "UNPROCESSED",
@@ -28,6 +31,16 @@ const uploadFileToServer = async (req, res) => {
                 const FileForSearch = await RecordFile.create(recordFileObj);
                 const FileForSearch_id = FileForSearch._id;
                 cronServices.checkForUnprocessedFiles(FileForSearch_id).then(() => { });
+                const fileLogs = await FilesLogs.find();
+                if (fileLogs.length == 0) {
+                    const fileLogObj = {
+                        filesProcessToday: [FileForSearch.fileName]
+                    };
+                    FilesLogs.create(fileLogObj);
+                } else {
+                    fileLogs[0].filesProcessToday.push(FileForSearch.fileName);
+                    fileLogs[0].save();
+                }
                 return res.status(RESPONSE_STATUS.SUCCESS).json({ message: "File upload success.And Processing started.!" });
             });
             fstream.on('error', (error) => {

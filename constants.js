@@ -47,17 +47,17 @@ exports.ROLES = {
         BLOCKED_USER: "This user is inactive, Please contact to admin"
 
     };
-exports.INVALID_ERROR_CODES ={
-     00:"uccPanExempt is true but PAN is present or DpID or ClientId are absent", 
-     01:"uccPanExempt is false  but PAN is not present",
-     02:"uccPanExempt is absent or has invalid value",
-     03:"No email Provided",
-     04:"No phone provided",
-     05:"RequestType is absent or has invalid value",
-     06:"uccPanExampt value should be 'true' or 'false' ",
-     07:"Unknown"
+exports.INVALID_ERROR_CODES = {
+    00: "uccPanExempt is true but PAN is present or DpID or ClientId are absent",
+    01: "uccPanExempt is false  but PAN is not present",
+    02: "uccPanExempt is absent or has invalid value",
+    03: "No email Provided",
+    04: "No phone provided",
+    05: "RequestType is absent or has invalid value",
+    06: "uccPanExampt value should be 'true' or 'false' ",
+    07: "Unknown"
 
-} 
+}
 exports.EMAIL_STATUSES = {
     SENT: "SENT",
     INVALID: "INVALID",
