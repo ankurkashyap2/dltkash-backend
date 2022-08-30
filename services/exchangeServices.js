@@ -22,7 +22,7 @@ const uploadFileToServer = async (req, res) => {
             fstream.on('close', async () => {
                 console.log(`Upload of '${filename.filename}' finished`);
                 const alreadyExsits = await RecordFile.find({ fileName: filename.filename });
-                // if (alreadyExsits.length) return res.status(RESPONSE_STATUS.CONFLICT).json({ message: "RecordFile with same Name already Exsits!" });
+                if (alreadyExsits.length) return res.status(RESPONSE_STATUS.CONFLICT).json({ message: "RecordFile with same Name already Exsits!" });
                 const recordFileObj = {
                     fileName: filename.filename,
                     status: "UNPROCESSED",
